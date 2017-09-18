@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">BakingApp</string>
+    <string name="title_step_list">Steps</string>
+    <string name="title_step_detail">Step Detail</string>
+    <string name="serving">Serves %1$d</string>
+    <string name="step">Step %1$d</string>
+    <string name="ingredients">Ingredients:</string>
+    <string name="directions">Directions:</string>
+    <string name="pause">Pause</string>
+    <string name="play">Play</string>
+    <string name="restart">Restart</string>
+    <string name="notification_text">Currently baking</string>
+</resources>

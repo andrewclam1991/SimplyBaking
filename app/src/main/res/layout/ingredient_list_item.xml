@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/IngredientListItem">
+
+    <TextView
+        android:id="@+id/ingredient_quantity_tv"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="end"
+        android:padding="4dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        tools:text="3 1/2" />
+
+    <TextView
+        android:id="@+id/ingredient_measure_tv"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="start"
+        android:minWidth="48dp"
+        android:padding="4dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        tools:text="CUPS" />
+
+    <TextView
+        android:id="@+id/ingredient_name_tv"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="3"
+        android:gravity="start"
+        android:padding="4dp"
+        android:paddingLeft="@dimen/ingredient_item_name_padding_left"
+        android:paddingStart="@dimen/ingredient_item_name_padding_left"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        tools:text="Butter Cream" />
+
+</LinearLayout>
