@@ -87,6 +87,12 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
      * Context - for getting resources
      */
     private Context mContext;
+
+    /**
+     * AppBarLayout of the activity
+     */
+    private CollapsingToolbarLayout mAppBarLayout;
+
     /**
      * TODO [ExoPlayer Media Playback ] Step 1 - Declare the Player required vars
      * MediaSession, ExoPlayer and its UI Implementation
@@ -129,14 +135,14 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
             assert mItem != null;
 
             Activity activity = this.getActivity();
-            CollapsingToolbarLayout appBarLayout = activity.findViewById(R.id.toolbar_layout);
-            if (appBarLayout != null) {
+            mAppBarLayout = activity.findViewById(R.id.toolbar_layout);
+            if (mAppBarLayout != null) {
                 String title = getString(
                         R.string.step, mItem.getId())
                         + " "
                         + mItem.getShortDescription();
 
-                appBarLayout.setTitle(title);
+                mAppBarLayout.setTitle(title);
             }
 
         }
@@ -161,10 +167,11 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
             setupMediaSession();
             setupExoPlayer(Uri.parse(videoURL));
 
-            // Has Video
-            // Hide the description if it is in landscape mode,
-            // let video take full screen if it isn't also in two pane mode (landscape in tablets)
+            // Has Video (Video Full Screen Mode)
+            // If the device is in landscape mode, let video take full screen mode on Phones
+            // (if it isn't also in two pane mode, landscape in tablets)
             if (rootView.findViewById(R.id.step_detail_container_land) != null && !mTwoPane) {
+
                 stepDescriptionTv.setVisibility(View.GONE);
             }
         } else {
