@@ -8,12 +8,14 @@
 
     <!-- ExoPlayer View (If Available)-->
     <com.google.android.exoplayer2.ui.SimpleExoPlayerView
+        android:background="@color/colorBlack"
         android:id="@+id/step_video_player_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1" />
 
     <ScrollView
+        android:id="@+id/step_detail_content_sv"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">

@@ -87,6 +87,17 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
     private Context mContext;
 
     /**
+     * Step Title
+     */
+    private String mTitle;
+
+    /**
+     * SavedInstanceState Key
+     */
+    private final static String EXTRA_STEP_TITLE = "extra_step_title";
+    private final static String EXTRA_TWO_PANE = "extra_two_pane";
+
+    /**
      * Interface Callback listener (parent activity) to change title
      */
     private OnStepDetailFragmentInteraction mListener;
@@ -131,25 +142,17 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
             mItem = Parcels.unwrap(getArguments().getParcelable(ARG_RECIPE_STEP));
             mTwoPane = getArguments().getBoolean(ARG_TWO_PANE_MODE);
             assert mItem != null;
-
-            String title = getString(
-                    R.string.step, mItem.getId())
-                    + " "
-                    + mItem.getShortDescription();
-
-            // Call activities to set the title of the app bar
-            // two pane mode doesn't need a step-by-step title change
-            if (!mTwoPane) {
-                mListener.setTitle(title);
-            }
-
         }
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.step_detail, container, false);
+
+        // Setup the activity bar title (show step and a short description)
+        setupTitle(savedInstanceState);
 
         // Reference View and run assertion checks before proceeding
         TextView stepDescriptionTv = rootView.findViewById(R.id.step_detail);
@@ -173,6 +176,7 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
             // If the device is in landscape mode, let video take full screen mode on Phones
             // (if it isn't also in two pane mode, landscape in tablets)
             if (rootView.findViewById(R.id.step_detail_container_land) != null && !mTwoPane) {
+                rootView.findViewById(R.id.step_detail_content_sv).setVisibility(View.GONE);
                 stepDescriptionTv.setVisibility(View.GONE);
                 stepThumbnailIv.setVisibility(View.GONE);
             }
@@ -201,6 +205,30 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
         return rootView;
     }
 
+    /**
+     * subroutine method to set the app bar title in the activity level
+     * using the listener callback and savedInstanceState to handle device rotation
+     *
+     * @param savedInstanceState the activity/fragment's savedInstanceState
+     */
+    private void setupTitle(Bundle savedInstanceState) {
+        if (savedInstanceState != null)
+        {
+            mTitle = savedInstanceState.getString(EXTRA_STEP_TITLE);
+            mTwoPane = savedInstanceState.getBoolean(EXTRA_TWO_PANE);
+        }else
+        {
+            // No saved instance state, form the title using the item
+            mTitle = getString(R.string.step, mItem.getId()) + " "
+                    + mItem.getShortDescription();
+        }
+
+        // Call activities to set the title of the app bar
+        // two pane mode doesn't need a step-by-step title change
+        if (!mTwoPane) {
+            mListener.setTitle(mTitle);
+        }
+    }
 
     /**
      * TODO [ExoPlayer Media Playback ] Step 2 - Setup the ExoPlayView
@@ -220,6 +248,9 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
             // loading, this will be done asynchronously
             Picasso.with(mContext).load(thumbnailURLStr).into(this);
         }
+
+        /* PlayView Control Customizations */
+        mExoPlayerView.setControllerAutoShow(false);
     }
 
     /**
@@ -270,6 +301,8 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
             // Create an instance of the ExoPlayer.
             TrackSelector trackSelector = new DefaultTrackSelector();
             mExoPlayer = ExoPlayerFactory.newSimpleInstance(mContext, trackSelector);
+
+            // Set player to the player UI view
             mExoPlayerView.setPlayer(mExoPlayer);
 
             // Set the ExoPlayer.EventListener to this fragment.
@@ -343,10 +376,14 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
                 MediaButtonReceiver.buildMediaButtonPendingIntent
                         (mContext, PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS));
 
+        Intent intent = new Intent(mContext, StepDetailActivity.class);
+        intent.putExtra(ARG_RECIPE_STEP, Parcels.wrap(mItem));
+        intent.putExtra(ARG_TWO_PANE_MODE,mTwoPane);
+
         PendingIntent contentPendingIntent = PendingIntent.getActivity(
                 mContext,
                 NOTIFICATION_PENDING_INTENT_RC,
-                new Intent(mContext, StepListActivity.class),
+                intent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
         builder.setContentTitle(getString(R.string.app_name))
@@ -466,8 +503,10 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
 
 
     /**
-     * Fragment Life Cycle Callbacks
+     * Fragment Life Cycle Callbacks and SavedInstance
      */
+
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -495,6 +534,13 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
         // Pause the video playback
         if (mExoPlayer != null) mExoPlayer.setPlayWhenReady(false);
 
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(EXTRA_STEP_TITLE, mTitle);
+        outState.putBoolean(EXTRA_TWO_PANE,mTwoPane);
     }
 
     @Override
