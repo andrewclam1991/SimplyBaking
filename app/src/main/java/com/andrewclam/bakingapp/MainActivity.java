@@ -3,8 +3,11 @@ package com.andrewclam.bakingapp;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
+import android.widget.ProgressBar;
 
 import com.andrewclam.bakingapp.adapters.RecipeRecyclerViewAdapter;
 import com.andrewclam.bakingapp.asyncTasks.FetchRecipeAsyncTask;
@@ -28,6 +31,11 @@ public class MainActivity extends AppCompatActivity implements
     private RecyclerView.LayoutManager mLayoutManager;
     private RecipeRecyclerViewAdapter mAdapter;
 
+    /**
+     * Progress bar to show user the data is loading
+     */
+    private ProgressBar mProgressBar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,15 +44,30 @@ public class MainActivity extends AppCompatActivity implements
         /* Recipes List Setup */
         mRecipeRv = findViewById(R.id.recipe_list_rv);
         mAdapter = new RecipeRecyclerViewAdapter(this, this);
-        mLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
-        mRecipeRv.setLayoutManager(mLayoutManager);
         mRecipeRv.setAdapter(mAdapter);
+
+        // Determine device's orientation and adjust layout type accordingly
+        if (findViewById(R.id.recipe_list_container_land) == null) {
+            // The device is not in landscape mode, layout the recipe list in
+            // a default linear layout mode
+            mLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        }else
+        {
+            // The device is in landscape mode, use grid view
+            mLayoutManager = new GridLayoutManager(this,3);
+        }
+        mRecipeRv.setLayoutManager(mLayoutManager);
+
 
         /* Async Load Recipe Data */
         new FetchRecipeAsyncTask()
                 .setDataURL(DATA_URL)
                 .setListener(this)
                 .execute();
+
+        /* Loading Progress Bar - Visible*/
+        mProgressBar = findViewById(R.id.progress_bar);
+        mProgressBar.setVisibility(View.VISIBLE);
     }
 
 
@@ -58,6 +81,9 @@ public class MainActivity extends AppCompatActivity implements
     public void onRecipesReady(ArrayList<Recipe> recipes) {
         mAdapter.setRecipeData(recipes);
         mAdapter.notifyDataSetChanged();
+
+        /* Loading Progress Bar - Data Loaded, Be GONE */
+        mProgressBar.setVisibility(View.GONE);
     }
 
     /**

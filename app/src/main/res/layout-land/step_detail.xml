@@ -14,13 +14,19 @@
         android:layout_height="wrap_content"/>
 
     <!-- Recipe Description -->
-    <TextView
-        android:id="@+id/step_detail"
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:padding="16dp"
-        android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-        tools:text='Just put the eggs in and you are done!"' />
+        android:layout_weight="1">
+
+        <TextView
+            android:id="@+id/step_detail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+            tools:text='Just put the eggs in and you are done!"' />
+
+    </ScrollView>
 
 </LinearLayout>

@@ -150,6 +150,9 @@ public class StepListActivity extends AppCompatActivity {
             arguments.putParcelable(StepDetailFragment.ARG_RECIPE_STEP,
                     Parcels.wrap(mRecipe.getSteps().get(0)));
 
+            arguments.putBoolean(StepDetailFragment.ARG_TWO_PANE_MODE,
+                    mTwoPane);
+
             StepDetailFragment fragment = new StepDetailFragment();
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction()
