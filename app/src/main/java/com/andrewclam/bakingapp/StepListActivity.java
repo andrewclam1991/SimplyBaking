@@ -34,7 +34,8 @@ import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE;
  * item details. On tablets, the activity presents the list of items and
  * item details side-by-side using two vertical panes.
  */
-public class StepListActivity extends AppCompatActivity {
+public class StepListActivity extends AppCompatActivity implements
+        StepDetailFragment.OnStepDetailFragmentInteraction{
 
     /**
      * Log Tag
@@ -89,6 +90,7 @@ public class StepListActivity extends AppCompatActivity {
         assert nameTv != null;
         toolbar.setTitle(mRecipe.getName());
         nameTv.setText(mRecipe.getName());
+
         assert servingTv != null;
         servingTv.setText(getString(R.string.serving, mRecipe.getServings()));
 
@@ -98,6 +100,7 @@ public class StepListActivity extends AppCompatActivity {
 
         assert ingredientRv != null;
         setupIngredientsRecyclerView(ingredientRv);
+
         assert stepsRv != null;
         setupStepsRecyclerView(stepsRv);
     }
@@ -159,6 +162,15 @@ public class StepListActivity extends AppCompatActivity {
                     .replace(R.id.step_detail_container, fragment)
                     .commit();
         }
+    }
+
+    /**
+     * Step detail fragment interface callback, call to change the activity's title
+     * @param title the formed particular title for a step fragment
+     */
+    @Override
+    public void setTitle(String title) {
+        if(getSupportActionBar() != null) getSupportActionBar().setTitle(title);
     }
 
     /**

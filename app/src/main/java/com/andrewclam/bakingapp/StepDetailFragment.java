@@ -1,6 +1,5 @@
 package com.andrewclam.bakingapp;
 
-import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -13,7 +12,6 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.media.session.MediaButtonReceiver;
@@ -89,9 +87,9 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
     private Context mContext;
 
     /**
-     * AppBarLayout of the activity
+     * Interface Callback listener (parent activity) to change title
      */
-    private CollapsingToolbarLayout mAppBarLayout;
+    private OnStepDetailFragmentInteraction mListener;
 
     /**
      * TODO [ExoPlayer Media Playback ] Step 1 - Declare the Player required vars
@@ -134,15 +132,15 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
             mTwoPane = getArguments().getBoolean(ARG_TWO_PANE_MODE);
             assert mItem != null;
 
-            Activity activity = this.getActivity();
-            mAppBarLayout = activity.findViewById(R.id.toolbar_layout);
-            if (mAppBarLayout != null) {
-                String title = getString(
-                        R.string.step, mItem.getId())
-                        + " "
-                        + mItem.getShortDescription();
+            String title = getString(
+                    R.string.step, mItem.getId())
+                    + " "
+                    + mItem.getShortDescription();
 
-                mAppBarLayout.setTitle(title);
+            // Call activities to set the title of the app bar
+            // two pane mode doesn't need a step-by-step title change
+            if (!mTwoPane) {
+                mListener.setTitle(title);
             }
 
         }
@@ -153,14 +151,18 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.step_detail, container, false);
 
-        // Reference View
+        // Reference View and run assertion checks before proceeding
         TextView stepDescriptionTv = rootView.findViewById(R.id.step_detail);
         ImageView stepThumbnailIv = rootView.findViewById(R.id.step_thumbnail);
         mExoPlayerView = rootView.findViewById(R.id.step_video_player_view);
 
+        assert stepDescriptionTv != null;
+        assert stepThumbnailIv != null;
+        assert mExoPlayerView != null;
+
         /* Bind Data (Video, Image Thumbnail and Description) */
         // Bind Step Video
-        // Check if the recipe step has a video
+        // Check if the recipe step has a video (may be null or empty)
         String videoURL = mItem.getVideoURL();
         if (videoURL != null && !videoURL.isEmpty()) {
             setupExoPlayerView();
@@ -171,8 +173,8 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
             // If the device is in landscape mode, let video take full screen mode on Phones
             // (if it isn't also in two pane mode, landscape in tablets)
             if (rootView.findViewById(R.id.step_detail_container_land) != null && !mTwoPane) {
-
                 stepDescriptionTv.setVisibility(View.GONE);
+                stepThumbnailIv.setVisibility(View.GONE);
             }
         } else {
             // No video for this particular step, hide the player view
@@ -180,7 +182,7 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
         }
 
 
-        // Bind Step Image Thumbnail
+        // Bind Step Image Thumbnail (may be null or empty)
         // Check if there is a thumbnail image in the step
         String thumbnailURL = mItem.getThumbnailURL();
         if (thumbnailURL != null && !thumbnailURL.isEmpty())
@@ -226,7 +228,6 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
      * and media controller.
      */
     private void setupMediaSession() {
-
         // Create a MediaSessionCompat.
         mMediaSession = new MediaSessionCompat(mContext, TAG);
 
@@ -299,6 +300,8 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
     private void showNotification(PlaybackStateCompat state) {
         mNotificationManager = (NotificationManager)
                 mContext.getSystemService(NOTIFICATION_SERVICE);
+
+        assert mNotificationManager != null;
 
         /* Implement NotificationChannel for Devices running Android O or later*/
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -460,9 +463,26 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
 
     }
 
+
+
     /**
      * Fragment Life Cycle Callbacks
      */
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnStepDetailFragmentInteraction)
+        {
+            mListener = (OnStepDetailFragmentInteraction) context;
+        }else
+        {
+            throw new RuntimeException(
+                    context.getClass().getSimpleName()
+                    + " must implement " +
+                    OnStepDetailFragmentInteraction.class.getSimpleName());
+        }
+    }
+
     @Override
     public void onPause() {
         super.onPause();
@@ -525,5 +545,13 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
         public void onSkipToPrevious() {
             mExoPlayer.seekTo(0);
         }
+    }
+
+    /**
+     * Interface
+     */
+    public interface OnStepDetailFragmentInteraction
+    {
+        void setTitle(String title);
     }
 }

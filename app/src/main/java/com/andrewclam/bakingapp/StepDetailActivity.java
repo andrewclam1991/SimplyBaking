@@ -13,13 +13,14 @@ import android.view.MenuItem;
  * item details are presented side-by-side with a list of items
  * in a {@link StepListActivity}.
  */
-public class StepDetailActivity extends AppCompatActivity {
+public class StepDetailActivity extends AppCompatActivity implements
+        StepDetailFragment.OnStepDetailFragmentInteraction {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_step_detail);
-        Toolbar toolbar = findViewById(R.id.detail_toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         // Show the Up button in the action bar.
@@ -69,5 +70,14 @@ public class StepDetailActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * Step detail fragment interface callback, call to change the activity's title
+     * @param title the formed particular title for a step fragment
+     */
+    @Override
+    public void setTitle(String title) {
+        if(getSupportActionBar() != null) getSupportActionBar().setTitle(title);
     }
 }
