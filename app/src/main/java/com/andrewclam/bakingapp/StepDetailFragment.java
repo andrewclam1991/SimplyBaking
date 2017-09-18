@@ -22,6 +22,7 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.andrewclam.bakingapp.models.Step;
@@ -148,6 +149,7 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
 
         // Reference View
         TextView stepDescriptionTv = rootView.findViewById(R.id.step_detail);
+        ImageView stepThumbnailIv = rootView.findViewById(R.id.step_thumbnail);
         mExoPlayerView = rootView.findViewById(R.id.step_video_player_view);
 
         // Bind Data

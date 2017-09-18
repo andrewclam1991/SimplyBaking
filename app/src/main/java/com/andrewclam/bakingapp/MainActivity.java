@@ -48,12 +48,12 @@ public class MainActivity extends AppCompatActivity implements
 
         // Determine device's orientation and adjust layout type accordingly
         if (findViewById(R.id.recipe_list_container_land) == null) {
-            // The device is not in landscape mode, layout the recipe list in
-            // a default linear layout mode
+            // The device is not in landscape mode,
+            // layout the recipe list in a linear layout
             mLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         }else
         {
-            // The device is in landscape mode, use grid view
+            // The device is in landscape mode, use grid layout
             mLayoutManager = new GridLayoutManager(this,3);
         }
         mRecipeRv.setLayoutManager(mLayoutManager);
