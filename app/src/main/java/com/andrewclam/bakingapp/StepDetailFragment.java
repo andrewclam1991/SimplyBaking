@@ -63,6 +63,12 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
      */
     public static final String ARG_RECIPE_STEP = "item_id";
     /**
+     * The fragment argument representing the boolean flag on whether this fragment is loaded
+     * as part of a two-pane layout
+     */
+    public static final String ARG_TWO_PANE_MODE = "two_pane_mode";
+
+    /**
      * Debug TAG
      */
     private static final String TAG = StepDetailFragment.class.getSimpleName();
@@ -70,6 +76,12 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
      * The Step content this fragment is presenting.
      */
     private Step mItem;
+
+    /**
+     * The boolean flag to keep track whether the fragment is displayed in two pane mode
+     */
+    private boolean mTwoPane;
+
     /**
      * Context - for getting resources
      */
@@ -112,6 +124,7 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
             // arguments. In a real-world scenario, use a Loader
             // to load content from a content provider.
             mItem = Parcels.unwrap(getArguments().getParcelable(ARG_RECIPE_STEP));
+            mTwoPane = getArguments().getBoolean(ARG_TWO_PANE_MODE);
             assert mItem != null;
 
             Activity activity = this.getActivity();
@@ -148,10 +161,10 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
             setupMediaSession();
             setupExoPlayer(Uri.parse(videoURL));
 
-            // Has Video,
+            // Has Video
             // Hide the description if it is in landscape mode,
-            // let video take full screen
-            if (rootView.findViewById(R.id.step_detail_container_land) != null) {
+            // let video take full screen if it isn't also in two pane mode (landscape in tablets)
+            if (rootView.findViewById(R.id.step_detail_container_land) != null && !mTwoPane) {
                 stepDescriptionTv.setVisibility(View.GONE);
             }
         } else {

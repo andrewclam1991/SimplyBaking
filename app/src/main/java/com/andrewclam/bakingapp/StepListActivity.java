@@ -205,6 +205,9 @@ public class StepListActivity extends AppCompatActivity {
                         arguments.putParcelable(StepDetailFragment.ARG_RECIPE_STEP,
                                 Parcels.wrap(holder.getStepItem()));
 
+                        arguments.putBoolean(StepDetailFragment.ARG_TWO_PANE_MODE,
+                                mTwoPane);
+
                         StepDetailFragment fragment = new StepDetailFragment();
                         fragment.setArguments(arguments);
                         getSupportFragmentManager().beginTransaction()
@@ -217,6 +220,7 @@ public class StepListActivity extends AppCompatActivity {
                         Intent intent = new Intent(context, StepDetailActivity.class);
                         intent.putExtra(StepDetailFragment.ARG_RECIPE_STEP,
                                 Parcels.wrap(holder.getStepItem()));
+                        intent.putExtra(StepDetailFragment.ARG_TWO_PANE_MODE,mTwoPane);
 
                         context.startActivity(intent);
                     }

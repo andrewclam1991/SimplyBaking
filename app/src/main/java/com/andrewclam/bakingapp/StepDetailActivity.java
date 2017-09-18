@@ -43,6 +43,10 @@ public class StepDetailActivity extends AppCompatActivity {
             Bundle arguments = new Bundle();
             arguments.putParcelable(StepDetailFragment.ARG_RECIPE_STEP,
                     getIntent().getParcelableExtra(StepDetailFragment.ARG_RECIPE_STEP));
+
+            arguments.putBoolean(StepDetailFragment.ARG_TWO_PANE_MODE,
+                    getIntent().getBooleanExtra(StepDetailFragment.ARG_TWO_PANE_MODE, false));
+
             StepDetailFragment fragment = new StepDetailFragment();
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction()
