@@ -14,12 +14,11 @@
 
     <TextView
         android:id="@+id/step_detail"
-        style="?android:attr/textAppearanceLarge"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:padding="16dp"
-        android:textIsSelectable="true"
+        android:textAppearance="@style/TextAppearance.AppCompat.Headline"
         tools:text='Just put the eggs in and you are done!"' />
 
 </LinearLayout>

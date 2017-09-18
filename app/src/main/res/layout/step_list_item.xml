@@ -14,7 +14,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAllCaps="true"
-        android:textAppearance="@style/Base.TextAppearance.AppCompat.Body2"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
         tools:text="Step 1" />
 
     <TextView
@@ -23,6 +23,6 @@
         android:layout_height="wrap_content"
         android:paddingEnd="@dimen/list_item_padding_left_right"
         android:paddingStart="@dimen/list_item_padding_left_right"
-        android:textAppearance="@style/Base.TextAppearance.AppCompat.Body1"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
         tools:text="Put stuff in the pan" />
 </LinearLayout>
