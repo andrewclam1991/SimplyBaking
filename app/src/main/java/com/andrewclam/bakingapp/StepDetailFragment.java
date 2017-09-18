@@ -86,10 +86,13 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
      * MediaStyle Notification
      */
     private NotificationManager mNotificationManager;
+    private static MediaSessionCompat mMediaSession;
     private static final int NOTIFICATION_PENDING_INTENT_RC = 2333;
     private static final int NOTIFICATION_ID = 1;
     private static final String NOTIFICATION_CHANNEL_ID = PACKAGE_NAME + ".media_notification";
-    private static MediaSessionCompat mMediaSession;
+    private static final String NOTIFICATION_CHANNEL_DESCRIPTION = PACKAGE_NAME +
+            " media style notification";
+
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
@@ -109,6 +112,7 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
             // arguments. In a real-world scenario, use a Loader
             // to load content from a content provider.
             mItem = Parcels.unwrap(getArguments().getParcelable(ARG_RECIPE_STEP));
+            assert mItem != null;
 
             Activity activity = this.getActivity();
             CollapsingToolbarLayout appBarLayout = activity.findViewById(R.id.toolbar_layout);
@@ -129,50 +133,30 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.step_detail, container, false);
 
-        if (mItem != null) {
-            // Reference View
-            TextView stepDescriptionTv = rootView.findViewById(R.id.step_detail);
+        // Reference View
+        TextView stepDescriptionTv = rootView.findViewById(R.id.step_detail);
+        mExoPlayerView = rootView.findViewById(R.id.step_video_player_view);
 
-            // Bind Data
-            // Show the step description as text in a TextView.
-            stepDescriptionTv.setText(mItem.getDescription());
+        // Bind Data
+        // Show the step description as text in a TextView.
+        stepDescriptionTv.setText(mItem.getDescription());
 
-            // Check if the recipe step has a video
-            String videoURL = mItem.getVideoURL();
-            if (videoURL != null && !videoURL.isEmpty()) {
-                mExoPlayerView = rootView.findViewById(R.id.step_video_player_view);
-                setupExoPlayerView();
-                setupMediaSession();
-                setupExoPlayer(Uri.parse(videoURL));
+        // Check if the recipe step has a video
+        String videoURL = mItem.getVideoURL();
+        if (videoURL != null && !videoURL.isEmpty()) {
+            setupExoPlayerView();
+            setupMediaSession();
+            setupExoPlayer(Uri.parse(videoURL));
+
+            // Has Video,
+            // Hide the description if it is in landscape mode,
+            // let video take full screen
+            if (rootView.findViewById(R.id.step_detail_container_land) != null) {
+                stepDescriptionTv.setVisibility(View.GONE);
             }
-
-            // Check if it is in landscape mode
-
-        }
-
-
-
-        if (mItem != null) {
-            // Reference Views
-            // Find the ExoPlayerView and the Step description views
-            mExoPlayerView = rootView.findViewById(R.id.step_video_player_view);
-            TextView stepDescriptionTv = rootView.findViewById(R.id.step_detail);
-
-            // Bind Data
-            // Show the step description as text in a TextView.
-            stepDescriptionTv.setText(mItem.getDescription());
-
-            // Setup the mExoPlayerView, MediaSession and exoPlayer
-            String videoURL = mItem.getVideoURL();
-            if (videoURL != null && !videoURL.isEmpty()) {
-                setupExoPlayerView();
-                setupMediaSession();
-                setupExoPlayer(Uri.parse(videoURL));
-            }else
-            {
-                // No video for this particular step, hide the player view
-                mExoPlayerView.setVisibility(GONE);
-            }
+        } else {
+            // No video for this particular step, hide the player view
+            mExoPlayerView.setVisibility(GONE);
         }
 
         return rootView;
@@ -279,15 +263,16 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
         mNotificationManager = (NotificationManager)
                 mContext.getSystemService(NOTIFICATION_SERVICE);
 
+        /* Implement NotificationChannel for Devices running Android O or later*/
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel notificationChannel = new NotificationChannel(
                     NOTIFICATION_CHANNEL_ID,
-                    "SimpleBakingApp Media Notification",
+                    NOTIFICATION_CHANNEL_DESCRIPTION,
                     NotificationManager.IMPORTANCE_LOW
             );
 
             // Configure the notification channel.
-            notificationChannel.setDescription("Channel description");
+            notificationChannel.setDescription(NOTIFICATION_CHANNEL_DESCRIPTION);
             notificationChannel.enableLights(true);
             notificationChannel.setLightColor(Color.RED);
             notificationChannel.enableVibration(false);
@@ -451,6 +436,7 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
         }
 
         // Pause the video playback
+        if (mExoPlayer != null) mExoPlayer.setPlayWhenReady(false);
 
     }
 
@@ -460,15 +446,14 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
         // Release the player when the fragment is destroyed, and
         // mark media session non=active
         releasePlayer();
-        if (mMediaSession != null) {
-            mMediaSession.setActive(false);
-        }
+        if (mMediaSession != null) mMediaSession.setActive(false);
+
     }
 
     /**
      * TODO [ExoPlayer Media Playback ] Step 6 - Handles external client controls via Receiver
      * setup a broadcast receiver and handle mediaSession callbacks onReceive
-     *
+     * <p>
      * Broadcast Receiver registered to receive the MEDIA_BUTTON intent coming from clients.
      */
     public static class MediaReceiver extends BroadcastReceiver {
@@ -495,7 +480,9 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
         }
 
         @Override
-        public void onPause() {mExoPlayer.setPlayWhenReady(false);}
+        public void onPause() {
+            mExoPlayer.setPlayWhenReady(false);
+        }
 
         @Override
         public void onSkipToPrevious() {
