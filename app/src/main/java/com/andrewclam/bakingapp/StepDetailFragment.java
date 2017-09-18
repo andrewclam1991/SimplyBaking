@@ -152,10 +152,8 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
         ImageView stepThumbnailIv = rootView.findViewById(R.id.step_thumbnail);
         mExoPlayerView = rootView.findViewById(R.id.step_video_player_view);
 
-        // Bind Data
-        // Show the step description as text in a TextView.
-        stepDescriptionTv.setText(mItem.getDescription());
-
+        /* Bind Data (Video, Image Thumbnail and Description) */
+        // Bind Step Video
         // Check if the recipe step has a video
         String videoURL = mItem.getVideoURL();
         if (videoURL != null && !videoURL.isEmpty()) {
@@ -173,6 +171,23 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
             // No video for this particular step, hide the player view
             mExoPlayerView.setVisibility(GONE);
         }
+
+
+        // Bind Step Image Thumbnail
+        // Check if there is a thumbnail image in the step
+        String thumbnailURL = mItem.getThumbnailURL();
+        if (thumbnailURL != null && !thumbnailURL.isEmpty())
+        {
+            Picasso.with(mContext).load(Uri.parse(thumbnailURL)).into(stepThumbnailIv);
+        }else
+        {
+            // Make the image view gone
+            stepThumbnailIv.setVisibility(GONE);
+        }
+
+        // Bind Step Description
+        // Show the step description as text in a TextView.
+        stepDescriptionTv.setText(mItem.getDescription());
 
         return rootView;
     }

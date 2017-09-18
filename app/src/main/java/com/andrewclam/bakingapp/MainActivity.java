@@ -58,7 +58,6 @@ public class MainActivity extends AppCompatActivity implements
         }
         mRecipeRv.setLayoutManager(mLayoutManager);
 
-
         /* Async Load Recipe Data */
         new FetchRecipeAsyncTask()
                 .setDataURL(DATA_URL)
