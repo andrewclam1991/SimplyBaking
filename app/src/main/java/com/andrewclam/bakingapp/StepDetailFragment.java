@@ -137,7 +137,7 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
     public static StepDetailFragment newInstance(Step mStepItem, boolean mTwoPane) {
         Bundle args = new Bundle();
         args.putParcelable(ARG_RECIPE_STEP, Parcels.wrap(mStepItem));
-        args.putBoolean(ARG_TWO_PANE_MODE, false);
+        args.putBoolean(ARG_TWO_PANE_MODE, mTwoPane);
 
         StepDetailFragment fragment = new StepDetailFragment();
         fragment.setArguments(args);
@@ -156,7 +156,7 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
     public static StepDetailFragment newInstance(Parcelable mStepParcelable, boolean mTwoPane) {
         Bundle args = new Bundle();
         args.putParcelable(ARG_RECIPE_STEP, mStepParcelable);
-        args.putBoolean(ARG_TWO_PANE_MODE, false);
+        args.putBoolean(ARG_TWO_PANE_MODE, mTwoPane);
 
         StepDetailFragment fragment = new StepDetailFragment();
         fragment.setArguments(args);
@@ -370,7 +370,7 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
     }
 
     /**
-     * TODO [ExoPlayer Media Playback ] Step 5 - Show media style notification
+     * TODO [ExoPlayer Media Playback ] Step 5 - Setup media style notification
      * for user to return to an active recipe step playback
      * <p>
      * Shows Media Style notification, with actions that depend on the current MediaSession
@@ -379,17 +379,15 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
      * @param state The PlaybackState of the MediaSession.
      */
     private void showNotification(PlaybackStateCompat state) {
-
-        // Get the list of steps from the hosting activity
-        // The list is required to launch the hostingActivity in pendingIntent,
-        // when user clicks the notification to navigate back to the current recipe)
-
-
         // Notification Content
         String mRecipeName = "";
         String mRecipeStepTitle = getString(R.string.current_step, mCurrentStepTitle);
 
         // Determine the host activity and get the RecipeName and Steps
+        // 1) Get the list of steps from the hosting activity
+        // The list is required to launch the hostingActivity in pendingIntent,
+        // when user clicks the notification to navigate back to the current recipe)
+        // 2) Get the RecipeName from the hosting activity
         ArrayList<Step> mSteps = new ArrayList<>();
         if (mContext instanceof StepListActivity) {
             // Fragment's host activity is the master-detail two-pane activity
@@ -474,7 +472,7 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
     }
 
     /**
-     * TODO [ExoPlayer Media Playback ] Step 5 - Handles when player changes states
+     * TODO [ExoPlayer Media Playback ] Step 7 - Handles when player changes states
      * by content ready, user pausing, or simply exiting the app. Syncs the player's states
      * with the MediaSession
      * <p>
@@ -582,7 +580,7 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
     }
 
     /**
-     * TODO [ExoPlayer Media Playback ] Step 6 - Handles external client controls via Receiver
+     * TODO [ExoPlayer Media Playback ] Step 8 - Handles external client controls via Receiver
      * setup a broadcast receiver and handle mediaSession callbacks onReceive
      * <p>
      * Broadcast Receiver registered to receive the MEDIA_BUTTON intent coming from clients.
@@ -599,7 +597,7 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
     }
 
     /**
-     * TODO [ExoPlayer Media Playback ] Step 7 - Handles MediaSession callbacks
+     * TODO [ExoPlayer Media Playback ] Step 9 - Handles MediaSession callbacks
      * ex, headphone buttons, car bluetooth control, notification with the MediaSession
      * <p>
      * Media Session Callbacks, where all external clients control the player.

@@ -63,12 +63,6 @@ public class RecipeRecyclerViewAdapter extends RecyclerView.Adapter<RecipeRecycl
      */
     @Override
     public RecipeViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        // P: To create a viewHolder, RelatedVideoAdapterViewHolder needs an inflated itemView to work with
-        // R: Needs a layout inflater to inflate the list item view
-        // S: Layout inflater can be obtains from context, use LayoutInflater.from(context)
-        // R: Needs a res id for the inflater to know which view to inflate
-        // S: assign the layoutResId with the list item view
-
         // Get the layout inflater (required to inflate the itemView)
         Context context = parent.getContext(); // Context required by the layoutInflater
         LayoutInflater inflater = LayoutInflater.from(context);

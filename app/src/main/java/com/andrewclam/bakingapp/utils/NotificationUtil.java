@@ -32,10 +32,10 @@ public class NotificationUtil {
     private static final String NOTIFICATION_CHANNEL_ID = PACKAGE_NAME + ".media_notification";
 
     /**
+     * TODO [ExoPlayer Media Playback ] Step 6 - Show media style notification to show step
      * Create and show a media style notification that can act as the external client,
      * controls media playback through MediaSession callbacks.
      * <p>
-     * <p
      * For the bakingApp
      * This notification shows the app name app icon and the current recipe step
      *
@@ -43,6 +43,9 @@ public class NotificationUtil {
      * @param state         the playback state to update the notification
      * @param mMediaSession the media session to fire callback
      * @param contentIntent the pending intent to launch when user clicks the notification
+     * @param contentTitle  the notification's title, this would the the current recipe's name
+     * @param contentText   the notification's content text, this would be the current step's name
+     * @param largeIcon     the notification large icon, should show the recipe step's thumbnail
      * @return a NotificationManager for canceling current notification when resource is no
      * longer needed
      */
@@ -93,9 +96,9 @@ public class NotificationUtil {
             play_pause = mContext.getString(R.string.play);
         }
 
-        // Set the LargeIcon resource, if available
-        if (largeIcon == null)
-        {
+        // Set the LargeIcon resource, if unavailable will use the default notification cupcake
+        // icon in the resources
+        if (largeIcon == null) {
             // use the resource default
             largeIcon = BitmapFactory.decodeResource(
                     mContext.getResources(), R.drawable.ic_cupcake_notification);

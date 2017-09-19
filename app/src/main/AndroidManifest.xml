@@ -41,7 +41,7 @@
                 android:value="com.andrewclam.bakingapp.StepListActivity" />
         </activity>
 
-        <!-- TODO [ExoPlayer Media Playback ] Step 8 - Register receiver for MediaButton actions -->
+        <!-- TODO [ExoPlayer Media Playback ] Step 10 - Register receiver for MediaButton actions -->
         <receiver android:name=".StepDetailFragment$MediaReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />

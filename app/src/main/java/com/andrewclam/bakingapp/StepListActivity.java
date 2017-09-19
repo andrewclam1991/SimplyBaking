@@ -70,10 +70,12 @@ public class StepListActivity extends AppCompatActivity implements
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // Show the Up button in the action bar.
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
+        /*
+         * Get the intent extra, store the passed in recipe object
+         * The recipe object contains the list of ingredients and steps
+         */
+        if (getIntent().hasExtra(EXTRA_RECIPE)) {
+            mRecipe = Parcels.unwrap(getIntent().getParcelableExtra(EXTRA_RECIPE));
         }
 
         if (findViewById(R.id.step_detail_container) != null) {
@@ -84,19 +86,17 @@ public class StepListActivity extends AppCompatActivity implements
             mTwoPane = true;
         }
 
-        /*
-         * Get the intent extra, store the passed in recipe object
-         * The recipe object contains the list of ingredients and steps
-         */
-        if (getIntent().hasExtra(EXTRA_RECIPE)) {
-            mRecipe = Parcels.unwrap(getIntent().getParcelableExtra(EXTRA_RECIPE));
-        }
-
         /* UI Setup - Recipe Header (Name and Serving)*/
         TextView nameTv = findViewById(R.id.recipe_name_tv);
         TextView servingTv = findViewById(R.id.recipe_servings_tv);
 
-        toolbar.setTitle(mRecipe.getName());
+        // Show the Up button in the action bar.
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setTitle(mRecipe.getName());
+        }
+
         nameTv.setText(mRecipe.getName());
         servingTv.setText(getString(R.string.serving, mRecipe.getServings()));
 
