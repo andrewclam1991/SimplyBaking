@@ -19,7 +19,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.andrewclam.bakingapp.models.Step;
 import com.andrewclam.bakingapp.utils.NotificationUtil;
@@ -108,6 +110,7 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
     private SimpleExoPlayerView mExoPlayerView;
     private PlaybackStateCompat.Builder mStateBuilder;
     private static MediaSessionCompat mMediaSession;
+    private ProgressBar mVideoLoadingPb;
     /**
      * For MediaStyle Notification
      */
@@ -220,6 +223,9 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
         // Check if the recipe step has a video (may be null or empty)
         String videoURL = mStepItem.getVideoURL();
         if (videoURL != null && !videoURL.isEmpty()) {
+            // Reference the video loading progress bar
+            mVideoLoadingPb = rootView.findViewById(R.id.video_loading_pb);
+
             setupExoPlayerView();
             setupMediaSession();
             setupExoPlayer(Uri.parse(videoURL));
@@ -353,6 +359,9 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
             // Set player to the player UI view
             mExoPlayerView.setPlayer(mExoPlayer);
 
+            // Show the progress bar
+            mVideoLoadingPb.setVisibility(View.VISIBLE);
+
             // Set the ExoPlayer.EventListener to this fragment.
             mExoPlayer.addListener(this);
 
@@ -468,7 +477,6 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
 
     @Override
     public void onLoadingChanged(boolean isLoading) {
-
     }
 
     /**
@@ -485,25 +493,35 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
      */
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-        if ((playbackState == Player.STATE_READY) && playWhenReady) {
-            mStateBuilder.setState(PlaybackStateCompat.STATE_PLAYING,
-                    mExoPlayer.getCurrentPosition(), 1f);
-        } else if ((playbackState == Player.STATE_READY)) {
-            mStateBuilder.setState(PlaybackStateCompat.STATE_PAUSED,
-                    mExoPlayer.getCurrentPosition(), 1f);
+        if (playbackState == Player.STATE_READY)
+        {
+            // Hide the video loading pb
+            mVideoLoadingPb.setVisibility(View.GONE);
+
+            if (playWhenReady)
+            {
+                mStateBuilder.setState(PlaybackStateCompat.STATE_PLAYING,
+                        mExoPlayer.getCurrentPosition(), 1f);
+            }else
+            {
+                mStateBuilder.setState(PlaybackStateCompat.STATE_PAUSED,
+                        mExoPlayer.getCurrentPosition(), 1f);
+            }
         }
+
         mMediaSession.setPlaybackState(mStateBuilder.build());
         showNotification(mStateBuilder.build());
     }
 
     @Override
     public void onRepeatModeChanged(int repeatMode) {
-
     }
 
     @Override
     public void onPlayerError(ExoPlaybackException error) {
-
+        mVideoLoadingPb.setVisibility(View.GONE);
+        Toast.makeText(mContext,mContext.getString(R.string.exoplayer_playback_error),
+                Toast.LENGTH_SHORT).show();
     }
 
     @Override
