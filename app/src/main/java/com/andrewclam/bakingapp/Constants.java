@@ -5,9 +5,9 @@ package com.andrewclam.bakingapp;
  * Package-private constants for the application
  */
 
-class Constants {
+public class Constants {
     /* Package Name */
-    static final String PACKAGE_NAME = "com.andrewclam.bakingapp";
+    public static final String PACKAGE_NAME = "com.andrewclam.bakingapp";
     /* Data Source URL */
     static final String DATA_URL =
             "https://d17h27t6h515a5.cloudfront.net/topher/2017/May/59121517_baking/baking.json";

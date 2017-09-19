@@ -30,15 +30,17 @@ public class StepDetailActivity extends AppCompatActivity implements StepDetailF
     /**
      * The list of steps to populate the dropdown spinner adapter
      */
+    private String mRecipeName;
     private int mStepPosition;
     private ArrayList<Step> mSteps;
     private boolean mTwoPane;
 
     /**
-     * Public keys for intent extras
+     * Public keys for intent extras and args
      */
-    public static final String EXTRA_STEPS_LIST = "extra.steps.list";
-    public static final String EXTRA_STEP_POSITION = "extra.step.position";
+    public static final String ARG_RECIPE_STEPS_LIST = "extra.steps.list";
+    public static final String ARG_RECIPE_STEP_POSITION = "extra.step.position";
+    public static final String ARG_RECIPE_NAME ="extra.recipe.name";
 
     /**
      * Instance of the StepsAdapter
@@ -58,21 +60,32 @@ public class StepDetailActivity extends AppCompatActivity implements StepDetailF
         // Get the list of steps from intent extra
         assert getIntent() != null;
 
-        mSteps = Parcels.unwrap(getIntent().getParcelableExtra(EXTRA_STEPS_LIST));
-        mStepPosition = getIntent().getIntExtra(EXTRA_STEP_POSITION,0);
-        mTwoPane = getIntent().getBooleanExtra(ARG_TWO_PANE_MODE,false);
+        if (getIntent().hasExtra(ARG_RECIPE_NAME)) {
+            mRecipeName = getIntent().getStringExtra(ARG_RECIPE_NAME);
+        }
+
+        if (getIntent().hasExtra(ARG_RECIPE_STEPS_LIST)) {
+            mSteps = Parcels.unwrap(getIntent().getParcelableExtra(ARG_RECIPE_STEPS_LIST));
+        }
+
+        if (getIntent().hasExtra(ARG_RECIPE_STEP_POSITION)) {
+            mStepPosition = getIntent().getIntExtra(ARG_RECIPE_STEP_POSITION, 0);
+        }
+
+        if (getIntent().hasExtra(ARG_TWO_PANE_MODE)) {
+            mTwoPane = getIntent().getBooleanExtra(ARG_TWO_PANE_MODE, false);
+        }
 
         assert mSteps != null;
 
         // Initialize the StepsAdapter
         mStepsAdapter = new StepsAdapter(this,mSteps);
-        mStepsAdapter.notifyDataSetChanged();
 
         // Setup spinner
         Spinner spinner = findViewById(R.id.spinner);
         spinner.setAdapter(mStepsAdapter);
 
-        // Move adapter to the parameter step position
+        // Select spinner to the parameter step position
         spinner.setSelection(mStepPosition);
 
         spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
@@ -136,8 +149,7 @@ public class StepDetailActivity extends AppCompatActivity implements StepDetailF
             // Set the spinner text to be the step's short description;
             TextView labelView = view.findViewById(android.R.id.text1);
 
-            String spinnerText = mContext.getString(R.string.step, step.getId()) + " "
-                    + step.getShortDescription();
+            String spinnerText =  step.getShortDescription();
 
             labelView.setText(spinnerText);
             labelView.setTextColor(ContextCompat.getColor(mContext,R.color.colorWhite));
@@ -184,4 +196,28 @@ public class StepDetailActivity extends AppCompatActivity implements StepDetailF
             mDropDownHelper.setDropDownViewTheme(theme);
         }
     }
+
+
+    /**
+     * Package-Private getter method for the fragment to get the steps
+     * The list of steps is used for the notification pendingIntent
+     * to launch the StepDetailActivity
+     * @return the list of steps of this current recipe
+     */
+    ArrayList<Step> getSteps()
+    {
+        return mSteps;
+    }
+
+    /**
+     * Package-private getter method for the fragment to get the recipe name
+     * The recipe name is used for the notification pendingIntent
+     * to launch the StepDetailActivity
+     * @return the recipe's name
+     */
+    String getRecipeName()
+    {
+        return mRecipeName;
+    }
+
 }

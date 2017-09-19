@@ -36,6 +36,7 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.ui.BuildConfig;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
@@ -44,8 +45,12 @@ import com.squareup.picasso.Target;
 
 import org.parceler.Parcels;
 
+import java.util.ArrayList;
+
 import static android.view.View.GONE;
 import static com.andrewclam.bakingapp.Constants.PACKAGE_NAME;
+import static com.andrewclam.bakingapp.StepDetailActivity.ARG_RECIPE_NAME;
+import static com.andrewclam.bakingapp.StepDetailActivity.ARG_RECIPE_STEPS_LIST;
 
 /**
  * A fragment representing a single Step detail screen.
@@ -64,37 +69,31 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
      * as part of a two-pane layout
      */
     public static final String ARG_TWO_PANE_MODE = "two_pane_mode";
-
     /**
      * Debug TAG
      */
     private static final String TAG = StepDetailFragment.class.getSimpleName();
     /**
+     * Context - for getting resources
+     */
+    private Context mContext;
+    /**
      * The Step content this fragment is presenting.
      */
     private Step mStepItem;
-
     /**
      * The boolean flag to keep track whether the fragment is displayed in two pane mode
      */
     private boolean mTwoPane;
-
-    /**
-     * Context - for getting resources
-     */
-    private Context mContext;
-
     /**
      * Step Title
      */
-    private String mTitle;
-
+    private String mCurrentStepTitle;
     /**
      * SavedInstanceState Key
      */
     private final static String EXTRA_STEP_TITLE = "extra_step_title";
     private final static String EXTRA_TWO_PANE = "extra_two_pane";
-
     /**
      * Interface Callback listener (parent activity) to change title
      */
@@ -108,16 +107,17 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
     private SimpleExoPlayer mExoPlayer;
     private SimpleExoPlayerView mExoPlayerView;
     private PlaybackStateCompat.Builder mStateBuilder;
+    private static MediaSessionCompat mMediaSession;
     /**
-     * MediaStyle Notification
+     * For MediaStyle Notification
      */
     private NotificationManager mNotificationManager;
-    private static MediaSessionCompat mMediaSession;
     private static final int NOTIFICATION_PENDING_INTENT_RC = 2333;
-    private static final int NOTIFICATION_ID = 1;
-    private static final String NOTIFICATION_CHANNEL_ID = PACKAGE_NAME + ".media_notification";
-    private static final String NOTIFICATION_CHANNEL_DESCRIPTION = PACKAGE_NAME +
-            " media style notification";
+
+    /**
+     * Thumbnail bitmap of the step (if available)
+     */
+    private Bitmap mRecipeThumbnailIcon;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -129,14 +129,15 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
     /**
      * Factory static method to create new instance of the fragment
      * with the required parameters
+     *
      * @param mStepItem the Step item, containing the recipe step's specific id
-     * @param mTwoPane to indicate whether the fragment is part of the twoPane layout
+     * @param mTwoPane  to indicate whether the fragment is part of the twoPane layout
      * @return a new instance of the fragment
      */
     public static StepDetailFragment newInstance(Step mStepItem, boolean mTwoPane) {
         Bundle args = new Bundle();
         args.putParcelable(ARG_RECIPE_STEP, Parcels.wrap(mStepItem));
-        args.putBoolean(ARG_TWO_PANE_MODE,false);
+        args.putBoolean(ARG_TWO_PANE_MODE, false);
 
         StepDetailFragment fragment = new StepDetailFragment();
         fragment.setArguments(args);
@@ -147,14 +148,15 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
     /**
      * Factory static method to create new instance of the fragment
      * with the required parameters
+     *
      * @param mStepParcelable the Step parcel, containing the recipe step object
-     * @param mTwoPane to indicate whether the fragment is part of the twoPane layout
+     * @param mTwoPane        to indicate whether the fragment is part of the twoPane layout
      * @return a new instance of the fragment
      */
     public static StepDetailFragment newInstance(Parcelable mStepParcelable, boolean mTwoPane) {
         Bundle args = new Bundle();
         args.putParcelable(ARG_RECIPE_STEP, mStepParcelable);
-        args.putBoolean(ARG_TWO_PANE_MODE,false);
+        args.putBoolean(ARG_TWO_PANE_MODE, false);
 
         StepDetailFragment fragment = new StepDetailFragment();
         fragment.setArguments(args);
@@ -175,11 +177,15 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
             // to load content from a content provider.
             mStepItem = Parcels.unwrap(getArguments().getParcelable(ARG_RECIPE_STEP));
             mTwoPane = getArguments().getBoolean(ARG_TWO_PANE_MODE);
-            assert mStepItem != null;
-        }else
-        {
+
+            if (BuildConfig.DEBUG) {
+                if (mStepItem == null)
+                    throw new AssertionError("fragment argument doesn't contain the step to show");
+            }
+
+        } else {
             String errorMsg = TAG + " instance created without the required arguments";
-            Log.e(TAG,errorMsg);
+            Log.e(TAG, errorMsg);
             throw new RuntimeException(errorMsg);
         }
 
@@ -198,9 +204,16 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
         ImageView stepThumbnailIv = rootView.findViewById(R.id.step_thumbnail);
         mExoPlayerView = rootView.findViewById(R.id.step_video_player_view);
 
-        assert stepDescriptionTv != null;
-        assert stepThumbnailIv != null;
-        assert mExoPlayerView != null;
+        if (BuildConfig.DEBUG) {
+            if (stepDescriptionTv == null)
+                throw new AssertionError("can't find the stepDescriptionTv in the layout");
+
+            if (stepThumbnailIv == null)
+                throw new AssertionError("can't find the stepThumbnailTv in the layout");
+
+            if (mExoPlayerView == null)
+                throw new AssertionError("can't find the mExoPlayerView in the layout");
+        }
 
         /* Bind Data (Video, Image Thumbnail and Description) */
         // Bind Step Video
@@ -228,11 +241,9 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
         // Bind Step Image Thumbnail (may be null or empty)
         // Check if there is a thumbnail image in the step
         String thumbnailURL = mStepItem.getThumbnailURL();
-        if (thumbnailURL != null && !thumbnailURL.isEmpty())
-        {
+        if (thumbnailURL != null && !thumbnailURL.isEmpty()) {
             Picasso.with(mContext).load(Uri.parse(thumbnailURL)).into(stepThumbnailIv);
-        }else
-        {
+        } else {
             // Make the image view gone
             stepThumbnailIv.setVisibility(GONE);
         }
@@ -251,21 +262,19 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
      * @param savedInstanceState the activity/fragment's savedInstanceState
      */
     private void setupTitle(Bundle savedInstanceState) {
-        if (savedInstanceState != null)
-        {
-            mTitle = savedInstanceState.getString(EXTRA_STEP_TITLE);
+        if (savedInstanceState != null) {
+            mCurrentStepTitle = savedInstanceState.getString(EXTRA_STEP_TITLE);
             mTwoPane = savedInstanceState.getBoolean(EXTRA_TWO_PANE);
-        }else
-        {
+        } else {
             // No saved instance state, form the title using the item
-            mTitle = getString(R.string.step, mStepItem.getId()) + " "
+            mCurrentStepTitle = getString(R.string.step, mStepItem.getId()) + " "
                     + mStepItem.getShortDescription();
         }
 
         // Call activities to set the title of the app bar
         // two pane mode doesn't need a step-by-step title change
         if (!mTwoPane) {
-            mListener.setTitle(mTitle);
+            mListener.setTitle(mCurrentStepTitle);
         }
     }
 
@@ -371,111 +380,59 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
      */
     private void showNotification(PlaybackStateCompat state) {
 
+        // Get the list of steps from the hosting activity
+        // The list is required to launch the hostingActivity in pendingIntent,
+        // when user clicks the notification to navigate back to the current recipe)
+
+
+        // Notification Content
+        String mRecipeName = "";
+        String mRecipeStepTitle = getString(R.string.current_step, mCurrentStepTitle);
+
+        // Determine the host activity and get the RecipeName and Steps
+        ArrayList<Step> mSteps = new ArrayList<>();
+        if (mContext instanceof StepListActivity) {
+            // Fragment's host activity is the master-detail two-pane activity
+            // on tablet landscape mode
+            mSteps = ((StepListActivity) mContext).getSteps();
+            mRecipeName = ((StepListActivity) mContext).getRecipeName();
+        } else if (mContext instanceof StepDetailActivity) {
+            // Fragment's host activity is the detail activity
+            mSteps = ((StepDetailActivity) mContext).getSteps();
+            mRecipeName = ((StepDetailActivity) mContext).getRecipeName();
+        }
+
+        if (BuildConfig.DEBUG) {
+            if (mSteps == null || mSteps.isEmpty())
+                throw new AssertionError("mSteps is null or empty, can't create the pendingIntent" +
+                        "for the notification");
+        }
+
+        /* Create the pending content intent for the notification*/
         Intent intent = new Intent(mContext, StepDetailActivity.class);
-        intent.putExtra(ARG_RECIPE_STEP, Parcels.wrap(mStepItem));
-        intent.putExtra(ARG_TWO_PANE_MODE,mTwoPane);
+        intent.putExtra(ARG_RECIPE_NAME, mRecipeName);
+        intent.putExtra(ARG_RECIPE_STEPS_LIST, Parcels.wrap(mSteps));
+        intent.putExtra(ARG_TWO_PANE_MODE, mTwoPane);
 
-        // FIXME !! Performance and waste design problem with the need to pass an arraylist of step
-        // to each individual step fragment for creation of notification.
-        // implement a content provider and store the Recipe, Ingredient and Steps in tables.
-
-        PendingIntent contentPendingIntent = PendingIntent.getActivity(
+        PendingIntent mContentIntent = PendingIntent.getActivity(
                 mContext,
                 NOTIFICATION_PENDING_INTENT_RC,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
-        NotificationUtil.showNotification(mContext,state,mMediaSession,contentPendingIntent);
-
-
-//        mNotificationManager = (NotificationManager)
-//                mContext.getSystemService(NOTIFICATION_SERVICE);
-//
-//        assert mNotificationManager != null;
-//
-//        /* Implement NotificationChannel for Devices running Android O or later*/
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//            NotificationChannel notificationChannel = new NotificationChannel(
-//                    NOTIFICATION_CHANNEL_ID,
-//                    NOTIFICATION_CHANNEL_DESCRIPTION,
-//                    NotificationManager.IMPORTANCE_LOW
-//            );
-//
-//            // Configure the notification channel.
-//            notificationChannel.setDescription(NOTIFICATION_CHANNEL_DESCRIPTION);
-//            notificationChannel.enableLights(true);
-//            notificationChannel.setLightColor(Color.RED);
-//            notificationChannel.enableVibration(false);
-//            mNotificationManager.createNotificationChannel(notificationChannel);
-//        }
-//
-//        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext,
-//                NOTIFICATION_CHANNEL_ID);
-//
-//        // Set the NotificationAction resources
-//        int icon;
-//        String play_pause;
-//        if (state.getState() == PlaybackStateCompat.STATE_PLAYING) {
-//            icon = R.drawable.exo_controls_pause;
-//            play_pause = getString(R.string.pause);
-//        } else {
-//            icon = R.drawable.exo_controls_play;
-//            play_pause = getString(R.string.play);
-//        }
-//
-//        NotificationCompat.Action playPauseAction = new NotificationCompat.Action(
-//                icon, play_pause,
-//                MediaButtonReceiver.buildMediaButtonPendingIntent(mContext,
-//                        PlaybackStateCompat.ACTION_PLAY_PAUSE));
-//
-//        NotificationCompat.Action restartAction = new NotificationCompat
-//                .Action(R.drawable.exo_controls_previous, getString(R.string.restart),
-//                MediaButtonReceiver.buildMediaButtonPendingIntent
-//                        (mContext, PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS));
-//
-//        Intent intent = new Intent(mContext, StepDetailActivity.class);
-//        intent.putExtra(ARG_RECIPE_STEP, Parcels.wrap(mStepItem));
-//        intent.putExtra(ARG_TWO_PANE_MODE,mTwoPane);
-//
-//        // FIXME Performance and waste problem with the need to pass an arraylist of step
-//        // to each individual step fragment for creation of notification.
-//
-//        PendingIntent contentPendingIntent = PendingIntent.getActivity(
-//                mContext,
-//                NOTIFICATION_PENDING_INTENT_RC,
-//                intent,
-//                PendingIntent.FLAG_UPDATE_CURRENT);
-//
-//        builder.setContentTitle(getString(R.string.app_name))
-//                .setContentText(getString(R.string.notification_text))
-//                .setContentIntent(contentPendingIntent)
-//                .setSmallIcon(R.drawable.ic_cupcake)
-//                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-//                .addAction(restartAction)
-//                .addAction(playPauseAction)
-//                .setOnlyAlertOnce(true) // No subsequent sound or vibration if it exists
-//                .setStyle(new android.support.v4.media.app.NotificationCompat.MediaStyle()
-//                        .setMediaSession(mMediaSession.getSessionToken())
-//                        .setShowActionsInCompactView(0, 1));
-//
-//        mNotificationManager.notify(NOTIFICATION_ID, builder.build());
+        // Use notificationUtil to show notification, return the reference of the notification
+        // manager for cancelling media notification tasks when the fragment no longer exists
+        mNotificationManager = NotificationUtil.showNotification(
+                mContext,
+                state,
+                mMediaSession,
+                mContentIntent,
+                mRecipeName,
+                mRecipeStepTitle,
+                mRecipeThumbnailIcon
+        );
     }
 
-    /**
-     * A method to Release ExoPlayer resources when
-     * the fragment no longer needs it.
-     */
-    private void releasePlayer() {
-        if (mNotificationManager != null) {
-            mNotificationManager.cancelAll();
-        }
-
-        if (mExoPlayer != null) {
-            mExoPlayer.stop();
-            mExoPlayer.release();
-            mExoPlayer = null;
-        }
-    }
 
     /**
      * Callback from Picasso tasking loading the thumbnail URL
@@ -487,6 +444,7 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
     public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
         // Got bitmap from Uri with Picasso loader
         mExoPlayerView.setDefaultArtwork(bitmap);
+        mRecipeThumbnailIcon = bitmap;
     }
 
     @Override
@@ -561,24 +519,35 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
     }
 
 
+    /**
+     * A method to Release ExoPlayer resources when
+     * the fragment no longer needs it.
+     */
+    private void releasePlayer() {
+        if (mNotificationManager != null) {
+            mNotificationManager.cancelAll();
+        }
+
+        if (mExoPlayer != null) {
+            mExoPlayer.stop();
+            mExoPlayer.release();
+            mExoPlayer = null;
+        }
+    }
 
     /**
      * Fragment Life Cycle Callbacks and SavedInstance
      */
-
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnStepDetailFragmentInteraction)
-        {
+        if (context instanceof OnStepDetailFragmentInteraction) {
             mListener = (OnStepDetailFragmentInteraction) context;
-        }else
-        {
+        } else {
             throw new RuntimeException(
                     context.getClass().getSimpleName()
-                    + " must implement " +
-                    OnStepDetailFragmentInteraction.class.getSimpleName());
+                            + " must implement " +
+                            OnStepDetailFragmentInteraction.class.getSimpleName());
         }
     }
 
@@ -593,14 +562,13 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
 
         // Pause the video playback
         if (mExoPlayer != null) mExoPlayer.setPlayWhenReady(false);
-
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString(EXTRA_STEP_TITLE, mTitle);
-        outState.putBoolean(EXTRA_TWO_PANE,mTwoPane);
+        outState.putString(EXTRA_STEP_TITLE, mCurrentStepTitle);
+        outState.putBoolean(EXTRA_TWO_PANE, mTwoPane);
     }
 
     @Override
@@ -654,10 +622,10 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
     }
 
     /**
-     * Interface
+     * Interface callback to set host activity's title
+     * if required
      */
-    public interface OnStepDetailFragmentInteraction
-    {
+    interface OnStepDetailFragmentInteraction {
         void setTitle(String title);
     }
 }

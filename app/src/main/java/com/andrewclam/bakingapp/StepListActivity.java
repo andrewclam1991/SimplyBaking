@@ -25,8 +25,9 @@ import java.util.ArrayList;
 
 import static android.support.v4.app.NavUtils.navigateUpFromSameTask;
 import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE;
-import static com.andrewclam.bakingapp.StepDetailActivity.EXTRA_STEPS_LIST;
-import static com.andrewclam.bakingapp.StepDetailActivity.EXTRA_STEP_POSITION;
+import static com.andrewclam.bakingapp.StepDetailActivity.ARG_RECIPE_NAME;
+import static com.andrewclam.bakingapp.StepDetailActivity.ARG_RECIPE_STEPS_LIST;
+import static com.andrewclam.bakingapp.StepDetailActivity.ARG_RECIPE_STEP_POSITION;
 import static com.andrewclam.bakingapp.StepDetailFragment.ARG_TWO_PANE_MODE;
 
 /**
@@ -55,6 +56,11 @@ public class StepListActivity extends AppCompatActivity implements
      * Recipe Object, show a list of steps
      */
     private Recipe mRecipe;
+
+    /**
+     * List of steps for this particular recipe
+     */
+    private ArrayList<Step> mSteps;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,21 +96,15 @@ public class StepListActivity extends AppCompatActivity implements
         TextView nameTv = findViewById(R.id.recipe_name_tv);
         TextView servingTv = findViewById(R.id.recipe_servings_tv);
 
-        assert nameTv != null;
         toolbar.setTitle(mRecipe.getName());
         nameTv.setText(mRecipe.getName());
-
-        assert servingTv != null;
         servingTv.setText(getString(R.string.serving, mRecipe.getServings()));
 
         /* UI Setup - RecyclerView Lists (Ingredients and Steps) */
         RecyclerView stepsRv = findViewById(R.id.step_list_rv);
         RecyclerView ingredientRv = findViewById(R.id.ingredient_list_rv);
 
-        assert ingredientRv != null;
         setupIngredientsRecyclerView(ingredientRv);
-
-        assert stepsRv != null;
         setupStepsRecyclerView(stepsRv);
     }
 
@@ -144,15 +144,19 @@ public class StepListActivity extends AppCompatActivity implements
      * @param recyclerView the recyclerView that contains the list of steps
      */
     private void setupStepsRecyclerView(@NonNull RecyclerView recyclerView) {
+        // Get the data from the recipe
+        mSteps = mRecipe.getSteps();
+
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this,
                 LinearLayoutManager.VERTICAL, false);
-        recyclerView.setAdapter(new StepsRecyclerViewAdapter(mRecipe.getSteps()));
+        recyclerView.setAdapter(new StepsRecyclerViewAdapter(mSteps));
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setNestedScrollingEnabled(true);
 
         // if in twoPane mode, load the fragment with the intro step
+        // intro step is always at position 0 of the list
         if (mTwoPane) {
-            Step introStep = mRecipe.getSteps().get(0);
+            Step introStep = mSteps.get(0);
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.step_detail_container,
                             StepDetailFragment.newInstance(introStep,mTwoPane))
@@ -223,19 +227,12 @@ public class StepListActivity extends AppCompatActivity implements
                         Context context = view.getContext();
 
                         Intent intent = new Intent(context, StepDetailActivity.class);
-                        intent.putExtra(EXTRA_STEPS_LIST,Parcels.wrap(mSteps));
+                        intent.putExtra(ARG_RECIPE_NAME,mRecipe.getName());
+                        intent.putExtra(ARG_RECIPE_STEPS_LIST,Parcels.wrap(mSteps));
+                        intent.putExtra(ARG_RECIPE_STEP_POSITION,holder.getAdapterPosition());
                         intent.putExtra(ARG_TWO_PANE_MODE,mTwoPane);
-                        intent.putExtra(EXTRA_STEP_POSITION,holder.getAdapterPosition());
+
                         context.startActivity(intent);
-
-
-                        // TODO BACKUP
-//                        Intent intent = new Intent(context, SimpleStepDetailActivity.class);
-//                        intent.putExtra(StepDetailFragment.ARG_RECIPE_STEP,
-//                                Parcels.wrap(holder.getStepItem()));
-//                        intent.putExtra(StepDetailFragment.ARG_TWO_PANE_MODE,mTwoPane);
-//
-//                        context.startActivity(intent);
                     }
                 }
             });
@@ -334,6 +331,28 @@ public class StepListActivity extends AppCompatActivity implements
                 mIngredientNameTv = view.findViewById(R.id.ingredient_name_tv);
             }
         }
+    }
+
+    /**
+     * Package-Private getter method for the fragment to get the steps
+     * The list of steps is used for the notification pendingIntent
+     * to launch the StepDetailActivity
+     * @return the list of steps of this current recipe
+     */
+    ArrayList<Step> getSteps()
+    {
+        return mSteps;
+    }
+
+    /**
+     * Package-private getter method for the fragment to get the recipe name
+     * The recipe name is used for the notification pendingIntent
+     * to launch the StepDetailActivity
+     * @return the recipe's name
+     */
+    String getRecipeName()
+    {
+        return mRecipe.getName();
     }
 
 }
