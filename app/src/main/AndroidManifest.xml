@@ -20,7 +20,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".StepListActivity"
             android:label="@string/title_step_list"
@@ -31,9 +30,8 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.andrewclam.bakingapp.MainActivity" />
         </activity>
-
         <activity
-            android:name=".StepDetailActivity"
+            android:name=".SimpleStepDetailActivity"
             android:label="@string/title_step_detail"
             android:launchMode="singleTop"
             android:parentActivityName=".StepListActivity"
@@ -50,6 +48,16 @@
             </intent-filter>
         </receiver>
 
+        <activity
+            android:name=".StepDetailActivity"
+            android:label="@string/title_activity_step_detail__phone"
+            android:launchMode="singleTop"
+            android:parentActivityName=".StepListActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.andrewclam.bakingapp.StepListActivity" />
+        </activity>
     </application>
 
 </manifest>

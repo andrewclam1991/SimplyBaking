@@ -1,83 +1,187 @@
 package com.andrewclam.bakingapp;
 
-import android.content.Intent;
+import android.content.Context;
+import android.content.res.Resources.Theme;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
+import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.ThemedSpinnerAdapter;
 import android.support.v7.widget.Toolbar;
-import android.view.MenuItem;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
+import android.widget.TextView;
 
-/**
- * An activity representing a single Step detail screen. This
- * activity is only used narrow width devices. On tablet-size devices,
- * item details are presented side-by-side with a list of items
- * in a {@link StepListActivity}.
- */
-public class StepDetailActivity extends AppCompatActivity implements
-        StepDetailFragment.OnStepDetailFragmentInteraction {
+import com.andrewclam.bakingapp.models.Step;
+
+import org.parceler.Parcels;
+
+import java.util.ArrayList;
+
+import static com.andrewclam.bakingapp.StepDetailFragment.ARG_TWO_PANE_MODE;
+
+public class StepDetailActivity extends AppCompatActivity implements StepDetailFragment.OnStepDetailFragmentInteraction{
+
+    /**
+     * The list of steps to populate the dropdown spinner adapter
+     */
+    private int mStepPosition;
+    private ArrayList<Step> mSteps;
+    private boolean mTwoPane;
+
+    /**
+     * Public keys for intent extras
+     */
+    public static final String EXTRA_STEPS_LIST = "extra.steps.list";
+    public static final String EXTRA_STEP_POSITION = "extra.step.position";
+
+    /**
+     * Instance of the StepsAdapter
+     */
+    private StepsAdapter mStepsAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_step_detail);
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        // Show the Up button in the action bar.
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
+        // Get the list of steps from intent extra
+        assert getIntent() != null;
 
-        // savedInstanceState is non-null when there is fragment state
-        // saved from previous configurations of this activity
-        // (e.g. when rotating the screen from portrait to landscape).
-        // In this case, the fragment will automatically be re-added
-        // to its container so we don't need to manually add it.
-        // For more information, see the Fragments API guide at:
-        //
-        // http://developer.android.com/guide/components/fragments.html
-        //
-        if (savedInstanceState == null) {
-            // Create the detail fragment and add it to the activity
-            // using a fragment transaction.
-            Bundle arguments = new Bundle();
-            arguments.putParcelable(StepDetailFragment.ARG_RECIPE_STEP,
-                    getIntent().getParcelableExtra(StepDetailFragment.ARG_RECIPE_STEP));
+        mSteps = Parcels.unwrap(getIntent().getParcelableExtra(EXTRA_STEPS_LIST));
+        mStepPosition = getIntent().getIntExtra(EXTRA_STEP_POSITION,0);
+        mTwoPane = getIntent().getBooleanExtra(ARG_TWO_PANE_MODE,false);
 
-            arguments.putBoolean(StepDetailFragment.ARG_TWO_PANE_MODE,
-                    getIntent().getBooleanExtra(StepDetailFragment.ARG_TWO_PANE_MODE, false));
+        assert mSteps != null;
 
-            StepDetailFragment fragment = new StepDetailFragment();
-            fragment.setArguments(arguments);
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.step_detail_container, fragment)
-                    .commit();
-        }
+        // Initialize the StepsAdapter
+        mStepsAdapter = new StepsAdapter(this,mSteps);
+        mStepsAdapter.notifyDataSetChanged();
+
+        // Setup spinner
+        Spinner spinner = findViewById(R.id.spinner);
+        spinner.setAdapter(mStepsAdapter);
+
+        // Move adapter to the parameter step position
+        spinner.setSelection(mStepPosition);
+
+        spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+                // Find the selected item in the adapter, this will be used
+                // to start the fragment
+                Step selectedStep = mStepsAdapter.getItem(position);
+
+                // When the given dropdown item is selected, show its contents in the
+                // container view. set twoPane to false because this activity will not be
+                // fired in two panes mode
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.container, StepDetailFragment.newInstance(
+                                selectedStep, false))
+                        .commit();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == android.R.id.home) {
-            // This ID represents the Home or Up button. In the case of this
-            // activity, the Up button is shown. For
-            // more details, see the Navigation pattern on Android Design:
-            //
-            // http://developer.android.com/design/patterns/navigation.html#up-vs-back
-            //
-            navigateUpTo(new Intent(this, StepListActivity.class));
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    /**
-     * Step detail fragment interface callback, call to change the activity's title
-     * @param title the formed particular title for a step fragment
-     */
     @Override
     public void setTitle(String title) {
-        if(getSupportActionBar() != null) getSupportActionBar().setTitle(title);
+
+    }
+
+
+    private static class StepsAdapter extends ArrayAdapter<Step> implements ThemedSpinnerAdapter {
+        private final ThemedSpinnerAdapter.Helper mDropDownHelper;
+        private Context mContext;
+
+        public StepsAdapter(Context context, ArrayList<Step> steps) {
+            super(context, android.R.layout.simple_list_item_1, steps);
+            mContext = context;
+            mDropDownHelper = new ThemedSpinnerAdapter.Helper(context);
+        }
+
+        @NonNull
+        @Override
+        public View getView(int position, View convertView, @NonNull ViewGroup parent) {
+            // Get the step item from the current position
+            Step step = getItem(position);
+            assert step != null;
+
+            // Inflate the convertView with the style, reuse if it is already inflated
+            View view;
+            if (convertView == null) {
+                // Inflate the drop down using the helper's LayoutInflater
+                LayoutInflater inflater = mDropDownHelper.getDropDownViewInflater();
+                view = inflater.inflate(android.R.layout.simple_list_item_1, parent, false);
+            }else
+            {
+                view = convertView;
+            }
+
+            // Set the spinner text to be the step's short description;
+            TextView labelView = view.findViewById(android.R.id.text1);
+
+            String spinnerText = mContext.getString(R.string.step, step.getId()) + " "
+                    + step.getShortDescription();
+
+            labelView.setText(spinnerText);
+            labelView.setTextColor(ContextCompat.getColor(mContext,R.color.colorWhite));
+
+            return view;
+        }
+
+        @Override
+        public View getDropDownView(int position, View convertView, @NonNull ViewGroup parent) {
+            // For styling views when spinner drops down
+            // Get the step item from the current position
+            Step step = getItem(position);
+            assert step != null;
+
+            // Inflate the convertView with the style, reuse if it is already inflated
+            View view;
+            if (convertView == null) {
+                // Inflate the drop down using the helper's LayoutInflater
+                LayoutInflater inflater = mDropDownHelper.getDropDownViewInflater();
+                view =  inflater.inflate(android.R.layout.simple_list_item_1, parent, false);
+            }else
+            {
+                view = convertView;
+            }
+
+            // Set the spinner text to be the step's short description;
+            TextView labelTv = view.findViewById(android.R.id.text1);
+
+            String labelText = mContext.getString(R.string.step, step.getId()) + " "
+                    + step.getShortDescription();
+
+            labelTv.setText(labelText);
+
+            return view;
+        }
+
+        @Override
+        public Theme getDropDownViewTheme() {
+            return mDropDownHelper.getDropDownViewTheme();
+        }
+
+        @Override
+        public void setDropDownViewTheme(Theme theme) {
+            mDropDownHelper.setDropDownViewTheme(theme);
+        }
     }
 }

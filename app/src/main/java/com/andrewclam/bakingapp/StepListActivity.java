@@ -25,12 +25,15 @@ import java.util.ArrayList;
 
 import static android.support.v4.app.NavUtils.navigateUpFromSameTask;
 import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE;
+import static com.andrewclam.bakingapp.StepDetailActivity.EXTRA_STEPS_LIST;
+import static com.andrewclam.bakingapp.StepDetailActivity.EXTRA_STEP_POSITION;
+import static com.andrewclam.bakingapp.StepDetailFragment.ARG_TWO_PANE_MODE;
 
 /**
  * An activity representing a list of Steps. This activity
  * has different presentations for handset and tablet-size devices. On
  * handsets, the activity presents a list of items, which when touched,
- * lead to a {@link StepDetailActivity} representing
+ * lead to a {@link SimpleStepDetailActivity} representing
  * item details. On tablets, the activity presents the list of items and
  * item details side-by-side using two vertical panes.
  */
@@ -149,17 +152,10 @@ public class StepListActivity extends AppCompatActivity implements
 
         // if in twoPane mode, load the fragment with the intro step
         if (mTwoPane) {
-            Bundle arguments = new Bundle();
-            arguments.putParcelable(StepDetailFragment.ARG_RECIPE_STEP,
-                    Parcels.wrap(mRecipe.getSteps().get(0)));
-
-            arguments.putBoolean(StepDetailFragment.ARG_TWO_PANE_MODE,
-                    mTwoPane);
-
-            StepDetailFragment fragment = new StepDetailFragment();
-            fragment.setArguments(arguments);
+            Step introStep = mRecipe.getSteps().get(0);
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.step_detail_container, fragment)
+                    .replace(R.id.step_detail_container,
+                            StepDetailFragment.newInstance(introStep,mTwoPane))
                     .commit();
         }
     }
@@ -195,7 +191,7 @@ public class StepListActivity extends AppCompatActivity implements
         }
 
         @Override
-        public void onBindViewHolder(final StepViewHolder holder, int position) {
+        public void onBindViewHolder(final StepViewHolder holder, final int position) {
             // Get the step item at the position
             Step step = mSteps.get(position);
 
@@ -216,28 +212,30 @@ public class StepListActivity extends AppCompatActivity implements
                     if (mTwoPane) {
                         // In two pane mode, replace a fragment with the step item to show the
                         // full detail
-                        Bundle arguments = new Bundle();
-                        arguments.putParcelable(StepDetailFragment.ARG_RECIPE_STEP,
-                                Parcels.wrap(holder.getStepItem()));
-
-                        arguments.putBoolean(StepDetailFragment.ARG_TWO_PANE_MODE,
-                                mTwoPane);
-
-                        StepDetailFragment fragment = new StepDetailFragment();
-                        fragment.setArguments(arguments);
                         getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.step_detail_container, fragment)
+                                .replace(R.id.step_detail_container,
+                                        StepDetailFragment.newInstance(holder.getStepItem(),
+                                                mTwoPane))
                                 .commit();
                     } else {
                         // In single pane mode, start a new detail activity showing the step's
                         // full detail
                         Context context = view.getContext();
-                        Intent intent = new Intent(context, StepDetailActivity.class);
-                        intent.putExtra(StepDetailFragment.ARG_RECIPE_STEP,
-                                Parcels.wrap(holder.getStepItem()));
-                        intent.putExtra(StepDetailFragment.ARG_TWO_PANE_MODE,mTwoPane);
 
+                        Intent intent = new Intent(context, StepDetailActivity.class);
+                        intent.putExtra(EXTRA_STEPS_LIST,Parcels.wrap(mSteps));
+                        intent.putExtra(ARG_TWO_PANE_MODE,mTwoPane);
+                        intent.putExtra(EXTRA_STEP_POSITION,holder.getAdapterPosition());
                         context.startActivity(intent);
+
+
+                        // TODO BACKUP
+//                        Intent intent = new Intent(context, SimpleStepDetailActivity.class);
+//                        intent.putExtra(StepDetailFragment.ARG_RECIPE_STEP,
+//                                Parcels.wrap(holder.getStepItem()));
+//                        intent.putExtra(StepDetailFragment.ARG_TWO_PANE_MODE,mTwoPane);
+//
+//                        context.startActivity(intent);
                     }
                 }
             });

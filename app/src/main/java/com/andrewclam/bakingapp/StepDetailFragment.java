@@ -1,22 +1,20 @@
 package com.andrewclam.bakingapp;
 
-import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +22,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.andrewclam.bakingapp.models.Step;
+import com.andrewclam.bakingapp.utils.NotificationUtil;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.PlaybackParameters;
@@ -45,14 +44,13 @@ import com.squareup.picasso.Target;
 
 import org.parceler.Parcels;
 
-import static android.content.Context.NOTIFICATION_SERVICE;
 import static android.view.View.GONE;
 import static com.andrewclam.bakingapp.Constants.PACKAGE_NAME;
 
 /**
  * A fragment representing a single Step detail screen.
  * This fragment is either contained in a {@link StepListActivity}
- * in two-pane mode (on tablets) or a {@link StepDetailActivity}
+ * in two-pane mode (on tablets) or a {@link SimpleStepDetailActivity}
  * on handsets.
  */
 public class StepDetailFragment extends Fragment implements Target, Player.EventListener {
@@ -74,7 +72,7 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
     /**
      * The Step content this fragment is presenting.
      */
-    private Step mItem;
+    private Step mStepItem;
 
     /**
      * The boolean flag to keep track whether the fragment is displayed in two pane mode
@@ -128,6 +126,41 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
     public StepDetailFragment() {
     }
 
+    /**
+     * Factory static method to create new instance of the fragment
+     * with the required parameters
+     * @param mStepItem the Step item, containing the recipe step's specific id
+     * @param mTwoPane to indicate whether the fragment is part of the twoPane layout
+     * @return a new instance of the fragment
+     */
+    public static StepDetailFragment newInstance(Step mStepItem, boolean mTwoPane) {
+        Bundle args = new Bundle();
+        args.putParcelable(ARG_RECIPE_STEP, Parcels.wrap(mStepItem));
+        args.putBoolean(ARG_TWO_PANE_MODE,false);
+
+        StepDetailFragment fragment = new StepDetailFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+
+    /**
+     * Factory static method to create new instance of the fragment
+     * with the required parameters
+     * @param mStepParcelable the Step parcel, containing the recipe step object
+     * @param mTwoPane to indicate whether the fragment is part of the twoPane layout
+     * @return a new instance of the fragment
+     */
+    public static StepDetailFragment newInstance(Parcelable mStepParcelable, boolean mTwoPane) {
+        Bundle args = new Bundle();
+        args.putParcelable(ARG_RECIPE_STEP, mStepParcelable);
+        args.putBoolean(ARG_TWO_PANE_MODE,false);
+
+        StepDetailFragment fragment = new StepDetailFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -135,13 +168,19 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
         // Initialize the context
         mContext = getContext();
 
-        if (getArguments().containsKey(ARG_RECIPE_STEP)) {
+        if (getArguments().containsKey(ARG_RECIPE_STEP)
+                && getArguments().containsKey(ARG_TWO_PANE_MODE)) {
             // Load the dummy content specified by the fragment
             // arguments. In a real-world scenario, use a Loader
             // to load content from a content provider.
-            mItem = Parcels.unwrap(getArguments().getParcelable(ARG_RECIPE_STEP));
+            mStepItem = Parcels.unwrap(getArguments().getParcelable(ARG_RECIPE_STEP));
             mTwoPane = getArguments().getBoolean(ARG_TWO_PANE_MODE);
-            assert mItem != null;
+            assert mStepItem != null;
+        }else
+        {
+            String errorMsg = TAG + " instance created without the required arguments";
+            Log.e(TAG,errorMsg);
+            throw new RuntimeException(errorMsg);
         }
 
     }
@@ -166,7 +205,7 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
         /* Bind Data (Video, Image Thumbnail and Description) */
         // Bind Step Video
         // Check if the recipe step has a video (may be null or empty)
-        String videoURL = mItem.getVideoURL();
+        String videoURL = mStepItem.getVideoURL();
         if (videoURL != null && !videoURL.isEmpty()) {
             setupExoPlayerView();
             setupMediaSession();
@@ -188,7 +227,7 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
 
         // Bind Step Image Thumbnail (may be null or empty)
         // Check if there is a thumbnail image in the step
-        String thumbnailURL = mItem.getThumbnailURL();
+        String thumbnailURL = mStepItem.getThumbnailURL();
         if (thumbnailURL != null && !thumbnailURL.isEmpty())
         {
             Picasso.with(mContext).load(Uri.parse(thumbnailURL)).into(stepThumbnailIv);
@@ -200,7 +239,7 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
 
         // Bind Step Description
         // Show the step description as text in a TextView.
-        stepDescriptionTv.setText(mItem.getDescription());
+        stepDescriptionTv.setText(mStepItem.getDescription());
 
         return rootView;
     }
@@ -219,8 +258,8 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
         }else
         {
             // No saved instance state, form the title using the item
-            mTitle = getString(R.string.step, mItem.getId()) + " "
-                    + mItem.getShortDescription();
+            mTitle = getString(R.string.step, mStepItem.getId()) + " "
+                    + mStepItem.getShortDescription();
         }
 
         // Call activities to set the title of the app bar
@@ -241,7 +280,7 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
         // Get the thumbnailUrl of the step, if available,
         // load it with Picasso and then set it as the player
         // view's default artWork on bitMap loaded
-        String thumbnailURLStr = mItem.getThumbnailURL();
+        String thumbnailURLStr = mStepItem.getThumbnailURL();
         if (thumbnailURLStr != null && !thumbnailURLStr.isEmpty()) {
             // mExoPlayerView.setDefaultArtwork(bitmap) is executed
             // when the Picasso task returns with a result on the image
@@ -331,54 +370,14 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
      * @param state The PlaybackState of the MediaSession.
      */
     private void showNotification(PlaybackStateCompat state) {
-        mNotificationManager = (NotificationManager)
-                mContext.getSystemService(NOTIFICATION_SERVICE);
-
-        assert mNotificationManager != null;
-
-        /* Implement NotificationChannel for Devices running Android O or later*/
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel notificationChannel = new NotificationChannel(
-                    NOTIFICATION_CHANNEL_ID,
-                    NOTIFICATION_CHANNEL_DESCRIPTION,
-                    NotificationManager.IMPORTANCE_LOW
-            );
-
-            // Configure the notification channel.
-            notificationChannel.setDescription(NOTIFICATION_CHANNEL_DESCRIPTION);
-            notificationChannel.enableLights(true);
-            notificationChannel.setLightColor(Color.RED);
-            notificationChannel.enableVibration(false);
-            mNotificationManager.createNotificationChannel(notificationChannel);
-        }
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext,
-                NOTIFICATION_CHANNEL_ID);
-
-        // Set the NotificationAction resources
-        int icon;
-        String play_pause;
-        if (state.getState() == PlaybackStateCompat.STATE_PLAYING) {
-            icon = R.drawable.exo_controls_pause;
-            play_pause = getString(R.string.pause);
-        } else {
-            icon = R.drawable.exo_controls_play;
-            play_pause = getString(R.string.play);
-        }
-
-        NotificationCompat.Action playPauseAction = new NotificationCompat.Action(
-                icon, play_pause,
-                MediaButtonReceiver.buildMediaButtonPendingIntent(mContext,
-                        PlaybackStateCompat.ACTION_PLAY_PAUSE));
-
-        NotificationCompat.Action restartAction = new NotificationCompat
-                .Action(R.drawable.exo_controls_previous, getString(R.string.restart),
-                MediaButtonReceiver.buildMediaButtonPendingIntent
-                        (mContext, PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS));
 
         Intent intent = new Intent(mContext, StepDetailActivity.class);
-        intent.putExtra(ARG_RECIPE_STEP, Parcels.wrap(mItem));
+        intent.putExtra(ARG_RECIPE_STEP, Parcels.wrap(mStepItem));
         intent.putExtra(ARG_TWO_PANE_MODE,mTwoPane);
+
+        // FIXME !! Performance and waste design problem with the need to pass an arraylist of step
+        // to each individual step fragment for creation of notification.
+        // implement a content provider and store the Recipe, Ingredient and Steps in tables.
 
         PendingIntent contentPendingIntent = PendingIntent.getActivity(
                 mContext,
@@ -386,19 +385,80 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
-        builder.setContentTitle(getString(R.string.app_name))
-                .setContentText(getString(R.string.notification_text))
-                .setContentIntent(contentPendingIntent)
-                .setSmallIcon(R.drawable.ic_cupcake)
-                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .addAction(restartAction)
-                .addAction(playPauseAction)
-                .setOnlyAlertOnce(true) // No subsequent sound or vibration if it exists
-                .setStyle(new android.support.v4.media.app.NotificationCompat.MediaStyle()
-                        .setMediaSession(mMediaSession.getSessionToken())
-                        .setShowActionsInCompactView(0, 1));
+        NotificationUtil.showNotification(mContext,state,mMediaSession,contentPendingIntent);
 
-        mNotificationManager.notify(NOTIFICATION_ID, builder.build());
+
+//        mNotificationManager = (NotificationManager)
+//                mContext.getSystemService(NOTIFICATION_SERVICE);
+//
+//        assert mNotificationManager != null;
+//
+//        /* Implement NotificationChannel for Devices running Android O or later*/
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            NotificationChannel notificationChannel = new NotificationChannel(
+//                    NOTIFICATION_CHANNEL_ID,
+//                    NOTIFICATION_CHANNEL_DESCRIPTION,
+//                    NotificationManager.IMPORTANCE_LOW
+//            );
+//
+//            // Configure the notification channel.
+//            notificationChannel.setDescription(NOTIFICATION_CHANNEL_DESCRIPTION);
+//            notificationChannel.enableLights(true);
+//            notificationChannel.setLightColor(Color.RED);
+//            notificationChannel.enableVibration(false);
+//            mNotificationManager.createNotificationChannel(notificationChannel);
+//        }
+//
+//        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext,
+//                NOTIFICATION_CHANNEL_ID);
+//
+//        // Set the NotificationAction resources
+//        int icon;
+//        String play_pause;
+//        if (state.getState() == PlaybackStateCompat.STATE_PLAYING) {
+//            icon = R.drawable.exo_controls_pause;
+//            play_pause = getString(R.string.pause);
+//        } else {
+//            icon = R.drawable.exo_controls_play;
+//            play_pause = getString(R.string.play);
+//        }
+//
+//        NotificationCompat.Action playPauseAction = new NotificationCompat.Action(
+//                icon, play_pause,
+//                MediaButtonReceiver.buildMediaButtonPendingIntent(mContext,
+//                        PlaybackStateCompat.ACTION_PLAY_PAUSE));
+//
+//        NotificationCompat.Action restartAction = new NotificationCompat
+//                .Action(R.drawable.exo_controls_previous, getString(R.string.restart),
+//                MediaButtonReceiver.buildMediaButtonPendingIntent
+//                        (mContext, PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS));
+//
+//        Intent intent = new Intent(mContext, StepDetailActivity.class);
+//        intent.putExtra(ARG_RECIPE_STEP, Parcels.wrap(mStepItem));
+//        intent.putExtra(ARG_TWO_PANE_MODE,mTwoPane);
+//
+//        // FIXME Performance and waste problem with the need to pass an arraylist of step
+//        // to each individual step fragment for creation of notification.
+//
+//        PendingIntent contentPendingIntent = PendingIntent.getActivity(
+//                mContext,
+//                NOTIFICATION_PENDING_INTENT_RC,
+//                intent,
+//                PendingIntent.FLAG_UPDATE_CURRENT);
+//
+//        builder.setContentTitle(getString(R.string.app_name))
+//                .setContentText(getString(R.string.notification_text))
+//                .setContentIntent(contentPendingIntent)
+//                .setSmallIcon(R.drawable.ic_cupcake)
+//                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+//                .addAction(restartAction)
+//                .addAction(playPauseAction)
+//                .setOnlyAlertOnce(true) // No subsequent sound or vibration if it exists
+//                .setStyle(new android.support.v4.media.app.NotificationCompat.MediaStyle()
+//                        .setMediaSession(mMediaSession.getSessionToken())
+//                        .setShowActionsInCompactView(0, 1));
+//
+//        mNotificationManager.notify(NOTIFICATION_ID, builder.build());
     }
 
     /**
