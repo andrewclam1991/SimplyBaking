@@ -41,12 +41,7 @@
                 android:value="com.andrewclam.bakingapp.StepListActivity" />
         </activity>
 
-        <!-- TODO [ExoPlayer Media Playback ] Step 10 - Register receiver for MediaButton actions -->
-        <receiver android:name=".StepDetailFragment$MediaReceiver">
-            <intent-filter>
-                <action android:name="android.intent.action.MEDIA_BUTTON" />
-            </intent-filter>
-        </receiver>
+
 
         <activity
             android:name=".StepDetailActivity"
@@ -59,8 +54,17 @@
                 android:value="com.andrewclam.bakingapp.StepListActivity" />
         </activity>
 
-        <!-- TODO [Widget] Step 1 - Register the widget update receiver with the provider -->
-        <receiver android:name=".SimplyBakingWidgetProvider">
+        <!-- TODO [Widget] Step 1 - Register the widget remote view service -->
+        <service
+            android:name=".services.WidgetRemoteViewService"
+            android:permission="android.permission.BIND_REMOTEVIEWS" />
+
+        <service
+            android:name=".services.WidgetIntentService"
+            android:exported="false" />
+
+        <!-- TODO [Widget] Step 2 - Register the widget update receiver with the provider -->
+        <receiver android:name=".WidgetProvider">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -70,15 +74,13 @@
                 android:resource="@xml/simply_baking_widget_info" />
         </receiver>
 
-        <!-- TODO [Widget] Step 2 - Register the widget remote view service -->
-        <service
-            android:name=".services.SimplyBakingWidgetRemoteViewService"
-            android:permission="android.permission.BIND_REMOTEVIEWS"
-            android:exported="false"/>
+        <!-- TODO [ExoPlayer Media Playback ] Step 10 - Register receiver for MediaButton actions -->
+        <receiver android:name=".StepDetailFragment$MediaReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </receiver>
 
-        <service
-            android:name=".services.SimplyBakingWidgetIntentService"
-            android:exported="false" />
     </application>
 
 </manifest>

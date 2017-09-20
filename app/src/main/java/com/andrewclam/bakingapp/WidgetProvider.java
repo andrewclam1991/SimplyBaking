@@ -1,16 +1,19 @@
 package com.andrewclam.bakingapp;
 
+import android.annotation.TargetApi;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.andrewclam.bakingapp.models.Recipe;
-import com.andrewclam.bakingapp.services.SimplyBakingWidgetIntentService;
-import com.andrewclam.bakingapp.services.SimplyBakingWidgetRemoteViewService;
+import com.andrewclam.bakingapp.services.WidgetIntentService;
+import com.andrewclam.bakingapp.services.WidgetRemoteViewService;
 
 import org.parceler.Parcels;
 
@@ -21,12 +24,12 @@ import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE_LIST;
 /**
  * Implementation of App Widget functionality.
  */
-public class SimplyBakingWidgetProvider extends AppWidgetProvider {
+public class WidgetProvider extends AppWidgetProvider {
 
     /**
      * Debug Tag
      */
-    private static final String TAG = SimplyBakingWidgetProvider.class.getSimpleName();
+    private static final String TAG = WidgetProvider.class.getSimpleName();
 
     /**
      * updateAppWidget() is where UI bind the data
@@ -52,18 +55,30 @@ public class SimplyBakingWidgetProvider extends AppWidgetProvider {
             // Construct the RemoteViews
             RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_recipe);
 
-            Intent adapterIntent = new Intent(context, SimplyBakingWidgetRemoteViewService.class);
-            adapterIntent.putExtra(EXTRA_RECIPE_LIST,Parcels.wrap(mRecipes));
-            views.setRemoteAdapter(R.id.widget_recipe_flipper,adapterIntent);
-            views.showNext(R.id.widget_recipe_flipper);
+            Log.d(TAG, "RemoteViews created with packageName" + context.getPackageName());
 
-            // Instruct the widget manager to update the widget
+            Intent adapterIntent = new Intent(context, WidgetRemoteViewService.class);
+            adapterIntent.putExtra(EXTRA_RECIPE_LIST,Parcels.wrap(mRecipes));
+            adapterIntent.setData(Uri.parse(adapterIntent.toUri(Intent.URI_INTENT_SCHEME)));
+
+            views.setRemoteAdapter(R.id.widget_recipe_flipper,adapterIntent);
+
+            // Handle empty recipe
+            views.setEmptyView(R.id.widget_recipe_flipper, R.id.widget_empty_view);
+
+
+
+            Log.d(TAG, "setRemoteAdapter with adapterIntent");
+
             appWidgetManager.updateAppWidget(appWidgetId, views);
+
+            Log.d(TAG, "appWidgetManager.updateAppWidget() called for appWidgetid " + appWidgetId);
 
         } else {
             Log.e(TAG, "updateAppWidget() recipes is empty and not available");
         }
     }
+
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
@@ -71,7 +86,7 @@ public class SimplyBakingWidgetProvider extends AppWidgetProvider {
         // the widgets UI. There may be multiple widgets active, so update all of them
         Log.d(TAG, "onUpdate() call received, calling IntentService to start" +
                 "action UpdateWidget");
-        SimplyBakingWidgetIntentService.startActionUpdateWidget(context);
+        WidgetIntentService.startActionUpdateWidget(context);
     }
 
     /**
@@ -84,20 +99,21 @@ public class SimplyBakingWidgetProvider extends AppWidgetProvider {
     public static void updateSimplyBakingWidgets(Context context, AppWidgetManager appWidgetManager,
                                                  int[] appWidgetIds, Bundle args) {
         Log.d(TAG,"updateSimplyBakingWidgets() is called by" +
-                "SimplyBakingWidgetIntentService, updating all the widgetIds");
+                "WidgetIntentService, updating all the widgetIds");
 
         for (int appWidgetId : appWidgetIds) {
+            Log.d(TAG, "called updateAppWidget() with appWidgetId: " + appWidgetId);
             updateAppWidget(context, appWidgetManager, appWidgetId, args);
         }
     }
 
-//    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-//    @Override
-//    public void onAppWidgetOptionsChanged(Context context, AppWidgetManager appWidgetManager,
-//                                          int appWidgetId, Bundle newOptions) {
-//        SimplyBakingWidgetIntentService.startActionUpdateWidget(context);
-//        super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions);
-//    }
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    @Override
+    public void onAppWidgetOptionsChanged(Context context, AppWidgetManager appWidgetManager,
+                                          int appWidgetId, Bundle newOptions) {
+        WidgetIntentService.startActionUpdateWidget(context);
+        super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions);
+    }
 
     @Override
     public void onEnabled(Context context) {

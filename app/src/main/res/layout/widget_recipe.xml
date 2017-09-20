@@ -5,13 +5,11 @@
     android:layout_height="match_parent"
     android:padding="@dimen/widget_margin" >
 
-    <StackView
+    <AdapterViewFlipper
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/widget_recipe_flipper"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:loopViews="true"/>
+        android:layout_height="match_parent"/>
 
     <TextView xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/widget_empty_view"

@@ -8,10 +8,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.andrewclam.bakingapp.SimplyBakingWidgetProvider;
+import com.andrewclam.bakingapp.R;
+import com.andrewclam.bakingapp.WidgetProvider;
 import com.andrewclam.bakingapp.asyncTasks.FetchRecipeAsyncTask;
 import com.andrewclam.bakingapp.models.Recipe;
-import com.google.android.exoplayer2.ui.BuildConfig;
 
 import org.parceler.Parcels;
 
@@ -25,12 +25,12 @@ import static com.andrewclam.bakingapp.Constants.PACKAGE_NAME;
  * An {@link IntentService} subclass for handling asynchronous task requests in
  * a service on a separate handler thread.
  */
-public class SimplyBakingWidgetIntentService extends IntentService
+public class WidgetIntentService extends IntentService
         implements FetchRecipeAsyncTask.onFetchRecipeActionListener{
     /**
      * Debug Tag
      */
-    private static final String TAG = SimplyBakingWidgetIntentService.class.getSimpleName();
+    private static final String TAG = WidgetIntentService.class.getSimpleName();
 
     /**
      * Actions that the intent service can perform
@@ -38,8 +38,8 @@ public class SimplyBakingWidgetIntentService extends IntentService
     private static final String ACTION_UPDATE_WIDGET = PACKAGE_NAME
             + ".services.action.update.widget";
 
-    public SimplyBakingWidgetIntentService() {
-        super(SimplyBakingWidgetIntentService.class.getSimpleName());
+    public WidgetIntentService() {
+        super(WidgetIntentService.class.getSimpleName());
     }
 
     /**
@@ -53,7 +53,7 @@ public class SimplyBakingWidgetIntentService extends IntentService
         Log.d(TAG, "startActionUpdateWidget() call received, " +
                 "starting service with ACTION_UPDATE_WIDGET");
 
-        Intent intent = new Intent(context, SimplyBakingWidgetIntentService.class);
+        Intent intent = new Intent(context, WidgetIntentService.class);
         intent.setAction(ACTION_UPDATE_WIDGET);
         context.startService(intent);
     }
@@ -72,9 +72,8 @@ public class SimplyBakingWidgetIntentService extends IntentService
                     break;
 
                 default:
-                    if (BuildConfig.DEBUG) throw new UnsupportedOperationException(
+                    throw new UnsupportedOperationException(
                             "Unsupported Action");
-                    break;
             }
         }
     }
@@ -100,18 +99,20 @@ public class SimplyBakingWidgetIntentService extends IntentService
         Log.d(TAG,"onRecipesReady() Got recipe ready callback from" +
                 "FetchRecipeAsyncTask()");
 
-        Context context = getApplicationContext();
+        Context context = WidgetIntentService.this;
 
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
 
         int[] appWidgetIds = appWidgetManager.getAppWidgetIds(
-                new ComponentName(context, SimplyBakingWidgetProvider.class));
+                new ComponentName(context, WidgetProvider.class));
+
+        appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widget_recipe_flipper);
 
         Bundle args = new Bundle();
         args.putParcelable(EXTRA_RECIPE_LIST, Parcels.wrap(recipes));
 
         // Call the static method in the widget provider class to do widget update
-        SimplyBakingWidgetProvider.updateSimplyBakingWidgets(
+        WidgetProvider.updateSimplyBakingWidgets(
                 context,
                 appWidgetManager,
                 appWidgetIds,
