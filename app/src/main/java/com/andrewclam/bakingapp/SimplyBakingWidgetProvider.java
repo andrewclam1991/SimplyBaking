@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,6 +12,7 @@ import android.widget.RemoteViews;
 
 import com.andrewclam.bakingapp.models.Recipe;
 import com.andrewclam.bakingapp.services.SimplyBakingWidgetIntentService;
+import com.andrewclam.bakingapp.services.SimplyBakingWidgetRemoteViewService;
 import com.google.android.exoplayer2.ui.BuildConfig;
 
 import org.parceler.Parcels;
@@ -48,17 +50,16 @@ public class SimplyBakingWidgetProvider extends AppWidgetProvider {
 
         if (mRecipes != null && mRecipes.size() > 0) {
 
-            // UI Text Strings
-            String recipeNameStr = mRecipes.get(0).getName();
-            String servingStr = context.getString(R.string.serving, mRecipes.get(0).getServings());
-
-            // Construct the RemoteViews object
+            // Construct the RemoteViews
             RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_recipe);
-            views.setTextViewText(R.id.recipe_name_tv, recipeNameStr);
-            views.setTextViewText(R.id.recipe_servings_tv, servingStr);
+
+            Intent adapterIntent = new Intent(context, SimplyBakingWidgetRemoteViewService.class);
+            adapterIntent.putExtra(EXTRA_RECIPE_LIST,Parcels.wrap(mRecipes));
+            views.setRemoteAdapter(R.id.recipe_flipper,adapterIntent);
 
             // Instruct the widget manager to update the widget
             appWidgetManager.updateAppWidget(appWidgetId, views);
+
         } else {
             Log.e(TAG, "updateAppWidget() recipes is empty and not available");
         }

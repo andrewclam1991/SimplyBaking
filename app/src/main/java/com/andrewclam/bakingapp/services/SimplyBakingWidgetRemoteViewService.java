@@ -19,6 +19,8 @@ import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE_LIST;
 
 /**
  * Created by Andrew Chi Heng Lam on 9/20/2017.
+ * This remote view service will serve as the data adapter and create remote views for
+ * the calling remote view
  */
 
 public class SimplyBakingWidgetRemoteViewService extends RemoteViewsService {
@@ -28,7 +30,7 @@ public class SimplyBakingWidgetRemoteViewService extends RemoteViewsService {
         return new ViewFlipperRemoteViewFactory(this.getApplicationContext(),mRecipes);
     }
 
-    private class ViewFlipperRemoteViewFactory implements RemoteViewsService.RemoteViewsFactory {
+    class ViewFlipperRemoteViewFactory implements RemoteViewsService.RemoteViewsFactory {
         private final static int WIDGET_VIEWFLIPPER_PENDING_INTENT_RC = 4321;
         private final Context mContext;
         private ArrayList<Recipe> mRecipes;
@@ -104,12 +106,12 @@ public class SimplyBakingWidgetRemoteViewService extends RemoteViewsService {
 
         @Override
         public int getViewTypeCount() {
-            return 0;
+            return 1;
         }
 
         @Override
-        public long getItemId(int i) {
-            return 0;
+        public long getItemId(int position) {
+            return position;
         }
 
         @Override

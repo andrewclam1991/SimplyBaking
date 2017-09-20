@@ -70,9 +70,14 @@
                 android:resource="@xml/simply_baking_widget_info" />
         </receiver>
 
+        <!-- TODO [Widget] Step 2 - Register the widget remote view service -->
+        <service
+            android:name=".services.SimplyBakingWidgetRemoteViewService"
+            android:permission="android.permission.BIND_REMOTEVIEWS" />
+
         <service
             android:name=".services.SimplyBakingWidgetIntentService"
-            android:exported="false"/>
+            android:exported="false" />
     </application>
 
 </manifest>

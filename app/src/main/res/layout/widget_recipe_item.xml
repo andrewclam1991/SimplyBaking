@@ -27,12 +27,12 @@
     </LinearLayout>
 
     <!-- Widget Recipe Ingredient ListView -->
-    <ListView
-        android:id="@+id/widget_ingredient_list_lv"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        tools:listitem="@layout/ingredient_list_item"/>
+    <!--<ListView-->
+        <!--android:id="@+id/widget_ingredient_list_lv"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="0dp"-->
+        <!--android:layout_weight="1"-->
+        <!--tools:listitem="@layout/ingredient_list_item"/>-->
 
     <!-- Widget Button to show step -->
 
