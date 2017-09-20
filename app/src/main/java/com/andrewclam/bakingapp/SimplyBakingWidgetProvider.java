@@ -47,12 +47,15 @@ public class SimplyBakingWidgetProvider extends AppWidgetProvider {
 
         if (mRecipes != null && mRecipes.size() > 0) {
 
+            Log.d(TAG, "updateAppWidget() mRecipes is not null, constructing the remoteViews");
+
             // Construct the RemoteViews
             RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_recipe);
 
             Intent adapterIntent = new Intent(context, SimplyBakingWidgetRemoteViewService.class);
             adapterIntent.putExtra(EXTRA_RECIPE_LIST,Parcels.wrap(mRecipes));
             views.setRemoteAdapter(R.id.widget_recipe_flipper,adapterIntent);
+            views.showNext(R.id.widget_recipe_flipper);
 
             // Instruct the widget manager to update the widget
             appWidgetManager.updateAppWidget(appWidgetId, views);

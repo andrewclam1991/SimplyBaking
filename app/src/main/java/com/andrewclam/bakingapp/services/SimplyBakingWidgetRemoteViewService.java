@@ -3,6 +3,7 @@ package com.andrewclam.bakingapp.services;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
@@ -24,8 +25,11 @@ import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE_LIST;
  */
 
 public class SimplyBakingWidgetRemoteViewService extends RemoteViewsService {
+    private static final String TAG = SimplyBakingWidgetRemoteViewService.class.getSimpleName();
+
     @Override
     public RemoteViewsFactory onGetViewFactory(Intent intent) {
+        Log.d(TAG, "onGetViewFactory() called with intent");
         ArrayList<Recipe> mRecipes = Parcels.unwrap(intent.getParcelableExtra(EXTRA_RECIPE_LIST));
         return new ViewFlipperRemoteViewFactory(this.getApplicationContext(),mRecipes);
     }
@@ -71,6 +75,8 @@ public class SimplyBakingWidgetRemoteViewService extends RemoteViewsService {
          */
         @Override
         public RemoteViews getViewAt(int position) {
+            Log.d(TAG,"getViewAt() call back received at position " + position);
+
             RemoteViews views = new RemoteViews(mContext.getPackageName(),
                     R.layout.widget_recipe_item);
 
