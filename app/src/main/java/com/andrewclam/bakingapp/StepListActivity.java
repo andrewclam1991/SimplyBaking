@@ -51,7 +51,7 @@ public class StepListActivity extends AppCompatActivity implements
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
      * device.
      */
-    private boolean mTwoPane;
+    private boolean mTwoPane = false;
 
     /**
      * Recipe Object, show a list of steps
@@ -87,16 +87,16 @@ public class StepListActivity extends AppCompatActivity implements
             mTwoPane = true;
         }
 
-        /* UI Setup - Recipe Header (Title Name and Serving)*/
-        TextView servingTv = findViewById(R.id.recipe_servings_tv);
-        TextView numStepsTv = findViewById(R.id.steps_num_tv);
-
+        /* UI Setup - Recipe Header (Activity Title, Serving and Number of Steps)*/
         // Show the Up button in the action bar.
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setTitle(mRecipe.getName());
         }
+
+        TextView servingTv = findViewById(R.id.recipe_servings_tv);
+        TextView numStepsTv = findViewById(R.id.steps_num_tv);
 
         servingTv.setText(getString(R.string.serving, mRecipe.getServings()));
         numStepsTv.setText(getString(R.string.num_steps,mRecipe.getSteps().size()));

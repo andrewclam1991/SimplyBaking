@@ -5,9 +5,18 @@
     android:padding="@dimen/widget_margin">
 
     <!-- Widget Header -->
-    <include layout="@layout/recipe_list_item"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/recipe_name_tv"/>
 
-    <!-- Ingredient Label and List -->
-    <include layout="@layout/ingredient_list"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/recipe_servings_tv"/>
+
+
+    <!-- Ingredients List View -->
+    <!-- TODO [Widget] Step 2 Show AdapterViewFlipper of each Available Recipes -->
 
 </LinearLayout>

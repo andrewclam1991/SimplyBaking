@@ -1,0 +1,101 @@
+package com.andrewclam.bakingapp.services;
+
+import android.app.IntentService;
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+
+import com.andrewclam.bakingapp.SimplyBakingWidgetProvider;
+import com.andrewclam.bakingapp.asyncTasks.FetchRecipeAsyncTask;
+import com.andrewclam.bakingapp.models.Recipe;
+import com.google.android.exoplayer2.ui.BuildConfig;
+
+import org.parceler.Parcels;
+
+import java.util.ArrayList;
+
+import static com.andrewclam.bakingapp.Constants.DATA_URL;
+import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE;
+import static com.andrewclam.bakingapp.Constants.PACKAGE_NAME;
+
+/**
+ * An {@link IntentService} subclass for handling asynchronous task requests in
+ * a service on a separate handler thread.
+ */
+public class SimplyBakingWidgetIntentService extends IntentService
+        implements FetchRecipeAsyncTask.onFetchRecipeActionListener{
+
+    /**
+     * Debug Tag
+     */
+    private static final String TAG = SimplyBakingWidgetIntentService.class.getSimpleName();
+
+
+    // IntentService can perform, e.g. ACTION_FETCH_NEW_ITEMS
+    private static final String ACTION_UPDATE_WIDGET = PACKAGE_NAME
+            + ".services.action.update.widget";
+
+    private static final String EXTRA_PARAM1 = PACKAGE_NAME + ".services.extra.PARAM1";
+    private static final String EXTRA_PARAM2 = PACKAGE_NAME + ".services.extra.PARAM2";
+
+    public SimplyBakingWidgetIntentService() {
+        super(SimplyBakingWidgetIntentService.class.getSimpleName());
+    }
+
+    /**
+     * Starts this service to perform action Foo with the given parameters. If
+     * the service is already performing a task this action will be queued.
+     *
+     * @see IntentService
+     */
+    public static void startActionUpdateWidget(Context context) {
+        Intent intent = new Intent(context, SimplyBakingWidgetIntentService.class);
+        intent.setAction(ACTION_UPDATE_WIDGET);
+        context.startService(intent);
+    }
+
+    @Override
+    protected void onHandleIntent(Intent intent) {
+        if (intent != null) {
+            final String action = intent.getAction();
+            if (ACTION_UPDATE_WIDGET.equals(action)) {
+                handleActionUpdateWidget();
+            }
+        }
+    }
+
+    /**
+     * Handle action Foo in the provided background thread with the provided
+     * parameters.
+     */
+    private void handleActionUpdateWidget() {
+        // Fetch recipe from the internet
+        /* Async Load Recipe Data */
+        new FetchRecipeAsyncTask()
+                .setDataURL(DATA_URL)
+                .setListener(this)
+                .execute();
+    }
+
+    @Override
+    public void onRecipesReady(ArrayList<Recipe> recipes) {
+        // Log callback
+        if (BuildConfig.DEBUG) Log.d(TAG,"Got recipe ready callback");
+
+        Context context = SimplyBakingWidgetIntentService.this;
+
+        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
+        int[] appWidgetIds = appWidgetManager.getAppWidgetIds(
+                new ComponentName(this, SimplyBakingWidgetProvider.class));
+
+        Bundle args = new Bundle();
+        args.putParcelable(EXTRA_RECIPE, Parcels.wrap(recipes));
+
+        // Call the static method in the widget provider class to do widget update
+        SimplyBakingWidgetProvider.updateSimplyBakingWidgets(context, appWidgetManager, appWidgetIds,
+                args);
+    }
+}

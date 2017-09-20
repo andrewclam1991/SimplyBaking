@@ -59,7 +59,7 @@
                 android:value="com.andrewclam.bakingapp.StepListActivity" />
         </activity>
 
-        <!-- TODO [App Widget] Step 1 - Register the widget update receiver and provider -->
+        <!-- TODO [Widget] Step 1 - Register the widget update receiver with the provider -->
         <receiver android:name=".SimplyBakingWidgetProvider">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -71,8 +71,8 @@
         </receiver>
 
         <service
-            android:name=".services.WidgetIntentService"
-            android:exported="false"></service>
+            android:name=".services.SimplyBakingWidgetIntentService"
+            android:exported="false"/>
     </application>
 
 </manifest>

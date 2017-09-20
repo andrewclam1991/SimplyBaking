@@ -18,6 +18,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.andrewclam.bakingapp.models.Step;
+import com.google.android.exoplayer2.ui.BuildConfig;
 
 import org.parceler.Parcels;
 
@@ -25,7 +26,8 @@ import java.util.ArrayList;
 
 import static com.andrewclam.bakingapp.StepDetailFragment.ARG_TWO_PANE_MODE;
 
-public class StepDetailActivity extends AppCompatActivity implements StepDetailFragment.OnStepDetailFragmentInteraction{
+public class StepDetailActivity extends AppCompatActivity implements
+        StepDetailFragment.OnStepDetailFragmentInteraction{
 
     /**
      * The list of steps to populate the dropdown spinner adapter
@@ -72,6 +74,13 @@ public class StepDetailActivity extends AppCompatActivity implements StepDetailF
 
         if (getIntent().hasExtra(ARG_TWO_PANE_MODE)) {
             mTwoPane = getIntent().getBooleanExtra(ARG_TWO_PANE_MODE, false);
+
+            if (BuildConfig.DEBUG)
+            {
+                // This activity should only be fired when the twoPane mode is false
+                if (mTwoPane) throw new AssertionError("error, StepDetailActivity should never" +
+                        "start in twoPane mode");
+            }
         }
 
         // Initialize the StepsAdapter
@@ -97,7 +106,7 @@ public class StepDetailActivity extends AppCompatActivity implements StepDetailF
                 // fired in two panes mode
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.container, StepDetailFragment.newInstance(
-                                selectedStep, false))
+                                selectedStep, mTwoPane))
                         .commit();
             }
 
@@ -110,7 +119,7 @@ public class StepDetailActivity extends AppCompatActivity implements StepDetailF
 
     @Override
     public void setTitle(String title) {
-
+        // No need to set title
     }
 
 
