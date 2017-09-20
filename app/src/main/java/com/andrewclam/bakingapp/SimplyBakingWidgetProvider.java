@@ -1,11 +1,9 @@
 package com.andrewclam.bakingapp;
 
-import android.annotation.TargetApi;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.RemoteViews;
@@ -13,7 +11,6 @@ import android.widget.RemoteViews;
 import com.andrewclam.bakingapp.models.Recipe;
 import com.andrewclam.bakingapp.services.SimplyBakingWidgetIntentService;
 import com.andrewclam.bakingapp.services.SimplyBakingWidgetRemoteViewService;
-import com.google.android.exoplayer2.ui.BuildConfig;
 
 import org.parceler.Parcels;
 
@@ -46,7 +43,7 @@ public class SimplyBakingWidgetProvider extends AppWidgetProvider {
         // Get the recipes from the bundle args
         ArrayList<Recipe> mRecipes = Parcels.unwrap(args.getParcelable(EXTRA_RECIPE_LIST));
 
-        if (BuildConfig.DEBUG) Log.d(TAG, "updateAppWidget() Got mRecipes from the intentService");
+        Log.d(TAG, "updateAppWidget() Got mRecipes from the intentService");
 
         if (mRecipes != null && mRecipes.size() > 0) {
 
@@ -55,7 +52,7 @@ public class SimplyBakingWidgetProvider extends AppWidgetProvider {
 
             Intent adapterIntent = new Intent(context, SimplyBakingWidgetRemoteViewService.class);
             adapterIntent.putExtra(EXTRA_RECIPE_LIST,Parcels.wrap(mRecipes));
-            views.setRemoteAdapter(R.id.recipe_flipper,adapterIntent);
+            views.setRemoteAdapter(R.id.widget_recipe_flipper,adapterIntent);
 
             // Instruct the widget manager to update the widget
             appWidgetManager.updateAppWidget(appWidgetId, views);
@@ -69,6 +66,8 @@ public class SimplyBakingWidgetProvider extends AppWidgetProvider {
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         // Start the intent service update widget action, the service takes care of updating
         // the widgets UI. There may be multiple widgets active, so update all of them
+        Log.d(TAG, "onUpdate() call received, calling IntentService to start" +
+                "action UpdateWidget");
         SimplyBakingWidgetIntentService.startActionUpdateWidget(context);
     }
 
@@ -81,18 +80,21 @@ public class SimplyBakingWidgetProvider extends AppWidgetProvider {
      */
     public static void updateSimplyBakingWidgets(Context context, AppWidgetManager appWidgetManager,
                                                  int[] appWidgetIds, Bundle args) {
+        Log.d(TAG,"updateSimplyBakingWidgets() is called by" +
+                "SimplyBakingWidgetIntentService, updating all the widgetIds");
+
         for (int appWidgetId : appWidgetIds) {
             updateAppWidget(context, appWidgetManager, appWidgetId, args);
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    @Override
-    public void onAppWidgetOptionsChanged(Context context, AppWidgetManager appWidgetManager,
-                                          int appWidgetId, Bundle newOptions) {
-        SimplyBakingWidgetIntentService.startActionUpdateWidget(context);
-        super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions);
-    }
+//    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+//    @Override
+//    public void onAppWidgetOptionsChanged(Context context, AppWidgetManager appWidgetManager,
+//                                          int appWidgetId, Bundle newOptions) {
+//        SimplyBakingWidgetIntentService.startActionUpdateWidget(context);
+//        super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions);
+//    }
 
     @Override
     public void onEnabled(Context context) {

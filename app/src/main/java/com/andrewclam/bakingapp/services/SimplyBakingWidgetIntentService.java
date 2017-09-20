@@ -49,6 +49,10 @@ public class SimplyBakingWidgetIntentService extends IntentService
      * @see IntentService
      */
     public static void startActionUpdateWidget(Context context) {
+
+        Log.d(TAG, "startActionUpdateWidget() call received, " +
+                "starting service with ACTION_UPDATE_WIDGET");
+
         Intent intent = new Intent(context, SimplyBakingWidgetIntentService.class);
         intent.setAction(ACTION_UPDATE_WIDGET);
         context.startService(intent);
@@ -61,6 +65,9 @@ public class SimplyBakingWidgetIntentService extends IntentService
             switch (action)
             {
                 case ACTION_UPDATE_WIDGET:
+                    Log.d(TAG, "ACTION_UPDATE_WIDGET received, " +
+                            "calling handleActionUpdateWidget()");
+
                     handleActionUpdateWidget();
                     break;
 
@@ -79,6 +86,8 @@ public class SimplyBakingWidgetIntentService extends IntentService
     private void handleActionUpdateWidget() {
         // Fetch recipe from the internet
         /* Async Load Recipe Data */
+        Log.d(TAG, "handleActionUpdateWidget() called, " +
+                "calling FetchRecipeAsyncTask() to get the recipes from the web");
         new FetchRecipeAsyncTask()
                 .setDataURL(DATA_URL)
                 .setListener(this)
@@ -88,13 +97,15 @@ public class SimplyBakingWidgetIntentService extends IntentService
     @Override
     public void onRecipesReady(ArrayList<Recipe> recipes) {
         // Log callback
-        if (BuildConfig.DEBUG) Log.d(TAG,"Got recipe ready callback");
+        Log.d(TAG,"onRecipesReady() Got recipe ready callback from" +
+                "FetchRecipeAsyncTask()");
 
-        Context context = SimplyBakingWidgetIntentService.this;
+        Context context = getApplicationContext();
 
-        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
+        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+
         int[] appWidgetIds = appWidgetManager.getAppWidgetIds(
-                new ComponentName(this, SimplyBakingWidgetProvider.class));
+                new ComponentName(context, SimplyBakingWidgetProvider.class));
 
         Bundle args = new Bundle();
         args.putParcelable(EXTRA_RECIPE_LIST, Parcels.wrap(recipes));

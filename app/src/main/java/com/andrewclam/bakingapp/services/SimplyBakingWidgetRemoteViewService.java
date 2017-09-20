@@ -116,7 +116,7 @@ public class SimplyBakingWidgetRemoteViewService extends RemoteViewsService {
 
         @Override
         public boolean hasStableIds() {
-            return false;
+            return true;
         }
     }
 }
