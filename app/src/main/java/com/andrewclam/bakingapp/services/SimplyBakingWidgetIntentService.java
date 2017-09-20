@@ -18,7 +18,7 @@ import org.parceler.Parcels;
 import java.util.ArrayList;
 
 import static com.andrewclam.bakingapp.Constants.DATA_URL;
-import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE;
+import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE_LIST;
 import static com.andrewclam.bakingapp.Constants.PACKAGE_NAME;
 
 /**
@@ -27,19 +27,16 @@ import static com.andrewclam.bakingapp.Constants.PACKAGE_NAME;
  */
 public class SimplyBakingWidgetIntentService extends IntentService
         implements FetchRecipeAsyncTask.onFetchRecipeActionListener{
-
     /**
      * Debug Tag
      */
     private static final String TAG = SimplyBakingWidgetIntentService.class.getSimpleName();
 
-
-    // IntentService can perform, e.g. ACTION_FETCH_NEW_ITEMS
+    /**
+     * Actions that the intent service can perform
+     */
     private static final String ACTION_UPDATE_WIDGET = PACKAGE_NAME
             + ".services.action.update.widget";
-
-    private static final String EXTRA_PARAM1 = PACKAGE_NAME + ".services.extra.PARAM1";
-    private static final String EXTRA_PARAM2 = PACKAGE_NAME + ".services.extra.PARAM2";
 
     public SimplyBakingWidgetIntentService() {
         super(SimplyBakingWidgetIntentService.class.getSimpleName());
@@ -61,14 +58,22 @@ public class SimplyBakingWidgetIntentService extends IntentService
     protected void onHandleIntent(Intent intent) {
         if (intent != null) {
             final String action = intent.getAction();
-            if (ACTION_UPDATE_WIDGET.equals(action)) {
-                handleActionUpdateWidget();
+            switch (action)
+            {
+                case ACTION_UPDATE_WIDGET:
+                    handleActionUpdateWidget();
+                    break;
+
+                default:
+                    if (BuildConfig.DEBUG) throw new UnsupportedOperationException(
+                            "Unsupported Action");
+                    break;
             }
         }
     }
 
     /**
-     * Handle action Foo in the provided background thread with the provided
+     * Handle ActionUpdateWidget in the provided background thread with the provided
      * parameters.
      */
     private void handleActionUpdateWidget() {
@@ -92,10 +97,13 @@ public class SimplyBakingWidgetIntentService extends IntentService
                 new ComponentName(this, SimplyBakingWidgetProvider.class));
 
         Bundle args = new Bundle();
-        args.putParcelable(EXTRA_RECIPE, Parcels.wrap(recipes));
+        args.putParcelable(EXTRA_RECIPE_LIST, Parcels.wrap(recipes));
 
         // Call the static method in the widget provider class to do widget update
-        SimplyBakingWidgetProvider.updateSimplyBakingWidgets(context, appWidgetManager, appWidgetIds,
+        SimplyBakingWidgetProvider.updateSimplyBakingWidgets(
+                context,
+                appWidgetManager,
+                appWidgetIds,
                 args);
     }
 }

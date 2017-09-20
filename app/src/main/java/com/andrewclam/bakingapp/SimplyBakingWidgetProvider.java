@@ -17,41 +17,57 @@ import org.parceler.Parcels;
 
 import java.util.ArrayList;
 
-import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE;
-import static com.google.android.exoplayer2.ExoPlayerLibraryInfo.TAG;
+import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE_LIST;
 
 /**
  * Implementation of App Widget functionality.
  */
 public class SimplyBakingWidgetProvider extends AppWidgetProvider {
 
+    /**
+     * Debug Tag
+     */
+    private static final String TAG = SimplyBakingWidgetProvider.class.getSimpleName();
+
+    /**
+     * updateAppWidget() is where UI bind the data
+     *
+     * @param context          the application context
+     * @param appWidgetManager the widget manager used to update the appwidget by id
+     * @param appWidgetId      the particular widget id to update
+     * @param args             the arguments and data to populate the widget with, args
+     *                         contain the list of recipes
+     */
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
                                 int appWidgetId, Bundle args) {
 
         // Get the recipes from the bundle args
-        ArrayList<Recipe> mRecipes = Parcels.unwrap(args.getParcelable(EXTRA_RECIPE));
+        ArrayList<Recipe> mRecipes = Parcels.unwrap(args.getParcelable(EXTRA_RECIPE_LIST));
 
-        if (BuildConfig.DEBUG) Log.d(TAG,"Got mRecipes from the intentService");
+        if (BuildConfig.DEBUG) Log.d(TAG, "updateAppWidget() Got mRecipes from the intentService");
 
-        // UI Text Strings
-        String recipeNameStr = mRecipes.get(0).getName();
-        String servingStr = context.getString(R.string.serving,mRecipes.get(0).getServings());
+        if (mRecipes != null && mRecipes.size() > 0) {
 
-        // Construct the RemoteViews object
-        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.simply_baking_widget);
-        views.setTextViewText(R.id.recipe_name_tv, recipeNameStr);
-        views.setTextViewText(R.id.recipe_servings_tv, servingStr);
+            // UI Text Strings
+            String recipeNameStr = mRecipes.get(0).getName();
+            String servingStr = context.getString(R.string.serving, mRecipes.get(0).getServings());
 
-        // Instruct the widget manager to update the widget
-        appWidgetManager.updateAppWidget(appWidgetId, views);
+            // Construct the RemoteViews object
+            RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_recipe);
+            views.setTextViewText(R.id.recipe_name_tv, recipeNameStr);
+            views.setTextViewText(R.id.recipe_servings_tv, servingStr);
+
+            // Instruct the widget manager to update the widget
+            appWidgetManager.updateAppWidget(appWidgetId, views);
+        } else {
+            Log.e(TAG, "updateAppWidget() recipes is empty and not available");
+        }
     }
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
-        // There may be multiple widgets active, so update all of them
-
         // Start the intent service update widget action, the service takes care of updating
-        // the widgets UI
+        // the widgets UI. There may be multiple widgets active, so update all of them
         SimplyBakingWidgetIntentService.startActionUpdateWidget(context);
     }
 
@@ -80,7 +96,6 @@ public class SimplyBakingWidgetProvider extends AppWidgetProvider {
     @Override
     public void onEnabled(Context context) {
         // Enter relevant functionality for when the first widget is created
-        SimplyBakingWidgetIntentService.startActionUpdateWidget(context);
     }
 
     @Override
