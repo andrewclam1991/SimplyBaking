@@ -4,9 +4,6 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <!-- Recipe List Item layout as the header -->
-    <include layout="@layout/recipe_list_item" />
-
     <!-- Recipe Ingredients Label-->
     <include layout="@layout/ingredient_list"/>
 

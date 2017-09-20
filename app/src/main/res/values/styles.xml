@@ -17,7 +17,27 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
-    <style name="ListStyle">
+    <style name="ListLabelContainerStyle">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingTop">8dp</item>
+    </style>
+
+    <style name="ListLabelTitleStyle">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="ListLabelTitleSubStyle">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="ListItemStyle">
         <item name="android:layout_height">wrap_content</item>
         <item name="android:minHeight">56dp</item>
         <item name="android:layout_width">match_parent</item>
@@ -26,22 +46,19 @@
         <item name="android:orientation">horizontal</item>
     </style>
 
-    <style name="ListItemStyle">
+    <style name="ListSubItemStyle">
         <item name="android:textSize">16sp</item>
         <item name="android:layout_gravity">center_vertical</item>
         <item name="android:fontFamily">sans-serif-regular</item>
         <item name="android:textColor">@color/colorPrimaryText</item>
     </style>
 
-    <style name="ListTitleLabelStyle">
-        <item name="android:layout_height">wrap_content</item>
+    <style name="ListItemDividerStyle">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:padding">@dimen/list_item_padding_left_right</item>
-        <item name="android:gravity">center_vertical</item>
-        <item name="android:textAllCaps">true</item>
-        <item name="android:textSize">16sp</item>
-        <item name="android:fontFamily">sans-serif-light</item>
-        <item name="android:drawablePadding">8dp</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:background">@color/colorDivider</item>
+        <item name="android:layout_marginEnd">@dimen/list_item_padding_left_right</item>
+        <item name="android:layout_marginStart">@dimen/list_item_padding_left_right</item>
     </style>
 
 </resources>

@@ -1,23 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    style="@style/ListStyle">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/step_id_tv"
-        style="@style/ListItemStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAllCaps="true"
-        tools:text="Step 1" />
+    <LinearLayout
+        style="@style/ListItemStyle">
 
-    <TextView
-        android:id="@+id/step_short_description_tv"
-        style="@style/ListItemStyle"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:paddingEnd="@dimen/list_item_padding_left_right"
-        android:paddingStart="@dimen/list_item_padding_left_right"
-        tools:text="Put stuff in the pan" />
+        <TextView
+            android:id="@+id/step_id_tv"
+            style="@style/ListSubItemStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAllCaps="true"
+            tools:text="Step 1" />
+
+        <TextView
+            android:id="@+id/step_short_description_tv"
+            style="@style/ListSubItemStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingEnd="@dimen/list_item_padding_left_right"
+            android:paddingStart="@dimen/list_item_padding_left_right"
+            tools:text="Put stuff in the pan" />
+    </LinearLayout>
+
+    <!-- bottom divider -->
+    <FrameLayout
+        style="@style/ListItemDividerStyle"
+        android:id="@+id/list_divider"/>
+
 </LinearLayout>

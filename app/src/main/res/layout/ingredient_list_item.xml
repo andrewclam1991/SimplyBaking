@@ -1,34 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    style="@style/ListStyle">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/ingredient_name_tv"
-        style="@style/ListItemStyle"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="3"
-        android:paddingEnd="@dimen/list_item_padding_left_right"
-        tools:text="Butter Cream" />
+    <LinearLayout style="@style/ListItemStyle">
 
-    <TextView
-        android:id="@+id/ingredient_quantity_tv"
-        style="@style/ListItemStyle"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:gravity="end"
-        android:paddingEnd="@dimen/list_item_padding_left_right"
-        tools:text="3 1/2" />
+        <TextView
+            android:id="@+id/ingredient_name_tv"
+            style="@style/ListSubItemStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:paddingEnd="@dimen/list_item_padding_left_right"
+            tools:text="Butter Cream" />
 
-    <TextView
-        android:id="@+id/ingredient_measure_tv"
-        style="@style/ListItemStyle"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:minWidth="48dp"
-        tools:text="CUPS" />
+        <TextView
+            android:id="@+id/ingredient_quantity_tv"
+            style="@style/ListSubItemStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="end"
+            android:paddingEnd="@dimen/list_item_padding_left_right"
+            tools:text="3 1/2" />
+
+        <TextView
+            android:id="@+id/ingredient_measure_tv"
+            style="@style/ListSubItemStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:minWidth="48dp"
+            tools:text="CUPS" />
+
+    </LinearLayout>
+
+    <!-- bottom divider -->
+    <FrameLayout
+        style="@style/ListItemDividerStyle"
+        android:id="@+id/list_divider"/>
 
 </LinearLayout>

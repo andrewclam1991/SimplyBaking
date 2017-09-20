@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.andrewclam.bakingapp.models.Ingredient;
@@ -86,9 +87,9 @@ public class StepListActivity extends AppCompatActivity implements
             mTwoPane = true;
         }
 
-        /* UI Setup - Recipe Header (Name and Serving)*/
-        TextView nameTv = findViewById(R.id.recipe_name_tv);
+        /* UI Setup - Recipe Header (Title Name and Serving)*/
         TextView servingTv = findViewById(R.id.recipe_servings_tv);
+        TextView numStepsTv = findViewById(R.id.steps_num_tv);
 
         // Show the Up button in the action bar.
         ActionBar actionBar = getSupportActionBar();
@@ -97,8 +98,8 @@ public class StepListActivity extends AppCompatActivity implements
             actionBar.setTitle(mRecipe.getName());
         }
 
-        nameTv.setText(mRecipe.getName());
         servingTv.setText(getString(R.string.serving, mRecipe.getServings()));
+        numStepsTv.setText(getString(R.string.num_steps,mRecipe.getSteps().size()));
 
         /* UI Setup - RecyclerView Lists (Ingredients and Steps) */
         RecyclerView stepsRv = findViewById(R.id.step_list_rv);
@@ -202,14 +203,30 @@ public class StepListActivity extends AppCompatActivity implements
             // Bind the step data using holder's set methods
             holder.setStepItem(step);
 
+            // UI Styling
+            // FIXME [NEED ADVICE] What is the best practice to find the first/last visible item in recyclerView?
+
+            // Intro-Step , Don't number it
             // Check if it is the intro-step (intro step is with id of 0)
-            if (step.getId() != 0) {
+            if (position == 0) {
+                // Not the intro step, prepend the item with step number
+                holder.mStepIdTv.setText(getString(R.string.start));
+            }else
+            {
                 // Not the intro step, prepend the item with step number
                 holder.mStepIdTv.setText(getString(R.string.step, step.getId()));
             }
 
+            // Last Step, Don't show divider
+            // Check if the position is at the last step
+            if (position == getItemCount() - 1)
+            {
+                holder.mItemDivider.setVisibility(View.GONE);
+            }
+
             holder.mShortDescriptionTv.setText(String.valueOf(step.getShortDescription()));
 
+            // Set onClickListener on each step view to open the
             holder.mView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -250,6 +267,7 @@ public class StepListActivity extends AppCompatActivity implements
             final View mView;
             final TextView mStepIdTv;
             final TextView mShortDescriptionTv;
+            final FrameLayout mItemDivider;
             private Step mStepItem;
 
             StepViewHolder(View view) {
@@ -257,6 +275,7 @@ public class StepListActivity extends AppCompatActivity implements
                 mView = view;
                 mStepIdTv = view.findViewById(R.id.step_id_tv);
                 mShortDescriptionTv = view.findViewById(R.id.step_short_description_tv);
+                mItemDivider = view.findViewById(R.id.list_divider);
             }
 
             /**
@@ -309,6 +328,14 @@ public class StepListActivity extends AppCompatActivity implements
             holder.mQuantityTv.setText(String.valueOf(ingredient.getQuantity()));
             holder.mMeasureTv.setText(ingredient.getMeasure());
             holder.mIngredientNameTv.setText(ingredient.getIngredientName());
+
+            // UI Styling
+            // Last Step, Don't show divider
+            // Check if the position is at the last step
+            if (position == getItemCount() - 1)
+            {
+                holder.mItemDivider.setVisibility(View.GONE);
+            }
         }
 
         @Override
@@ -323,12 +350,14 @@ public class StepListActivity extends AppCompatActivity implements
             final TextView mQuantityTv;
             final TextView mMeasureTv;
             final TextView mIngredientNameTv;
+            final FrameLayout mItemDivider;
 
             IngredientViewHolder(View view) {
                 super(view);
                 mQuantityTv = view.findViewById(R.id.ingredient_quantity_tv);
                 mMeasureTv = view.findViewById(R.id.ingredient_measure_tv);
                 mIngredientNameTv = view.findViewById(R.id.ingredient_name_tv);
+                mItemDivider = view.findViewById(R.id.list_divider);
             }
         }
     }
