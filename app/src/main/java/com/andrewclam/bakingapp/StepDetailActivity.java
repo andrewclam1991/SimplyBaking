@@ -58,8 +58,6 @@ public class StepDetailActivity extends AppCompatActivity implements StepDetailF
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         // Get the list of steps from intent extra
-        assert getIntent() != null;
-
         if (getIntent().hasExtra(ARG_RECIPE_NAME)) {
             mRecipeName = getIntent().getStringExtra(ARG_RECIPE_NAME);
         }
@@ -75,8 +73,6 @@ public class StepDetailActivity extends AppCompatActivity implements StepDetailF
         if (getIntent().hasExtra(ARG_TWO_PANE_MODE)) {
             mTwoPane = getIntent().getBooleanExtra(ARG_TWO_PANE_MODE, false);
         }
-
-        assert mSteps != null;
 
         // Initialize the StepsAdapter
         mStepsAdapter = new StepsAdapter(this,mSteps);

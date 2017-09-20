@@ -15,11 +15,11 @@
 
     <!-- Master View -->
     <android.support.v4.widget.NestedScrollView
-        style="@style/MasterScrollView"
+        android:layout_height="match_parent"
         android:layout_width="0dp"
         android:layout_weight="2">
 
-        <include layout="@layout/recipe_detail_content" />
+        <include layout="@layout/recipe_detail_list_content" />
 
     </android.support.v4.widget.NestedScrollView>
 

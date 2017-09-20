@@ -58,6 +58,21 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.andrewclam.bakingapp.StepListActivity" />
         </activity>
+
+        <!-- TODO [App Widget] Step 1 - Register the widget update receiver and provider -->
+        <receiver android:name=".SimplyBakingWidgetProvider">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/simply_baking_widget_info" />
+        </receiver>
+
+        <service
+            android:name=".services.WidgetIntentService"
+            android:exported="false"></service>
     </application>
 
 </manifest>

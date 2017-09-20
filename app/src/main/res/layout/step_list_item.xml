@@ -1,28 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:paddingBottom="8dp"
-    android:paddingEnd="@dimen/list_item_padding_left_right"
-    android:paddingStart="@dimen/list_item_padding_left_right"
-    android:paddingTop="8dp">
+    style="@style/ListStyle">
 
     <TextView
         android:id="@+id/step_id_tv"
+        style="@style/ListItemStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAllCaps="true"
-        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
         tools:text="Step 1" />
 
     <TextView
         android:id="@+id/step_short_description_tv"
-        android:layout_width="wrap_content"
+        style="@style/ListItemStyle"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_weight="1"
         android:paddingEnd="@dimen/list_item_padding_left_right"
         android:paddingStart="@dimen/list_item_padding_left_right"
-        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
         tools:text="Put stuff in the pan" />
 </LinearLayout>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <!-- Recipe Steps Label-->
+    <TextView
+        style="@style/ListTitleLabelStyle"
+        android:drawableLeft="@drawable/ic_direction_make"
+        android:drawableStart="@drawable/ic_direction_make"
+        android:text="@string/directions" />
+
+    <!-- Recipe Steps List -->
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/step_list_rv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/list_padding_top"
+        tools:listitem="@layout/step_list_item" />
+
+</LinearLayout>
