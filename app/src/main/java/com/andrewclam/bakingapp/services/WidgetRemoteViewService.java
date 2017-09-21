@@ -40,7 +40,8 @@ public class WidgetRemoteViewService extends RemoteViewsService {
  *
  * (Like an Adapter populating each item ViewHolder for RecyclerView, ListView etc)
  */
-class ViewFlipperRemoteViewFactory implements RemoteViewsService.RemoteViewsFactory{
+class ViewFlipperRemoteViewFactory implements RemoteViewsService.RemoteViewsFactory,
+        FetchRecipeAsyncTask.onFetchRecipeActionListener{
     /**
      * Debug Tag
      */
@@ -69,14 +70,7 @@ class ViewFlipperRemoteViewFactory implements RemoteViewsService.RemoteViewsFact
         // Implement to load cursor if using contentResolver and a SQLite database to store
         // recipe offline
         Log.d(TAG, "onDataSetChanged() called with intent");
-        if (mRecipes != null) mRecipes.clear();
-        new FetchRecipeAsyncTask().setDataURL(DATA_URL).setListener(
-                new FetchRecipeAsyncTask.onFetchRecipeActionListener() {
-                    @Override
-                    public void onRecipesReady(ArrayList<Recipe> recipes) {
-                        mRecipes = recipes;
-                    }
-        }).execute();
+        new FetchRecipeAsyncTask().setDataURL(DATA_URL).setListener(this).execute();
     }
 
     @Override
@@ -115,7 +109,7 @@ class ViewFlipperRemoteViewFactory implements RemoteViewsService.RemoteViewsFact
         // Data - Create the pending intent for the button to launch to see full recipe
 //        Intent intent = new Intent(mContext, StepListActivity.class);
 //        intent.putExtra(EXTRA_RECIPE, Parcels.wrap(recipe));
-
+//
 //        PendingIntent pendingIntent = PendingIntent.getActivity(
 //                mContext,
 //                WIDGET_VIEWFLIPPER_PENDING_INTENT_RC,
@@ -148,5 +142,10 @@ class ViewFlipperRemoteViewFactory implements RemoteViewsService.RemoteViewsFact
     @Override
     public boolean hasStableIds() {
         return false;
+    }
+
+    @Override
+    public void onRecipesReady(ArrayList<Recipe> recipes) {
+        mRecipes = recipes;
     }
 }

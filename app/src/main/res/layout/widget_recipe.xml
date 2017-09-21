@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:padding="@dimen/widget_margin" >
 
-    <AdapterViewFlipper
+    <StackView
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/widget_recipe_flipper"
         android:layout_width="match_parent"
