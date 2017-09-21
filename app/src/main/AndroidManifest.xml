@@ -41,8 +41,6 @@
                 android:value="com.andrewclam.bakingapp.StepListActivity" />
         </activity>
 
-
-
         <activity
             android:name=".StepDetailActivity"
             android:label="@string/title_activity_step_detail__phone"
@@ -54,7 +52,8 @@
                 android:value="com.andrewclam.bakingapp.StepListActivity" />
         </activity>
 
-        <!-- TODO [Widget] Step 1 - Register the widget remote view service -->
+        <!-- TODO [Widget] Step 1 - Register the widget remote view service for binding remote views
+        -->
         <service
             android:name=".services.WidgetRemoteViewService"
             android:permission="android.permission.BIND_REMOTEVIEWS" />
@@ -63,7 +62,7 @@
             android:name=".services.WidgetIntentService"
             android:exported="false" />
 
-        <!-- TODO [Widget] Step 2 - Register the widget update receiver with the provider -->
+        <!-- TODO [Widget] Step 1 - Register the widget update receiver with the widget provider -->
         <receiver android:name=".WidgetProvider">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -74,12 +73,17 @@
                 android:resource="@xml/simply_baking_widget_info" />
         </receiver>
 
-        <!-- TODO [ExoPlayer Media Playback ] Step 10 - Register receiver for MediaButton actions -->
+        <!-- TODO [ExoPlayer Media Playback ] Step 10 - Register receiver for MediaButton actions
+        -->
         <receiver android:name=".StepDetailFragment$MediaReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
         </receiver>
+
+        <!-- TODO [Widget] Step 2 - Register MainActivity as the AppWidget Provider -->
+        <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+            android:configure="com.andrewclam.bakingapp.MainActivity" />
 
     </application>
 

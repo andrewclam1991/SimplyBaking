@@ -41,6 +41,8 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        /* Respond to */
+
         /* Recipes List Setup */
         mRecipeRv = findViewById(R.id.recipe_list_rv);
         mAdapter = new RecipeRecyclerViewAdapter(this, this);
