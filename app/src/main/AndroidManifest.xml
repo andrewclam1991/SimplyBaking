@@ -16,8 +16,10 @@
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
+
+                <!-- TODO [Widget] Step 3 - Register MainActivity to handle widget congifuration -->
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
             </intent-filter>
         </activity>
         <activity
@@ -52,7 +54,7 @@
                 android:value="com.andrewclam.bakingapp.StepListActivity" />
         </activity>
 
-        <!-- TODO [Widget] Step 1 - Register the widget remote view service for binding remote views
+        <!-- TODO [Widget] Step 4 - Register the widget remote view service for binding remote views
         -->
         <service
             android:name=".services.WidgetRemoteViewService"
@@ -80,10 +82,6 @@
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
         </receiver>
-
-        <!-- TODO [Widget] Step 2 - Register MainActivity as the AppWidget Provider -->
-        <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-            android:configure="com.andrewclam.bakingapp.MainActivity" />
 
     </application>
 

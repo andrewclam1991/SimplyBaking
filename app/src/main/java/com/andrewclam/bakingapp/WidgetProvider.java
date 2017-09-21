@@ -26,29 +26,11 @@ public class WidgetProvider extends AppWidgetProvider {
 
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
                                 int appWidgetId) {
-        // Todo implement a way to find if the widget is fresh (initialized) or not
-        boolean isFresh = true;
 
-        // 1) Initial No Recipe Tracking
-        // Construct the RemoteViews
-        if (isFresh) {
+        boolean done = false;
+        if (done) {
             RemoteViews views = new RemoteViews(context.getPackageName(),
-                    R.layout.widget_recipe_fresh_start);
-
-            // Create a pending intent to launch the mainActivity to start a recipe
-            Intent intent = new Intent(context, MainActivity.class);
-            PendingIntent pendingIntent = PendingIntent.getActivity(context, 1, intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT);
-
-            views.setOnClickPendingIntent(R.id.widget_start_recipe, pendingIntent);
-
-            // Call appWidgetManger to update the particularAppWidgetId
-            appWidgetManager.updateAppWidget(appWidgetId, views);
-        }
-        // 2) Already Has Recipe, Load the steps
-        else {
-            RemoteViews views = new RemoteViews(context.getPackageName(),
-                    R.layout.widget_recipe_tracking);
+                    R.layout.widget_recipe_large);
 
             // TODO get the recipe from the arg
             Recipe recipe = new Recipe();
@@ -69,15 +51,16 @@ public class WidgetProvider extends AppWidgetProvider {
             // UI Biding
             views.setTextViewText(R.id.widget_recipe_name_tv, recipe.getName());
             views.setTextViewText(R.id.widget_recipe_servings_tv, context.getString(
-                    R.string.serving,recipe.getServings()));
+                    R.string.serving, recipe.getServings()));
             views.setOnClickPendingIntent(R.id.widget_recipe_name_tv, pendingIntent);
-            views.setRemoteAdapter(R.id.widget_ingredient_list_lv,serviceAdapterIntent);
-
-            appWidgetManager.updateAppWidget(appWidgetId, views);
-
+            views.setRemoteAdapter(R.id.widget_ingredient_list_lv, serviceAdapterIntent);
         }
-    }
 
+        RemoteViews views = new RemoteViews(context.getPackageName(),
+                R.layout.widget_recipe_small);
+
+        appWidgetManager.updateAppWidget(appWidgetId, views);
+    }
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
@@ -109,9 +92,6 @@ public class WidgetProvider extends AppWidgetProvider {
         // Setup the
         Intent adapterIntent = new Intent(context, WidgetRemoteViewService.class);
         views.setRemoteAdapter(R.id.widget_ingredient_list_lv,adapterIntent);
-
-        // Handle empty recipe
-        views.setEmptyView(R.id.widget_start_recipe, R.id.widget_empty_view);
     }
 }
 

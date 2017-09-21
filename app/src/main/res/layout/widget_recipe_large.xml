@@ -34,11 +34,4 @@
         android:layout_weight="1"
         tools:listitem="@layout/ingredient_list_item" />
 
-    <!-- Widget Button to mark cancel -->
-    <Button
-        android:id="@+id/widget_see_directions_btn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/cancel"/>
-
 </LinearLayout>

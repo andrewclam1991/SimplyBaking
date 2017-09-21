@@ -19,6 +19,11 @@ public class Constants {
     /* EXTRA Key */
     public static final String EXTRA_RECIPE_LIST = PACKAGE_NAME + ".extra_recipe_list";
 
+
+    /* App Widget Configuration Intent Action */
+    final static String ACTION_APPWIDGET_CONFIG =
+            "android.appwidget.action.APPWIDGET_CONFIGURE";
+
     private Constants() {
     }
 }
