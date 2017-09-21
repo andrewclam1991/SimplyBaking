@@ -7,13 +7,13 @@ import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
 import com.andrewclam.bakingapp.R;
+import com.andrewclam.bakingapp.asyncTasks.FetchRecipeAsyncTask;
 import com.andrewclam.bakingapp.models.Recipe;
 
-import org.parceler.Parcels;
-
 import java.util.ArrayList;
+import java.util.List;
 
-import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE_LIST;
+import static com.andrewclam.bakingapp.Constants.DATA_URL;
 
 /**
  * Created by Andrew Chi Heng Lam on 9/20/2017.
@@ -29,8 +29,8 @@ public class WidgetRemoteViewService extends RemoteViewsService {
 
     @Override
     public RemoteViewsFactory onGetViewFactory(Intent intent) {
-        Log.d(TAG, "onGetViewFactory() called with intent");
-        return new ViewFlipperRemoteViewFactory(this.getApplicationContext(),intent);
+        Log.d(TAG, "onGetViewFactory() call received");
+        return new ViewFlipperRemoteViewFactory(this.getApplicationContext());
     }
 }
 
@@ -40,7 +40,7 @@ public class WidgetRemoteViewService extends RemoteViewsService {
  *
  * (Like an Adapter populating each item ViewHolder for RecyclerView, ListView etc)
  */
-class ViewFlipperRemoteViewFactory implements RemoteViewsService.RemoteViewsFactory {
+class ViewFlipperRemoteViewFactory implements RemoteViewsService.RemoteViewsFactory{
     /**
      * Debug Tag
      */
@@ -52,17 +52,11 @@ class ViewFlipperRemoteViewFactory implements RemoteViewsService.RemoteViewsFact
     private final static int WIDGET_VIEWFLIPPER_PENDING_INTENT_RC = 4321;
 
     private final Context mContext;
-    private ArrayList<Recipe> mRecipes;
+    private List<Recipe> mRecipes;
 
-    ViewFlipperRemoteViewFactory(Context mContext, Intent intent) {
-        if (intent.hasExtra(EXTRA_RECIPE_LIST))
-        {
-            this.mRecipes = Parcels.unwrap(intent.getParcelableExtra(EXTRA_RECIPE_LIST));
-            this.mContext = mContext;
-        }else
-        {
-            throw new RuntimeException("Stub!");
-        }
+    ViewFlipperRemoteViewFactory(Context mContext) {
+        this.mContext = mContext;
+        this.mRecipes = new ArrayList<>();
     }
 
     @Override
@@ -75,6 +69,14 @@ class ViewFlipperRemoteViewFactory implements RemoteViewsService.RemoteViewsFact
         // Implement to load cursor if using contentResolver and a SQLite database to store
         // recipe offline
         Log.d(TAG, "onDataSetChanged() called with intent");
+        if (mRecipes != null) mRecipes.clear();
+        new FetchRecipeAsyncTask().setDataURL(DATA_URL).setListener(
+                new FetchRecipeAsyncTask.onFetchRecipeActionListener() {
+                    @Override
+                    public void onRecipesReady(ArrayList<Recipe> recipes) {
+                        mRecipes = recipes;
+                    }
+        }).execute();
     }
 
     @Override
@@ -87,7 +89,6 @@ class ViewFlipperRemoteViewFactory implements RemoteViewsService.RemoteViewsFact
         return mRecipes.size();
     }
 
-
     /**
      * This method acts like the onBindViewHolder method in an Adapter
      *
@@ -97,6 +98,8 @@ class ViewFlipperRemoteViewFactory implements RemoteViewsService.RemoteViewsFact
      */
     @Override
     public RemoteViews getViewAt(int position) {
+        if (mRecipes == null || mRecipes.size() == 0) return null;
+
         Log.d(TAG,"getViewAt() call back received at position " + position);
 
         RemoteViews views = new RemoteViews(mContext.getPackageName(),
@@ -112,7 +115,7 @@ class ViewFlipperRemoteViewFactory implements RemoteViewsService.RemoteViewsFact
         // Data - Create the pending intent for the button to launch to see full recipe
 //        Intent intent = new Intent(mContext, StepListActivity.class);
 //        intent.putExtra(EXTRA_RECIPE, Parcels.wrap(recipe));
-//
+
 //        PendingIntent pendingIntent = PendingIntent.getActivity(
 //                mContext,
 //                WIDGET_VIEWFLIPPER_PENDING_INTENT_RC,
@@ -144,6 +147,6 @@ class ViewFlipperRemoteViewFactory implements RemoteViewsService.RemoteViewsFact
 
     @Override
     public boolean hasStableIds() {
-        return true;
+        return false;
     }
 }

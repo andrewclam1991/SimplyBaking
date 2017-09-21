@@ -6,21 +6,11 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.os.Bundle;
 import android.util.Log;
 
-import com.andrewclam.bakingapp.R;
 import com.andrewclam.bakingapp.WidgetProvider;
-import com.andrewclam.bakingapp.asyncTasks.FetchRecipeAsyncTask;
-import com.andrewclam.bakingapp.models.Recipe;
 import com.andrewclam.bakingapp.utils.NotificationUtil;
 
-import org.parceler.Parcels;
-
-import java.util.ArrayList;
-
-import static com.andrewclam.bakingapp.Constants.DATA_URL;
-import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE_LIST;
 import static com.andrewclam.bakingapp.Constants.PACKAGE_NAME;
 import static com.andrewclam.bakingapp.utils.NotificationUtil.DOWNLOAD_NOTIFICATION_ID;
 
@@ -28,8 +18,7 @@ import static com.andrewclam.bakingapp.utils.NotificationUtil.DOWNLOAD_NOTIFICAT
  * An {@link IntentService} subclass for handling asynchronous task requests in
  * a service on a separate handler thread.
  */
-public class WidgetIntentService extends IntentService
-        implements FetchRecipeAsyncTask.onFetchRecipeActionListener{
+public class WidgetIntentService extends IntentService{
     /**
      * Debug Tag
      */
@@ -94,10 +83,6 @@ public class WidgetIntentService extends IntentService
         /* Async Load Recipe Data */
         Log.d(TAG, "handleActionUpdateWidget() called, " +
                 "calling FetchRecipeAsyncTask() to get the recipes from the web");
-        new FetchRecipeAsyncTask()
-                .setDataURL(DATA_URL)
-                .setListener(this)
-                .execute();
 
         // Android 0 Requirement
         // Post a brief foreground notification, notifying the user the app is enabling widget
@@ -107,13 +92,6 @@ public class WidgetIntentService extends IntentService
                     NotificationUtil.buildDownloadNotification(this)
             );
         }
-    }
-
-    @Override
-    public void onRecipesReady(ArrayList<Recipe> recipes) {
-        // Log callback
-        Log.d(TAG,"onRecipesReady() Got recipe ready callback from" +
-                "FetchRecipeAsyncTask()");
 
         Context context = WidgetIntentService.this;
 
@@ -122,16 +100,10 @@ public class WidgetIntentService extends IntentService
         int[] appWidgetIds = appWidgetManager.getAppWidgetIds(
                 new ComponentName(context, WidgetProvider.class));
 
-        appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widget_recipe_flipper);
-
-        Bundle args = new Bundle();
-        args.putParcelable(EXTRA_RECIPE_LIST, Parcels.wrap(recipes));
-
-        // Call the static method in the widget provider class to do widget update
-        WidgetProvider.updateSimplyBakingWidgets(
-                context,
-                appWidgetManager,
-                appWidgetIds,
-                args);
+//        // Call the static method in the widget provider class to do widget update
+//        WidgetProvider.updateSimplyBakingWidgets(
+//                context,
+//                appWidgetManager,
+//                appWidgetIds);
     }
 }
