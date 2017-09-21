@@ -7,13 +7,9 @@ import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
 import com.andrewclam.bakingapp.R;
-import com.andrewclam.bakingapp.asyncTasks.FetchRecipeAsyncTask;
-import com.andrewclam.bakingapp.models.Recipe;
+import com.andrewclam.bakingapp.models.Ingredient;
 
 import java.util.ArrayList;
-import java.util.List;
-
-import static com.andrewclam.bakingapp.Constants.DATA_URL;
 
 /**
  * Created by Andrew Chi Heng Lam on 9/20/2017.
@@ -40,24 +36,17 @@ public class WidgetRemoteViewService extends RemoteViewsService {
  *
  * (Like an Adapter populating each item ViewHolder for RecyclerView, ListView etc)
  */
-class CollectionViewsRemoteViewFactory implements RemoteViewsService.RemoteViewsFactory,
-        FetchRecipeAsyncTask.onFetchRecipeActionListener{
+class CollectionViewsRemoteViewFactory implements RemoteViewsService.RemoteViewsFactory{
     /**
      * Debug Tag
      */
     private final static String TAG = CollectionViewsRemoteViewFactory.class.getSimpleName();
 
-    /**
-     * Pending Intent RC for the button in each recipe widget view
-     */
-    private final static int WIDGET_PENDING_INTENT_RC = 4321;
-
     private final Context mContext;
-    private List<Recipe> mRecipes;
+    private ArrayList<Ingredient> mIngredients;
 
     CollectionViewsRemoteViewFactory(Context mContext) {
         this.mContext = mContext;
-        this.mRecipes = new ArrayList<>();
     }
 
     @Override
@@ -69,18 +58,18 @@ class CollectionViewsRemoteViewFactory implements RemoteViewsService.RemoteViews
     public void onDataSetChanged() {
         // Implement to load cursor if using contentResolver and a SQLite database to store
         // recipe offline
+        // TODO ! get the list of ingredients using the content provider
         Log.d(TAG, "onDataSetChanged() called with intent");
-        new FetchRecipeAsyncTask().setDataURL(DATA_URL).setListener(this).execute();
     }
 
     @Override
     public void onDestroy() {
-        mRecipes.clear();
+        mIngredients.clear();
     }
 
     @Override
     public int getCount() {
-        return mRecipes.size();
+        return mIngredients.size();
     }
 
     /**
@@ -92,32 +81,19 @@ class CollectionViewsRemoteViewFactory implements RemoteViewsService.RemoteViews
      */
     @Override
     public RemoteViews getViewAt(int position) {
-        if (mRecipes == null || mRecipes.size() == 0) return null;
+        // Get the ingredient at the adapter position
+        Ingredient ingredient = mIngredients.get(position);
 
+        if (ingredient == null) return null;
+
+        // Create the remote view from the list item layout file
         RemoteViews views = new RemoteViews(mContext.getPackageName(),
-                R.layout.widget_recipe);
-
-        // Data - Get the recipe at the position
-        Recipe recipe = mRecipes.get(position);
-
-        // Data - Get the recipe name
-        String recipeNameStr = recipe.getName();
-        String servingsStr = mContext.getString(R.string.serving, recipe.getServings());
-
-        // Data - Create the pending intent for the button to launch to see full recipe
-//        Intent intent = new Intent(mContext, StepListActivity.class);
-//        intent.putExtra(EXTRA_RECIPE, Parcels.wrap(recipe));
-//
-//        PendingIntent pendingIntent = PendingIntent.getActivity(
-//                mContext,
-//                WIDGET_PENDING_INTENT_RC,
-//                intent,
-//                PendingIntent.FLAG_UPDATE_CURRENT);
+                R.layout.ingredient_list_item);
 
         // UI - Bind the data to the views
-        views.setTextViewText(R.id.widget_recipe_name_tv,recipeNameStr);
-        views.setTextViewText(R.id.widget_recipe_servings_tv,servingsStr);
-//        views.setOnClickPendingIntent(R.id.widget_see_directions_btn,pendingIntent);
+        views.setTextViewText(R.id.ingredient_name_tv,ingredient.getIngredientName());
+        views.setTextViewText(R.id.ingredient_quantity_tv,String.valueOf(ingredient.getQuantity()));
+        views.setTextViewText(R.id.ingredient_measure_tv,ingredient.getMeasure());
 
         return views;
     }
@@ -142,8 +118,5 @@ class CollectionViewsRemoteViewFactory implements RemoteViewsService.RemoteViews
         return false;
     }
 
-    @Override
-    public void onRecipesReady(ArrayList<Recipe> recipes) {
-        mRecipes = recipes;
-    }
+
 }
