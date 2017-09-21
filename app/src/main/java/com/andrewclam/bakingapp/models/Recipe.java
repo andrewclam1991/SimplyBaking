@@ -1,6 +1,7 @@
 package com.andrewclam.bakingapp.models;
 
 import org.parceler.Parcel;
+import org.parceler.ParcelConstructor;
 
 import java.util.ArrayList;
 
@@ -17,6 +18,9 @@ public class Recipe {
     private ArrayList<Step> steps;
     private int servings;
     private String imageURL;
+
+    @ParcelConstructor
+    public Recipe() {}
 
     public long getId() {
         return id;

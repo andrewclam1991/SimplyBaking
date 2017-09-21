@@ -1,5 +1,6 @@
 package com.andrewclam.bakingapp.utils;
 
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -28,8 +29,15 @@ public class NotificationUtil {
     private NotificationUtil() {
     }
 
-    private static final int NOTIFICATION_ID = 1;
-    private static final String NOTIFICATION_CHANNEL_ID = PACKAGE_NAME + ".media_notification";
+    // For Media Notification, Keep track of current step
+    private static final int MEDIA_NOTIFICATION_ID = 2343;
+    private static final String MEDIA_NOTIFICATION_CHANNEL_ID = PACKAGE_NAME +
+            ".media_notification";
+
+    // For Download notification
+    public static final int DOWNLOAD_NOTIFICATION_ID = 9312;
+    private static final String DOWNLOAD_NOTIFICATION_CHANNEL_ID = PACKAGE_NAME +
+            ".download_notification";
 
     /**
      * TODO [ExoPlayer Media Playback ] Step 6 - Show media style notification to show step
@@ -49,13 +57,13 @@ public class NotificationUtil {
      * @return a NotificationManager for canceling current notification when resource is no
      * longer needed
      */
-    public static NotificationManager showNotification(Context mContext,
-                                                       PlaybackStateCompat state,
-                                                       MediaSessionCompat mMediaSession,
-                                                       PendingIntent contentIntent,
-                                                       String contentTitle,
-                                                       String contentText,
-                                                       @Nullable Bitmap largeIcon) {
+    public static NotificationManager showMediaNotification(Context mContext,
+                                                            PlaybackStateCompat state,
+                                                            MediaSessionCompat mMediaSession,
+                                                            PendingIntent contentIntent,
+                                                            String contentTitle,
+                                                            String contentText,
+                                                            @Nullable Bitmap largeIcon) {
 
         NotificationManager mNotificationManager = (NotificationManager)
                 mContext.getSystemService(NOTIFICATION_SERVICE);
@@ -69,7 +77,7 @@ public class NotificationUtil {
                     R.string.media_notification_description);
 
             NotificationChannel notificationChannel = new NotificationChannel(
-                    NOTIFICATION_CHANNEL_ID,
+                    MEDIA_NOTIFICATION_CHANNEL_ID,
                     notificationChannelDescription,
                     NotificationManager.IMPORTANCE_LOW
             );
@@ -83,7 +91,7 @@ public class NotificationUtil {
         }
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext,
-                NOTIFICATION_CHANNEL_ID);
+                MEDIA_NOTIFICATION_CHANNEL_ID);
 
         // Set the NotificationAction resources
         int icon;
@@ -127,8 +135,46 @@ public class NotificationUtil {
                         .setMediaSession(mMediaSession.getSessionToken())
                         .setShowActionsInCompactView(0, 1));
 
-        mNotificationManager.notify(NOTIFICATION_ID, builder.build());
+        mNotificationManager.notify(MEDIA_NOTIFICATION_ID, builder.build());
 
         return mNotificationManager;
+    }
+
+    public static Notification buildDownloadNotification(Context mContext)
+    {
+        NotificationManager mNotificationManager = (NotificationManager)
+                mContext.getSystemService(NOTIFICATION_SERVICE);
+
+        /* Implement NotificationChannel for Devices running Android O or later*/
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+            String notificationChannelDescription = mContext.getString(
+                    R.string.download_notification_description);
+
+            NotificationChannel notificationChannel = new NotificationChannel(
+                    DOWNLOAD_NOTIFICATION_CHANNEL_ID,
+                    notificationChannelDescription,
+                    NotificationManager.IMPORTANCE_LOW
+            );
+
+            // Configure the notification channel.
+            notificationChannel.setDescription(notificationChannelDescription);
+            notificationChannel.enableLights(true);
+            notificationChannel.setLightColor(Color.RED);
+            notificationChannel.enableVibration(false);
+            mNotificationManager.createNotificationChannel(notificationChannel);
+        }
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext,
+                DOWNLOAD_NOTIFICATION_CHANNEL_ID);
+
+        builder.setContentTitle(mContext.getString(R.string.app_name))
+                .setContentText(mContext.getString(R.string.syncing_widget))
+                .setAutoCancel(true)
+                .setSmallIcon(R.drawable.ic_cupcake)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setOnlyAlertOnce(true); // No subsequent sound or vibration if it exists
+
+        return builder.build();
     }
 }

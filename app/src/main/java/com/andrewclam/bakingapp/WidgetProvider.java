@@ -8,16 +8,12 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
 import android.widget.RemoteViews;
 
-import com.andrewclam.bakingapp.models.Recipe;
 import com.andrewclam.bakingapp.services.WidgetIntentService;
 import com.andrewclam.bakingapp.services.WidgetRemoteViewService;
-
-import org.parceler.Parcels;
-
-import java.util.ArrayList;
 
 import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE_LIST;
 
@@ -43,40 +39,29 @@ public class WidgetProvider extends AppWidgetProvider {
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
                                 int appWidgetId, Bundle args) {
 
-        // Get the recipes from the bundle args
-        ArrayList<Recipe> mRecipes = Parcels.unwrap(args.getParcelable(EXTRA_RECIPE_LIST));
+        Log.d(TAG, "constructing the remoteViews");
 
-        Log.d(TAG, "updateAppWidget() Got mRecipes from the intentService");
+        Parcelable recipesParcel = args.getParcelable(EXTRA_RECIPE_LIST);
 
-        if (mRecipes != null && mRecipes.size() > 0) {
+        // Construct the RemoteViews
+        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_recipe);
 
-            Log.d(TAG, "updateAppWidget() mRecipes is not null, constructing the remoteViews");
+        Log.d(TAG, "RemoteViews created with packageName" + context.getPackageName());
 
-            // Construct the RemoteViews
-            RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_recipe);
+        Intent adapterIntent = new Intent(context, WidgetRemoteViewService.class);
+        adapterIntent.putExtra(EXTRA_RECIPE_LIST, recipesParcel);
+        adapterIntent.setData(Uri.parse(adapterIntent.toUri(Intent.URI_INTENT_SCHEME)));
 
-            Log.d(TAG, "RemoteViews created with packageName" + context.getPackageName());
+        views.setRemoteAdapter(R.id.widget_recipe_flipper,adapterIntent);
 
-            Intent adapterIntent = new Intent(context, WidgetRemoteViewService.class);
-            adapterIntent.putExtra(EXTRA_RECIPE_LIST,Parcels.wrap(mRecipes));
-            adapterIntent.setData(Uri.parse(adapterIntent.toUri(Intent.URI_INTENT_SCHEME)));
+        // Handle empty recipe
+        views.setEmptyView(R.id.widget_recipe_flipper, R.id.widget_empty_view);
 
-            views.setRemoteAdapter(R.id.widget_recipe_flipper,adapterIntent);
+        Log.d(TAG, "setRemoteAdapter with adapterIntent");
 
-            // Handle empty recipe
-            views.setEmptyView(R.id.widget_recipe_flipper, R.id.widget_empty_view);
+        appWidgetManager.updateAppWidget(appWidgetId, views);
 
-
-
-            Log.d(TAG, "setRemoteAdapter with adapterIntent");
-
-            appWidgetManager.updateAppWidget(appWidgetId, views);
-
-            Log.d(TAG, "appWidgetManager.updateAppWidget() called for appWidgetid " + appWidgetId);
-
-        } else {
-            Log.e(TAG, "updateAppWidget() recipes is empty and not available");
-        }
+        Log.d(TAG, "appWidgetManager.updateAppWidget() called for appWidgetid " + appWidgetId);
     }
 
 

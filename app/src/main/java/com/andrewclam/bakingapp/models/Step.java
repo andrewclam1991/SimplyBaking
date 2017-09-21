@@ -1,6 +1,7 @@
 package com.andrewclam.bakingapp.models;
 
 import org.parceler.Parcel;
+import org.parceler.ParcelConstructor;
 
 /**
  * Created by lamch on 9/14/2017.
@@ -14,6 +15,12 @@ public class Step {
     private String description;
     private String videoURL;
     private String thumbnialURL;
+
+    @ParcelConstructor
+    public Step()
+    {
+
+    }
 
     public long getId() {
         return id;

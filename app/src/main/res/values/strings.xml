@@ -22,4 +22,6 @@
     <string name="num_steps">%1$d steps</string>
     <string name="see_directions">See Directions</string>
     <string name="empty_view_text">No Recipes</string>
+    <string name="syncing_widget">Syncing Widget. Please Wait</string>
+    <string name="download_notification_description">Recipe Download Notification</string>
 </resources>

@@ -1,6 +1,7 @@
 package com.andrewclam.bakingapp.models;
 
 import org.parceler.Parcel;
+import org.parceler.ParcelConstructor;
 
 /**
  * Created by lamch on 9/14/2017.
@@ -12,6 +13,9 @@ public class Ingredient {
     private double quantity;
     private String measure;
     private String ingredient;
+
+    @ParcelConstructor
+    public Ingredient(){}
 
     public double getQuantity() {
         return quantity;

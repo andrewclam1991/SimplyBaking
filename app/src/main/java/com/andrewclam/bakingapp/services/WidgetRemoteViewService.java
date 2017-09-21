@@ -1,6 +1,5 @@
 package com.andrewclam.bakingapp.services;
 
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -8,14 +7,12 @@ import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
 import com.andrewclam.bakingapp.R;
-import com.andrewclam.bakingapp.StepListActivity;
 import com.andrewclam.bakingapp.models.Recipe;
 
 import org.parceler.Parcels;
 
 import java.util.ArrayList;
 
-import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE;
 import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE_LIST;
 
 /**
@@ -58,8 +55,14 @@ class ViewFlipperRemoteViewFactory implements RemoteViewsService.RemoteViewsFact
     private ArrayList<Recipe> mRecipes;
 
     ViewFlipperRemoteViewFactory(Context mContext, Intent intent) {
-        this.mRecipes = Parcels.unwrap(intent.getParcelableExtra(EXTRA_RECIPE_LIST));
-        this.mContext = mContext;
+        if (intent.hasExtra(EXTRA_RECIPE_LIST))
+        {
+            this.mRecipes = Parcels.unwrap(intent.getParcelableExtra(EXTRA_RECIPE_LIST));
+            this.mContext = mContext;
+        }else
+        {
+            throw new RuntimeException("Stub!");
+        }
     }
 
     @Override
@@ -107,19 +110,19 @@ class ViewFlipperRemoteViewFactory implements RemoteViewsService.RemoteViewsFact
         String servingsStr = mContext.getString(R.string.serving, recipe.getServings());
 
         // Data - Create the pending intent for the button to launch to see full recipe
-        Intent intent = new Intent(mContext, StepListActivity.class);
-        intent.putExtra(EXTRA_RECIPE, Parcels.wrap(recipe));
-
-        PendingIntent pendingIntent = PendingIntent.getActivity(
-                mContext,
-                WIDGET_VIEWFLIPPER_PENDING_INTENT_RC,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
+//        Intent intent = new Intent(mContext, StepListActivity.class);
+//        intent.putExtra(EXTRA_RECIPE, Parcels.wrap(recipe));
+//
+//        PendingIntent pendingIntent = PendingIntent.getActivity(
+//                mContext,
+//                WIDGET_VIEWFLIPPER_PENDING_INTENT_RC,
+//                intent,
+//                PendingIntent.FLAG_UPDATE_CURRENT);
 
         // UI - Bind the data to the views
         views.setTextViewText(R.id.widget_recipe_name_tv,recipeNameStr);
         views.setTextViewText(R.id.widget_recipe_servings_tv,servingsStr);
-        views.setOnClickPendingIntent(R.id.widget_see_directions_btn,pendingIntent);
+//        views.setOnClickPendingIntent(R.id.widget_see_directions_btn,pendingIntent);
 
         return views;
     }

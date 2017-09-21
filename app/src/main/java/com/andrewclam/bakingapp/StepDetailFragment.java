@@ -429,7 +429,7 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
 
         // Use notificationUtil to show notification, return the reference of the notification
         // manager for cancelling media notification tasks when the fragment no longer exists
-        mNotificationManager = NotificationUtil.showNotification(
+        mNotificationManager = NotificationUtil.showMediaNotification(
                 mContext,
                 state,
                 mMediaSession,

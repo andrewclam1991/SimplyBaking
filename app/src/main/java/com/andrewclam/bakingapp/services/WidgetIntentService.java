@@ -5,6 +5,7 @@ import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -12,6 +13,7 @@ import com.andrewclam.bakingapp.R;
 import com.andrewclam.bakingapp.WidgetProvider;
 import com.andrewclam.bakingapp.asyncTasks.FetchRecipeAsyncTask;
 import com.andrewclam.bakingapp.models.Recipe;
+import com.andrewclam.bakingapp.utils.NotificationUtil;
 
 import org.parceler.Parcels;
 
@@ -20,6 +22,7 @@ import java.util.ArrayList;
 import static com.andrewclam.bakingapp.Constants.DATA_URL;
 import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE_LIST;
 import static com.andrewclam.bakingapp.Constants.PACKAGE_NAME;
+import static com.andrewclam.bakingapp.utils.NotificationUtil.DOWNLOAD_NOTIFICATION_ID;
 
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in
@@ -49,13 +52,17 @@ public class WidgetIntentService extends IntentService
      * @see IntentService
      */
     public static void startActionUpdateWidget(Context context) {
-
         Log.d(TAG, "startActionUpdateWidget() call received, " +
                 "starting service with ACTION_UPDATE_WIDGET");
 
         Intent intent = new Intent(context, WidgetIntentService.class);
         intent.setAction(ACTION_UPDATE_WIDGET);
-        context.startService(intent);
+        if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.O) {
+            context.startForegroundService(intent);
+        }
+        else {
+            context.startService(intent);
+        }
     }
 
     @Override
@@ -91,6 +98,15 @@ public class WidgetIntentService extends IntentService
                 .setDataURL(DATA_URL)
                 .setListener(this)
                 .execute();
+
+        // Android 0 Requirement
+        // Post a brief foreground notification, notifying the user the app is enabling widget
+        if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.O) {
+            startForeground(
+                    DOWNLOAD_NOTIFICATION_ID,
+                    NotificationUtil.buildDownloadNotification(this)
+            );
+        }
     }
 
     @Override
