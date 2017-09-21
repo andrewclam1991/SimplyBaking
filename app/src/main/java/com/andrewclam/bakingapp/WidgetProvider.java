@@ -4,7 +4,6 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.andrewclam.bakingapp.services.WidgetRemoteViewService;
@@ -29,24 +28,16 @@ public class WidgetProvider extends AppWidgetProvider {
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
                                 int appWidgetId) {
 
-        Log.d(TAG, "constructing the remoteViews");
-
         // Construct the RemoteViews
-        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_recipe);
-
-        Log.d(TAG, "RemoteViews created with packageName" + context.getPackageName());
+        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_recipe_start);
 
         Intent adapterIntent = new Intent(context, WidgetRemoteViewService.class);
-        views.setRemoteAdapter(R.id.widget_recipe_flipper,adapterIntent);
+        views.setRemoteAdapter(R.id.widget_ingredient_list_lv,adapterIntent);
 
         // Handle empty recipe
-        views.setEmptyView(R.id.widget_recipe_flipper, R.id.widget_empty_view);
-
-        Log.d(TAG, "setRemoteAdapter with adapterIntent");
+        views.setEmptyView(R.id.widget_start_recipe, R.id.widget_empty_view);
 
         appWidgetManager.updateAppWidget(appWidgetId, views);
-
-        appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, R.id.widget_recipe_flipper);
     }
 
 
@@ -55,7 +46,6 @@ public class WidgetProvider extends AppWidgetProvider {
         // Start the intent service update widget action, the service takes care of updating
         // the widgets UI. There may be multiple widgets active, so update all of them
         for (int appWidgetId : appWidgetIds) {
-            Log.d(TAG, "called updateAppWidget() with appWidgetId: " + appWidgetId);
             updateAppWidget(context, appWidgetManager, appWidgetId);
         }
     }

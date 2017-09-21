@@ -1,25 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- TODO [Widget] Step 3 Show AdapterViewFlipper of each Available Recipes -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="@dimen/widget_margin" >
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
-    <StackView
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/widget_recipe_flipper"
+    <!-- Widget Recipe Header -->
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
-    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/widget_empty_view"
+        <TextView
+            android:id="@+id/widget_recipe_name_tv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            tools:text="Amazing Wizard Cake" />
+
+        <TextView
+            android:id="@+id/widget_recipe_servings_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Serves 8" />
+
+    </LinearLayout>
+
+    <!-- Widget Recipe Ingredient ListView -->
+    <ListView
+        android:id="@+id/widget_ingredient_list_lv"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:background="@color/cardview_dark_background"
-        android:textColor="#ffffff"
-        android:textStyle="bold"
-        android:text="@string/empty_view_text"
-        android:textSize="20sp" />
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        tools:listitem="@layout/ingredient_list_item" />
 
-</FrameLayout>
+    <!-- Widget Button to mark cancel -->
+    <Button
+        android:id="@+id/widget_see_directions_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/cancel"
+        android:gravity="bottom"/>
+
+</LinearLayout>

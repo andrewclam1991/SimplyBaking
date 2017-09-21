@@ -30,32 +30,32 @@ public class WidgetRemoteViewService extends RemoteViewsService {
     @Override
     public RemoteViewsFactory onGetViewFactory(Intent intent) {
         Log.d(TAG, "onGetViewFactory() call received");
-        return new ViewFlipperRemoteViewFactory(this.getApplicationContext());
+        return new CollectionViewsRemoteViewFactory(this.getApplicationContext());
     }
 }
 
 /**
  * A RemoteViewsFactory class implementation to produce individual item RemoteViews
- * for the collection view
+ * for a collection view (Ex. ListView, StackView..etc)
  *
  * (Like an Adapter populating each item ViewHolder for RecyclerView, ListView etc)
  */
-class ViewFlipperRemoteViewFactory implements RemoteViewsService.RemoteViewsFactory,
+class CollectionViewsRemoteViewFactory implements RemoteViewsService.RemoteViewsFactory,
         FetchRecipeAsyncTask.onFetchRecipeActionListener{
     /**
      * Debug Tag
      */
-    private final static String TAG = ViewFlipperRemoteViewFactory.class.getSimpleName();
+    private final static String TAG = CollectionViewsRemoteViewFactory.class.getSimpleName();
 
     /**
      * Pending Intent RC for the button in each recipe widget view
      */
-    private final static int WIDGET_VIEWFLIPPER_PENDING_INTENT_RC = 4321;
+    private final static int WIDGET_PENDING_INTENT_RC = 4321;
 
     private final Context mContext;
     private List<Recipe> mRecipes;
 
-    ViewFlipperRemoteViewFactory(Context mContext) {
+    CollectionViewsRemoteViewFactory(Context mContext) {
         this.mContext = mContext;
         this.mRecipes = new ArrayList<>();
     }
@@ -94,10 +94,8 @@ class ViewFlipperRemoteViewFactory implements RemoteViewsService.RemoteViewsFact
     public RemoteViews getViewAt(int position) {
         if (mRecipes == null || mRecipes.size() == 0) return null;
 
-        Log.d(TAG,"getViewAt() call back received at position " + position);
-
         RemoteViews views = new RemoteViews(mContext.getPackageName(),
-                R.layout.widget_recipe_item);
+                R.layout.widget_recipe);
 
         // Data - Get the recipe at the position
         Recipe recipe = mRecipes.get(position);
@@ -112,7 +110,7 @@ class ViewFlipperRemoteViewFactory implements RemoteViewsService.RemoteViewsFact
 //
 //        PendingIntent pendingIntent = PendingIntent.getActivity(
 //                mContext,
-//                WIDGET_VIEWFLIPPER_PENDING_INTENT_RC,
+//                WIDGET_PENDING_INTENT_RC,
 //                intent,
 //                PendingIntent.FLAG_UPDATE_CURRENT);
 

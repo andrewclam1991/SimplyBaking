@@ -41,9 +41,6 @@ public class WidgetIntentService extends IntentService{
      * @see IntentService
      */
     public static void startActionUpdateWidget(Context context) {
-        Log.d(TAG, "startActionUpdateWidget() call received, " +
-                "starting service with ACTION_UPDATE_WIDGET");
-
         Intent intent = new Intent(context, WidgetIntentService.class);
         intent.setAction(ACTION_UPDATE_WIDGET);
         if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.O) {

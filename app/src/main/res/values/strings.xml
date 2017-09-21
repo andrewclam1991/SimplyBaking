@@ -24,4 +24,6 @@
     <string name="empty_view_text">No Recipes</string>
     <string name="syncing_widget">Syncing Widget. Please Wait</string>
     <string name="download_notification_description">Recipe Download Notification</string>
+    <string name="start_recipe_btn">Start a Recipe</string>
+    <string name="cancel">Cancel</string>
 </resources>
