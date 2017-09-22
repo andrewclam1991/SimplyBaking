@@ -1,3 +1,25 @@
+<!--
+  ~ Copyright (c) 2017 Andrew Chi Heng Lam
+  ~
+  ~ Permission is hereby granted, free of charge, to any person obtaining a copy
+  ~ of this software and associated documentation files (the "Software"), to deal
+  ~ in the Software without restriction, including without limitation the rights
+  ~ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  ~ copies of the Software, and to permit persons to whom the Software is
+  ~ furnished to do so, subject to the following conditions:
+  ~
+  ~ The above copyright notice and this permission notice shall be included in all
+  ~ copies or substantial portions of the Software.
+  ~
+  ~ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  ~ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  ~ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  ~ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  ~ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  ~ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  ~ SOFTWARE.
+  -->
+
 <vector android:height="48dp" android:viewportHeight="52.476"
     android:viewportWidth="52.476" android:width="48dp" xmlns:android="http://schemas.android.com/apk/res/android">
     <path android:fillColor="#FFDA44" android:pathData="M11.29,28.75c3.04,-1.73 7.01,-1.73 10.04,-0c3.01,-1.73 6.95,-1.73 9.96,-0c3.01,-1.72 6.95,-1.72 9.95,0c1.51,-0.86 3.21,-1.31 5,-1.31c0.99,0 1.95,0.14 2.87,0.41c-0.61,-3.83 -3.36,-6.96 -7.12,-8.02c0.16,-0.62 0.24,-1.25 0.24,-1.89c0,-4.03 -3.2,-7.33 -7.2,-7.49c0.08,-0.47 0.12,-0.94 0.12,-1.41c0,-4.95 -3.52,-8.98 -7.84,-8.98h-1.14c-4.32,0 -7.84,4.03 -7.84,8.98c0,0.47 0.04,0.94 0.12,1.41c-4.01,0.14 -7.24,3.45 -7.24,7.49c0,0.57 0.06,1.13 0.19,1.67c-4.16,0.76 -7.39,4.09 -8.06,8.24c0.93,-0.27 1.9,-0.42 2.89,-0.42C8.06,27.43 9.77,27.88 11.29,28.75zM38.53,23.66c0.39,-0.39 1.02,-0.39 1.41,0l1,1c0.39,0.39 0.39,1.02 0,1.41c-0.19,0.19 -0.45,0.29 -0.71,0.29s-0.51,-0.1 -0.71,-0.29l-1,-1C38.14,24.68 38.14,24.05 38.53,23.66zM31.44,26.07c-0.19,0.19 -0.45,0.29 -0.71,0.29s-0.51,-0.1 -0.71,-0.29l-1,-1c-0.39,-0.39 -0.39,-1.02 0,-1.41s1.02,-0.39 1.41,0l1,1C31.84,25.05 31.84,25.68 31.44,26.07zM32.86,16.45c0.14,0.53 -0.17,1.08 -0.7,1.23l-4.32,1.17c-0.09,0.02 -0.17,0.04 -0.26,0.04c-0.44,0 -0.84,-0.29 -0.96,-0.74c-0.14,-0.53 0.17,-1.08 0.7,-1.23l4.32,-1.17C32.17,15.59 32.72,15.91 32.86,16.45zM26.81,3.08c0.53,-0.13 1.08,0.19 1.21,0.73l1,4c0.13,0.54 -0.19,1.08 -0.73,1.21c-0.08,0.02 -0.16,0.03 -0.24,0.03c-0.45,0 -0.86,-0.3 -0.97,-0.76l-1,-4C25.95,3.75 26.27,3.21 26.81,3.08zM21.53,11.88c0.39,-0.39 1.02,-0.39 1.41,0l1,1c0.39,0.39 0.39,1.02 0,1.41c-0.19,0.19 -0.45,0.29 -0.71,0.29s-0.51,-0.1 -0.71,-0.29l-1,-1C21.14,12.91 21.14,12.27 21.53,11.88zM20.95,19.3c0.03,-0.55 0.5,-0.97 1.06,-0.94c0.55,0.03 0.97,0.51 0.94,1.06l-0.08,1.41c-0.03,0.53 -0.47,0.94 -1,0.94c-0.02,0 -0.04,-0 -0.06,-0c-0.55,-0.03 -0.97,-0.51 -0.94,-1.06L20.95,19.3zM10.29,22.27c0.17,-0.52 0.74,-0.81 1.26,-0.63l3,1c0.52,0.17 0.81,0.74 0.63,1.26c-0.14,0.42 -0.53,0.68 -0.95,0.68c-0.1,0 -0.21,-0.02 -0.32,-0.05l-3,-1C10.4,23.36 10.11,22.8 10.29,22.27z"/>
