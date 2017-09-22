@@ -86,6 +86,11 @@
             android:name=".services.WidgetIntentService"
             android:exported="false" />
 
+        <!-- todo [Content Provider] Step 1 - Register IntentService for database operation -->
+        <service
+            android:name=".services.SyncDbIntentService"
+            android:exported="false"/>
+
         <!-- TODO [Widget] Step 1 - Register the widget update receiver with the widget provider -->
         <receiver android:name=".WidgetProvider">
             <intent-filter>

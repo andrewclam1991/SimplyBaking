@@ -32,9 +32,11 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.andrewclam.bakingapp.data.RecipeDbContract.IngredientEntry;
 import com.andrewclam.bakingapp.data.RecipeDbContract.RecipeEntry;
+import com.andrewclam.bakingapp.data.RecipeDbContract.StepEntry;
 
 import static com.andrewclam.bakingapp.data.RecipeDbContract.SET_TABLE_STATEMENT;
 
@@ -108,12 +110,12 @@ public class RecipeContentProvider extends ContentProvider {
             case CODE_RECIPES:
                 // Insert new values into the database
                 long recipeId = db.insert(
-                       RecipeEntry.TABLE_NAME,
+                        RecipeEntry.TABLE_NAME,
                         null,
                         values);
 
                 if (recipeId > 0) {
-                    returnUri = ContentUris.withAppendedId(RecipeEntry.CONTENT_URI, recipeId);
+                    returnUri = ContentUris.withAppendedId(RecipeEntry.CONTENT_URI_RECIPE, recipeId);
                 } else {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 }
@@ -127,7 +129,7 @@ public class RecipeContentProvider extends ContentProvider {
                         values);
 
                 if (ingredientId > 0) {
-                    returnUri = ContentUris.withAppendedId(RecipeEntry.CONTENT_URI, ingredientId);
+                    returnUri = ContentUris.withAppendedId(RecipeEntry.CONTENT_URI_RECIPE, ingredientId);
                 } else {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 }
@@ -141,7 +143,7 @@ public class RecipeContentProvider extends ContentProvider {
                         values);
 
                 if (stepId > 0) {
-                    returnUri = ContentUris.withAppendedId(RecipeEntry.CONTENT_URI, stepId);
+                    returnUri = ContentUris.withAppendedId(RecipeEntry.CONTENT_URI_RECIPE, stepId);
                 } else {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 }
@@ -157,6 +159,176 @@ public class RecipeContentProvider extends ContentProvider {
 
         // Return constructed uri (this points to the newly inserted row of data)
         return returnUri;
+    }
+
+    /**
+     * Handles requests to insert a set of new rows. In PopularMovie, we are only going to be
+     * inserting multiple rows of data at a time from a JSON response from TMDB, which contains many
+     * json objects.
+     * <p>
+     * There is no use case for inserting a single row of data into our ContentProvider, and so we
+     * are only going to implement bulkInsert. In a normal ContentProvider's implementation,
+     * you will probably want to provide proper functionality for the insert method as well.
+     *
+     * @param uri    The content:// URI of the insertion request.
+     * @param values An array of sets of column_name/value pairs to add to the database.
+     *               This must not be {@code null}.
+     * @return The number of values that were inserted.
+     */
+    @Override
+    public int bulkInsert(@NonNull Uri uri, @NonNull ContentValues[] values) {
+        // Use uri matcher to make sure the call is pointing to the movie
+        int match = sUriMatcher.match(uri);
+
+        switch (match) {
+            case CODE_RECIPES: {
+                // Get a writable database with the dbHelper
+                final SQLiteDatabase db = mRecipeDbHelper.getWritableDatabase();
+
+                // call beginTransaction() with the SQLite db to begin a potentially
+                // long running transaction, remember to call endTransaction() when such transaction
+                // is complete.
+                db.beginTransaction();
+
+                // Initialize a int to hold the number of rows inserted, this will be the return val
+                int rowsInserted = 0;
+
+                // Try-finally to do the operation, finally block should only execute when the try
+                // block is complete or throws an error/exception
+                try {
+
+                    for (ContentValues value : values) {
+                        long _id = db.insert(RecipeEntry.TABLE_NAME, null, value);
+                        if (_id != -1) {
+                            // If the insert is successful, increment the rowsInserted by one
+                            rowsInserted++;
+                        }
+                    }
+
+                    db.setTransactionSuccessful();
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+
+                    // Try block op ended, end this db transaction.
+                    // Close database connection for good measure after insert
+                    db.endTransaction();
+                    db.close();
+                }
+
+                // Notify the content resolver of modified dataset if there are rowsInserted
+                if (rowsInserted > 0) {
+                    if (getContext() != null) getContext().getContentResolver()
+                            .notifyChange(uri, null);
+
+                    Log.d(TAG, "Successfully bulk inserted, insertedRows " + rowsInserted + " at "
+                            + uri.toString());
+                }
+
+                return rowsInserted;
+            }
+
+            case CODE_INGREDIENTS: {
+                // Get a writable database with the dbHelper
+                final SQLiteDatabase db = mRecipeDbHelper.getWritableDatabase();
+
+                // call beginTransaction() with the SQLite db to begin a potentially
+                // long running transaction, remember to call endTransaction() when such transaction
+                // is complete.
+                db.beginTransaction();
+
+                // Initialize a int to hold the number of rows inserted, this will be the return val
+                int rowsInserted = 0;
+
+                // Try-finally to do the operation, finally block should only execute when the try
+                // block is complete or throws an error/exception
+                try {
+
+                    for (ContentValues value : values) {
+                        long _id = db.insert(IngredientEntry.TABLE_NAME, null, value);
+                        if (_id != -1) {
+                            // If the insert is successful, increment the rowsInserted by one
+                            rowsInserted++;
+                        }
+                    }
+
+                    db.setTransactionSuccessful();
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+
+                    // Try block op ended, end this db transaction.
+                    // Close database connection for good measure after insert
+                    db.endTransaction();
+                    db.close();
+                }
+
+                // Notify the content resolver of modified dataset if there are rowsInserted
+                if (rowsInserted > 0) {
+                    if (getContext() != null) getContext().getContentResolver()
+                            .notifyChange(uri, null);
+
+                    Log.d(TAG, "Successfully bulk inserted, insertedRows " + rowsInserted + " at "
+                            + uri.toString());
+                }
+
+                return rowsInserted;
+            }
+
+            case CODE_STEPS: {
+                // Get a writable database with the dbHelper
+                final SQLiteDatabase db = mRecipeDbHelper.getWritableDatabase();
+
+                // call beginTransaction() with the SQLite db to begin a potentially
+                // long running transaction, remember to call endTransaction() when such transaction
+                // is complete.
+                db.beginTransaction();
+
+                // Initialize a int to hold the number of rows inserted, this will be the return val
+                int rowsInserted = 0;
+
+                // Try-finally to do the operation, finally block should only execute when the try
+                // block is complete or throws an error/exception
+                try {
+
+                    for (ContentValues value : values) {
+                        long _id = db.insert(StepEntry.TABLE_NAME, null, value);
+                        if (_id != -1) {
+                            // If the insert is successful, increment the rowsInserted by one
+                            rowsInserted++;
+                        }
+                    }
+
+                    db.setTransactionSuccessful();
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+
+                    // Try block op ended, end this db transaction.
+                    // Close database connection for good measure after insert
+                    db.endTransaction();
+                    db.close();
+                }
+
+                // Notify the content resolver of modified dataset if there are rowsInserted
+                if (rowsInserted > 0) {
+                    if (getContext() != null) getContext().getContentResolver()
+                            .notifyChange(uri, null);
+
+                    Log.d(TAG, "Successfully bulk inserted, insertedRows " + rowsInserted + " at "
+                            + uri.toString());
+                }
+
+                return rowsInserted;
+            }
+
+            default:
+                // no matching uri found, use parent class's implementation
+                return super.bulkInsert(uri, values);
+        }
     }
 
     /***

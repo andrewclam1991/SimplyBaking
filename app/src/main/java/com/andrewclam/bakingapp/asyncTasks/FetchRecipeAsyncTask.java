@@ -110,11 +110,13 @@ public class FetchRecipeAsyncTask extends AsyncTask<Void, Void, ArrayList<Recipe
             entries = BakingAppJsonUtils.getRecipesFromJson(jsonResponse);
 
         } catch (IOException e) {
-            Log.e(TAG, "FetchRecipeAsyncTask - doInBackground - IO Error occurred while getting the jsonResponse from the url");
+            Log.e(TAG, "FetchRecipeAsyncTask - doInBackground - " +
+                    "IO Error occurred while getting the jsonResponse from the url");
             e.printStackTrace();
             return null;
         } catch (JSONException e) {
-            Log.e(TAG, "FetchRecipeAsyncTask - doInBackground - JSONException occurred while parsing the jsonResponse into model class");
+            Log.e(TAG, "FetchRecipeAsyncTask - doInBackground - " +
+                    "JSONException occurred while parsing the jsonResponse into model class");
             e.printStackTrace();
             return null;
         }

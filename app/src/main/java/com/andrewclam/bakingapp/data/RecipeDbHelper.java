@@ -45,10 +45,13 @@ public class RecipeDbHelper extends SQLiteOpenHelper {
             "CREATE TABLE " +
                     RecipeEntry.TABLE_NAME + " (" +
                     RecipeEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    RecipeEntry.COLUMN_RECIPE_ID + " INTEGER NOT NULL, " +
+                    RecipeEntry.COLUMN_RECIPE_ID + " INTEGER UNIQUE NOT NULL, " +
                     RecipeEntry.COLUMN_RECIPE_NAME + " TEXT NOT NULL, " +
                     RecipeEntry.COLUMN_RECIPE_SERVINGS + " INTEGER NOT NULL, " +
-                    RecipeEntry.COLUMN_RECIPE_IMAGE_URL + " TEXT "
+                    RecipeEntry.COLUMN_RECIPE_IMAGE_URL + " TEXT, " +
+
+                    "UNIQUE (" + RecipeEntry.COLUMN_RECIPE_ID + ") ON CONFLICT REPLACE "
+
                     +")";
 
     // Create a table to hold the ingredients data
@@ -56,15 +59,16 @@ public class RecipeDbHelper extends SQLiteOpenHelper {
             "CREATE TABLE " +
                     IngredientEntry.TABLE_NAME + " (" +
                     IngredientEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    IngredientEntry.COLUMN_INGREDIENT_ID + " INTEGER UNIQUE NOT NULL, " +
                     IngredientEntry.COLUMN_INGREDIENT_NAME + " TEXT NOT NULL, " +
                     IngredientEntry.COLUMN_INGREDIENT_MEASURE + " TEXT NOT NULL, " +
                     IngredientEntry.COLUMN_INGREDIENT_QUANTITY + " REAL NOT NULL, " +
                     IngredientEntry.COLUMN_INGREDIENT_RECIPE_KEY + " INTEGER NOT NULL, " +
+
                     "FOREIGN KEY (" + IngredientEntry.COLUMN_INGREDIENT_RECIPE_KEY + ") " +
-                    "REFERENCES " + RecipeEntry.TABLE_NAME + "("+ RecipeEntry.COLUMN_RECIPE_ID +") "
-                    + "ON UPDATE NO ACTION"
-                    + "ON DELETE SET NULL"
+                    "REFERENCES " + RecipeEntry.TABLE_NAME + "("+ RecipeEntry.COLUMN_RECIPE_ID + ") "
+                    + "ON UPDATE NO ACTION "
+                    + "ON DELETE SET NULL "
+
                     + ")";
 
     // Create a table to hold the steps data
@@ -78,10 +82,14 @@ public class RecipeDbHelper extends SQLiteOpenHelper {
                     StepEntry.COLUMN_STEP_THUMBNAIL_URL + " TEXT, " +
                     StepEntry.COLUMN_STEP_VIDEO_URL + " TEXT, " +
                     StepEntry.COLUMN_STEP_RECIPE_KEY + " INTEGER NOT NULL, " +
+
+                    "UNIQUE (" + StepEntry.COLUMN_STEP_ID + ") ON CONFLICT REPLACE, " +
+
                     "FOREIGN KEY (" + StepEntry.COLUMN_STEP_RECIPE_KEY + ") " +
-                    "REFERENCES " + RecipeEntry.TABLE_NAME + "("+ RecipeEntry.COLUMN_RECIPE_ID +") "
-                    + " ON UPDATE NO ACTION"
-                    + " ON DELETE SET NULL"
+                    "REFERENCES " + RecipeEntry.TABLE_NAME + "("+ RecipeEntry.COLUMN_RECIPE_ID + ") "
+                    + "ON UPDATE NO ACTION "
+                    + "ON DELETE SET NULL "
+
                     + " )";
 
     // Constructor

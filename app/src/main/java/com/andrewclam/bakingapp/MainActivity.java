@@ -37,6 +37,7 @@ import android.widget.RemoteViews;
 import com.andrewclam.bakingapp.adapters.RecipeRecyclerViewAdapter;
 import com.andrewclam.bakingapp.asyncTasks.FetchRecipeAsyncTask;
 import com.andrewclam.bakingapp.models.Recipe;
+import com.andrewclam.bakingapp.services.SyncDbIntentService;
 import com.squareup.picasso.Picasso;
 
 import org.parceler.Parcels;
@@ -111,7 +112,9 @@ public class MainActivity extends AppCompatActivity implements
      */
     @Override
     public void onRecipesReady(ArrayList<Recipe> recipes) {
-        // todo store the recipes in the sqlite database
+        // Call syncDbIntentService's method to download recipe data
+        SyncDbIntentService.syncRecipes(this, recipes);
+
         mAdapter.setRecipeData(recipes);
         mAdapter.notifyDataSetChanged();
 

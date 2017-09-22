@@ -25,6 +25,8 @@ package com.andrewclam.bakingapp.data;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
+import static com.andrewclam.bakingapp.data.RecipeDbContract.RecipeEntry.CONTENT_URI_RECIPE;
+
 /**
  * Created by Andrew Lam
  * Multi-table SQLite practice
@@ -71,7 +73,7 @@ public class RecipeDbContract {
     public static final class RecipeEntry implements BaseColumns {
         // RecipeEntry
         // content URI = base content URI + path
-        public static final Uri CONTENT_URI =
+        public static final Uri CONTENT_URI_RECIPE =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_RECIPES).build();
 
         public static final String TABLE_NAME = "recipes";
@@ -85,11 +87,10 @@ public class RecipeDbContract {
 
         // IngredientEntry
         // content URI = base content URI + path
-        public static final Uri CONTENT_URI =
-                BASE_CONTENT_URI.buildUpon().appendPath(PATH_RECIPES).appendPath(PATH_INGREDIENTS).build();
+        public static final Uri CONTENT_URI_INGREDIENT =
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH_INGREDIENTS).build();
 
         public static final String TABLE_NAME = "ingredients";
-        public static final String COLUMN_INGREDIENT_ID = "id";
         public static final String COLUMN_INGREDIENT_QUANTITY = "quantity";
         public static final String COLUMN_INGREDIENT_MEASURE = "measure";
         public static final String COLUMN_INGREDIENT_NAME = "name";
@@ -100,8 +101,8 @@ public class RecipeDbContract {
 
         // StepEntry
         // content URI = base content URI + path
-        public static final Uri CONTENT_URI =
-                BASE_CONTENT_URI.buildUpon().appendPath(PATH_RECIPES).appendPath(PATH_STEPS).build();
+        public static final Uri CONTENT_URI_STEP =
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH_STEPS).build();
 
         public static final String TABLE_NAME = "steps";
         public static final String COLUMN_STEP_ID = "id";
@@ -110,5 +111,18 @@ public class RecipeDbContract {
         public static final String COLUMN_STEP_VIDEO_URL = "video_url";
         public static final String COLUMN_STEP_THUMBNAIL_URL = "thumbnail_url";
         public static final String COLUMN_STEP_RECIPE_KEY = "recipe_id";
+    }
+
+    /**
+     * Easy to use helper method to build the uri that points to a specific resource
+     * <p>
+     * Recipe with given its unique recipe id
+     *
+     * @param recipe_id the unique recipe id as fetched from web service)
+     * @return an Uri that points to that particular movie on the user's database
+     */
+    public static Uri buildRecipeUriWithId(Long recipe_id) {
+        String idStr = String.valueOf(recipe_id);
+        return CONTENT_URI_RECIPE.buildUpon().appendPath(idStr).build();
     }
 }
