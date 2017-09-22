@@ -22,6 +22,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.andrewclam.bakingapp.data.SimplyBakingDbContract.IngredientEntry;
 import com.andrewclam.bakingapp.data.SimplyBakingDbContract.RecipeEntry;
+import com.andrewclam.bakingapp.data.SimplyBakingDbContract.StepEntry;
 
 
 public class SimplyBakingDbHelper extends SQLiteOpenHelper {
@@ -43,23 +44,33 @@ public class SimplyBakingDbHelper extends SQLiteOpenHelper {
                 RecipeEntry.COLUMN_RECIPE_SERVINGS + " INTEGER NOT NULL, " +
                 RecipeEntry.COLUMN_RECIPE_IMAGE_URL + " TEXT )";
 
+    // Create a table to hold the ingredients data
     private final String SQL_CREATE_INGREDIENTS_TABLE =
-            "CREATE TABLE " +
-                IngredientEntry.TABLE_NAME + " (" +
-                IngredientEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                IngredientEntry.COLUMN_INGREDIENT_ID + " INTEGER NOT NULL, " +
-                IngredientEntry.COLUMN_INGREDIENT_NAME + " TEXT NOT NULL, " +
-                IngredientEntry.COLUMN_INGREDIENT_MEASURE + " TEXT NOT NULL, " +
-                IngredientEntry.COLUMN_INGREDIENT_QUANTITY + " INTEGER NOT NULL )";
-
-    private final String SQL_CREATE_STEPS_TABLE =
             "CREATE TABLE " +
                     IngredientEntry.TABLE_NAME + " (" +
                     IngredientEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                     IngredientEntry.COLUMN_INGREDIENT_ID + " INTEGER NOT NULL, " +
                     IngredientEntry.COLUMN_INGREDIENT_NAME + " TEXT NOT NULL, " +
+                    IngredientEntry.COLUMN_INGREDIENT_MEASURE + " TEXT NOT NULL, " +
+                    IngredientEntry.COLUMN_INGREDIENT_QUANTITY + " INTEGER NOT NULL, " +
+                    IngredientEntry.COLUMN_INGREDIENT_RECIPE_KEY +
+                    "FOREIGN KEY(" + IngredientEntry.COLUMN_INGREDIENT_RECIPE_KEY + ") " +
+                    "REFERENCES " + RecipeEntry.TABLE_NAME + "("+ RecipeEntry.COLUMN_RECIPE_ID +")"
+            + ")";
+
+    // Create a table to hold the steps data
+    private final String SQL_CREATE_STEPS_TABLE =
+            "CREATE TABLE " +
+                    StepEntry.TABLE_NAME + " (" +
+                    StepEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    IngredientEntry.COLUMN_INGREDIENT_ID + " INTEGER NOT NULL, " +
+                    IngredientEntry.COLUMN_INGREDIENT_NAME + " TEXT NOT NULL, " +
                     IngredientEntry.COLUMN_INGREDIENT_MEASURE + " INTEGER NOT NULL, " +
-                    IngredientEntry.COLUMN_INGREDIENT_QUANTITY + " INTEGER NOT NULL )";
+                    IngredientEntry.COLUMN_INGREDIENT_QUANTITY + " INTEGER NOT NULL, " +
+                    IngredientEntry.COLUMN_INGREDIENT_RECIPE_KEY +
+                    "FOREIGN KEY(" + StepEntry.COLUMN_STEP_RECIPE_KEY + ") " +
+                    "REFERENCES " + RecipeEntry.TABLE_NAME + "("+ RecipeEntry.COLUMN_RECIPE_ID +")"
+            + ")";
 
     // Constructor
     public SimplyBakingDbHelper(Context context) {

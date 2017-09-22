@@ -70,7 +70,7 @@ public class SimplyBakingDbContract {
         public static final String COLUMN_INGREDIENT_QUANTITY = "quantity";
         public static final String COLUMN_INGREDIENT_MEASURE = "measure";
         public static final String COLUMN_INGREDIENT_NAME = "name";
-        public static final String COLUMN_FOREIGN_KEY_RECIPE_ID = "recipe_id";
+        public static final String COLUMN_INGREDIENT_RECIPE_KEY = "recipe_id";
     }
 
     public static final class StepEntry implements BaseColumns{
@@ -86,6 +86,6 @@ public class SimplyBakingDbContract {
         public static final String COLUMN_STEP_DESCRIPTION = "description";
         public static final String COLUMN_STEP_VIDEO_URL = "video_url";
         public static final String COLUMN_STEP_THUMBNAIL_URL = "thumbnail_url";
-        public static final String COLUMN_FOREIGN_KEY_RECIPE_ID = "recipe_id";
+        public static final String COLUMN_STEP_RECIPE_KEY = "recipe_id";
     }
 }
