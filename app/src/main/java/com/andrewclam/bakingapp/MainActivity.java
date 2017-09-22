@@ -158,11 +158,11 @@ public class MainActivity extends AppCompatActivity implements
     private void createAppWidget(Recipe recipe) {
         // 1) If the app is started for AppWidget Configuration, upon user click the recipe
         // user is selecting the recipe to be displayed as the widget on the home screen
-        final AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
+        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
 
         // Data - Create the pending intent, as the widget act as the shortcut to the recipe
         // the intent should launch the stepsListActivity by default with the recipe
-        Intent intent = new Intent(this, StepListActivity.class);
+        Intent intent = new Intent(MainActivity.this, StepListActivity.class);
         intent.putExtra(EXTRA_RECIPE, Parcels.wrap(recipe));
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
                 1,

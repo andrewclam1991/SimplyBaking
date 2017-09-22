@@ -24,7 +24,7 @@ public class WidgetProvider extends AppWidgetProvider {
      */
     private static final String TAG = WidgetProvider.class.getSimpleName();
 
-    static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
+    void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
                                 int appWidgetId) {
 
         boolean done = false;
@@ -54,12 +54,9 @@ public class WidgetProvider extends AppWidgetProvider {
                     R.string.serving, recipe.getServings()));
             views.setOnClickPendingIntent(R.id.widget_recipe_name_tv, pendingIntent);
             views.setRemoteAdapter(R.id.widget_ingredient_list_lv, serviceAdapterIntent);
+
+            appWidgetManager.updateAppWidget(appWidgetId, views);
         }
-
-        RemoteViews views = new RemoteViews(context.getPackageName(),
-                R.layout.widget_recipe_small);
-
-        appWidgetManager.updateAppWidget(appWidgetId, views);
     }
 
     @Override
