@@ -90,16 +90,14 @@ public class WidgetIntentService extends IntentService{
             );
         }
 
-        Context context = WidgetIntentService.this;
-
-        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
 
         int[] appWidgetIds = appWidgetManager.getAppWidgetIds(
-                new ComponentName(context, WidgetProvider.class));
+                new ComponentName(this, WidgetProvider.class));
 
-//        // Call the static method in the widget provider class to do widget update
+        // Call the static method in the widget provider class to do widget update
 //        WidgetProvider.updateSimplyBakingWidgets(
-//                context,
+//                this,
 //                appWidgetManager,
 //                appWidgetIds);
     }
