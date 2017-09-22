@@ -15,6 +15,7 @@ import android.widget.RemoteViews;
 import com.andrewclam.bakingapp.adapters.RecipeRecyclerViewAdapter;
 import com.andrewclam.bakingapp.asyncTasks.FetchRecipeAsyncTask;
 import com.andrewclam.bakingapp.models.Recipe;
+import com.squareup.picasso.Picasso;
 
 import org.parceler.Parcels;
 
@@ -157,6 +158,7 @@ public class MainActivity extends AppCompatActivity implements
     private void createAppWidget(Recipe recipe) {
         // 1) If the app is started for AppWidget Configuration, upon user click the recipe
         // user is selecting the recipe to be displayed as the widget on the home screen
+        final AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
 
         // Data - Create the pending intent, as the widget act as the shortcut to the recipe
         // the intent should launch the stepsListActivity by default with the recipe
@@ -168,15 +170,29 @@ public class MainActivity extends AppCompatActivity implements
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
         // UI - Find and Bind Views
-        RemoteViews views = new RemoteViews(this.getPackageName(),
-                R.layout.widget_recipe_small);
+        RemoteViews views = new RemoteViews(this.getPackageName(), R.layout.widget_recipe_small);
 
         views.setOnClickPendingIntent(R.id.widget_small_root_view, pendingIntent);
-        views.setImageViewResource(R.id.widget_small_icon, R.drawable.ic_cupcake);
         views.setTextViewText(R.id.widget_small_recipe_name, recipe.getName());
 
+        // UI - Image Icon Check if recipe has an image for icon
+        String imageUrl = recipe.getImageURL();
+        if (imageUrl != null && !imageUrl.isEmpty())
+        {
+            // Use picasso to load the image into the remoteView
+            Picasso.with(this).load(imageUrl).into(
+                    views,
+                    R.id.widget_small_icon,
+                    new int[]{mAppWidgetId}
+            );
+        }else
+        {
+            // default to cupcake icon
+            views.setImageViewResource(R.id.widget_small_icon,R.drawable.ic_cupcake);
+        }
+
+
         // Widget Update - Use appWidgetManager to update/create the particular widget by id
-        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
         appWidgetManager.updateAppWidget(mAppWidgetId, views);
 
         // Send out an intent with the resulting appWidgetId, with the result OK
