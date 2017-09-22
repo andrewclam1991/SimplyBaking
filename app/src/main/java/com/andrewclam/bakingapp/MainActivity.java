@@ -165,7 +165,7 @@ public class MainActivity extends AppCompatActivity implements
         Intent intent = new Intent(MainActivity.this, StepListActivity.class);
         intent.putExtra(EXTRA_RECIPE, Parcels.wrap(recipe));
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
-                1,
+                mAppWidgetId,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
 

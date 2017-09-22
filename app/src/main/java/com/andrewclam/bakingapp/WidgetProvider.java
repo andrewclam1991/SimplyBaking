@@ -26,10 +26,12 @@ public class WidgetProvider extends AppWidgetProvider {
 
     void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
                                 int appWidgetId) {
+        RemoteViews views = new RemoteViews(context.getPackageName(),R.layout.widget_recipe_small);
+        appWidgetManager.updateAppWidget(appWidgetId, views);
 
         boolean done = false;
         if (done) {
-            RemoteViews views = new RemoteViews(context.getPackageName(),
+            views = new RemoteViews(context.getPackageName(),
                     R.layout.widget_recipe_large);
 
             // TODO get the recipe from the arg
