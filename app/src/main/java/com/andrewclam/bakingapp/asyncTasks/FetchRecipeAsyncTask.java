@@ -1,11 +1,23 @@
 /*
- * Copyright <2017> <ANDREW LAM>
+ * Copyright (c) 2017 Andrew Chi Heng Lam
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 
 package com.andrewclam.bakingapp.asyncTasks;
@@ -14,8 +26,8 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.andrewclam.bakingapp.models.Recipe;
-import com.andrewclam.bakingapp.utils.BakingAppJsonUtils;
 import com.andrewclam.bakingapp.utils.NetworkUtils;
+import com.andrewclam.bakingapp.utils.RecipeJsonUtils;
 
 import org.json.JSONException;
 
@@ -95,14 +107,16 @@ public class FetchRecipeAsyncTask extends AsyncTask<Void, Void, ArrayList<Recipe
             if (jsonResponse == null) return entries;
 
             // Got a JsonResponse from the web, parse the jsonResponse using the JsonUtils
-            entries = BakingAppJsonUtils.getRecipesFromJson(jsonResponse);
+            entries = RecipeJsonUtils.getRecipesFromJson(jsonResponse);
 
         } catch (IOException e) {
-            Log.e(TAG, "FetchRecipeAsyncTask - doInBackground - IO Error occurred while getting the jsonResponse from the url");
+            Log.e(TAG, "FetchRecipeAsyncTask - doInBackground - " +
+                    "IO Error occurred while getting the jsonResponse from the url");
             e.printStackTrace();
             return null;
         } catch (JSONException e) {
-            Log.e(TAG, "FetchRecipeAsyncTask - doInBackground - JSONException occurred while parsing the jsonResponse into model class");
+            Log.e(TAG, "FetchRecipeAsyncTask - doInBackground - " +
+                    "JSONException occurred while parsing the jsonResponse into model class");
             e.printStackTrace();
             return null;
         }

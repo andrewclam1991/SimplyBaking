@@ -1,11 +1,23 @@
 /*
- * Copyright <2017> <ANDREW LAM>
+ * Copyright (c) 2017 Andrew Chi Heng Lam
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 
 package com.andrewclam.bakingapp.adapters;
@@ -41,7 +53,7 @@ public class RecipeRecyclerViewAdapter extends RecyclerView.Adapter<RecipeRecycl
     private ArrayList<Recipe> mRecipes;
 
     /* Context for getting application resources*/
-    private Context mContext;
+    private final Context mContext;
 
     /* Default Constructor */
     public RecipeRecyclerViewAdapter(Context mContext, OnRecipeItemClickedListener mOnItemClickedListener) {
@@ -63,12 +75,6 @@ public class RecipeRecyclerViewAdapter extends RecyclerView.Adapter<RecipeRecycl
      */
     @Override
     public RecipeViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        // P: To create a viewHolder, RelatedVideoAdapterViewHolder needs an inflated itemView to work with
-        // R: Needs a layout inflater to inflate the list item view
-        // S: Layout inflater can be obtains from context, use LayoutInflater.from(context)
-        // R: Needs a res id for the inflater to know which view to inflate
-        // S: assign the layoutResId with the list item view
-
         // Get the layout inflater (required to inflate the itemView)
         Context context = parent.getContext(); // Context required by the layoutInflater
         LayoutInflater inflater = LayoutInflater.from(context);
