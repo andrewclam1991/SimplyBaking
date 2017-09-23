@@ -59,7 +59,7 @@ public class RecipeDbHelper extends SQLiteOpenHelper {
             "CREATE TABLE " +
                     IngredientEntry.TABLE_NAME + " (" +
                     IngredientEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    IngredientEntry.COLUMN_INGREDIENT_UID + "TEXT UNIQUE NOT NULL, " +
+                    IngredientEntry.COLUMN_INGREDIENT_UID + " TEXT UNIQUE NOT NULL, " +
                     IngredientEntry.COLUMN_INGREDIENT_NAME + " TEXT NOT NULL, " +
                     IngredientEntry.COLUMN_INGREDIENT_MEASURE + " TEXT NOT NULL, " +
                     IngredientEntry.COLUMN_INGREDIENT_QUANTITY + " REAL NOT NULL, " +

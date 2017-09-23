@@ -119,12 +119,11 @@ public class MainActivity extends AppCompatActivity implements
                     .setDataURL(DATA_URL)
                     .setListener(this)
                     .execute();
-        }else
-        {
-            /* Network disconnected, fallback to cached database*/
-            // Restart the cursorLoader
-            getSupportLoaderManager().restartLoader(RECIPE_LOADER_ID, null, this);
         }
+
+        /* Load Data from Database using CursorLoader */
+        // If offline, will still load the database cached data
+        getSupportLoaderManager().restartLoader(RECIPE_LOADER_ID, null, this);
 
 
         /* Loading Progress Bar - Visible*/
@@ -140,15 +139,8 @@ public class MainActivity extends AppCompatActivity implements
      */
     @Override
     public void onRecipesReady(ArrayList<Recipe> recipes) {
-        // Call syncDbIntentService's method to download recipe data
+        // Call intent service to update the database with the latest recipes
         SyncDbIntentService.syncRecipes(this, recipes);
-
-        // Set data to the adapter
-        mAdapter.setRecipeData(recipes);
-        mAdapter.notifyDataSetChanged();
-
-        /* Loading Progress Bar - Data Loaded, Be GONE */
-        mProgressBar.setVisibility(View.GONE);
     }
 
     /**
@@ -283,8 +275,10 @@ public class MainActivity extends AppCompatActivity implements
                         public void onEntriesParsed(ArrayList<Recipe> recipes) {
                             mAdapter.setRecipeData(recipes);
                             mAdapter.notifyDataSetChanged();
+                            /* Loading Progress Bar - Data Loaded, Be GONE */
+                            mProgressBar.setVisibility(View.GONE);
                         }
-            });
+            }).execute();
         }else
         {
             // Show empty view, no data available

@@ -139,39 +139,39 @@ public class SyncDbIntentService extends IntentService {
             cv.put(COLUMN_RECIPE_SERVINGS, recipe.getServings());
 
             // PARENT TABLE - RECIPES
-            syncRecipesTable(contentResolver, cv);
+            insertRecipes(contentResolver, cv);
 
             // CHILD TABLE - INGREDIENTS
-            syncIngredientsTable(contentResolver, recipe.getIngredients(), recipeId);
+            bulkInsertIngredients(contentResolver, recipe.getIngredients(), recipeId);
 
             // CHILD TABLE - STEPS
-            syncStepsTable(contentResolver, recipe.getSteps(), recipeId);
+            bulkInsertSteps(contentResolver, recipe.getSteps(), recipeId);
         }
     }
 
     /**
      * Method to insert individual recipe into the recipe table
      *
-     * @param contentResolver application context to
-     * @param cv
+     * @param contentResolver contentResolver to get the proper content provider given the uri
+     * @param cv the content value for the recipe, less then child table lists
      * @return
      */
-    private void syncRecipesTable(@NonNull ContentResolver contentResolver, ContentValues cv) {
+    private void insertRecipes(@NonNull ContentResolver contentResolver, ContentValues cv) {
         // use the contentResolver bulkInsert to insert all the cv values
         final Uri contentUri = contentResolver.insert(CONTENT_URI_RECIPE, cv);
-        if (contentUri == null) Log.e(TAG,"syncRecipesTable() failed");
+        if (contentUri == null) Log.e(TAG,"insertRecipes() failed");
     }
 
     /**
-     * Method to bulkInsert syncStepsTable of a particular recipe into the IngredientsTable
+     * Method to bulkInsert bulkInsertSteps of a particular recipe into the IngredientsTable
      *
-     * @param contentResolver
-     * @param steps
-     * @param recipeId
+     * @param contentResolver contentResolver to get the proper content provider given the uri
+     * @param steps the list of steps to store each step from the cursor
+     * @param recipeId the recipe uid to select the step cursor with
      */
-    synchronized private void syncStepsTable(@NonNull ContentResolver contentResolver,
-                                                List<Step> steps,
-                                                Long recipeId) {
+    synchronized private void bulkInsertSteps(@NonNull ContentResolver contentResolver,
+                                              List<Step> steps,
+                                              @NonNull Long recipeId) {
 
         ContentValues[] cvArray = new ContentValues[steps.size()];
 
@@ -204,7 +204,7 @@ public class SyncDbIntentService extends IntentService {
         } finally {
             // use the contentResolver bulkInsert to insert all the cv values
             final int rowInserted = contentResolver.bulkInsert(CONTENT_URI_STEP, cvArray);
-            if (rowInserted <= 0) Log.e(TAG,"syncStepsTable() failed");
+            if (rowInserted <= 0) Log.e(TAG,"bulkInsertSteps() failed");
         }
     }
 
@@ -212,13 +212,13 @@ public class SyncDbIntentService extends IntentService {
     /**
      * Method to bulkInsert ingredients of a particular recipe into the IngredientsTable
      *
-     * @param contentResolver
-     * @param ingredients
-     * @param recipeId
+     * @param contentResolver contentResolver to get the proper content provider given the uri
+     * @param ingredients the list of ingredients to store each step from the cursor
+     * @param recipeId the recipe uid to select the data cursor with
      */
-    synchronized private void syncIngredientsTable(@NonNull ContentResolver contentResolver,
-                                                      List<Ingredient> ingredients,
-                                                      Long recipeId) {
+    synchronized private void bulkInsertIngredients(@NonNull ContentResolver contentResolver,
+                                                    List<Ingredient> ingredients,
+                                                    @NonNull Long recipeId) {
 
         ContentValues[] cvArray = new ContentValues[ingredients.size()];
 
@@ -250,7 +250,7 @@ public class SyncDbIntentService extends IntentService {
             // use the contentResolver bulkInsert to insert all the cv values
             final int rowInserted =
                     contentResolver.bulkInsert(CONTENT_URI_INGREDIENT, cvArray);
-            if (rowInserted <= 0) Log.e(TAG,"syncIngredientsTable() failed");
+            if (rowInserted <= 0) Log.e(TAG,"bulkInsertIngredients() failed");
         }
     }
 }
