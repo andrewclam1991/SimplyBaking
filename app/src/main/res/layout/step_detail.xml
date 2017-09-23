@@ -31,13 +31,13 @@
     <!-- ExoPlayer View (If Available)-->
     <com.google.android.exoplayer2.ui.SimpleExoPlayerView
         android:background="@color/colorBlack"
-        android:uid="@+uid/step_video_player_view"
+        android:id="@+id/step_video_player_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
 
         <ProgressBar
-            android:uid="@+uid/video_loading_pb"
+            android:id="@+id/video_loading_pb"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"/>
@@ -45,7 +45,7 @@
     </com.google.android.exoplayer2.ui.SimpleExoPlayerView>
 
     <ScrollView
-        android:uid="@+uid/step_detail_content_sv"
+        android:id="@+id/step_detail_content_sv"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
@@ -57,7 +57,7 @@
 
             <!-- Recipe Image (If Available) -->
             <ImageView
-                android:uid="@+uid/step_thumbnail"
+                android:id="@+id/step_thumbnail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:contentDescription="@string/step_image_thumbnail"
@@ -65,7 +65,7 @@
 
             <!-- Recipe Description -->
             <TextView
-                android:uid="@+uid/step_detail"
+                android:id="@+id/step_detail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="16dp"

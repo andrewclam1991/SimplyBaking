@@ -53,7 +53,7 @@ public class RecipeRecyclerViewAdapter extends RecyclerView.Adapter<RecipeRecycl
     private ArrayList<Recipe> mRecipes;
 
     /* Context for getting application resources*/
-    private Context mContext;
+    private final Context mContext;
 
     /* Default Constructor */
     public RecipeRecyclerViewAdapter(Context mContext, OnRecipeItemClickedListener mOnItemClickedListener) {

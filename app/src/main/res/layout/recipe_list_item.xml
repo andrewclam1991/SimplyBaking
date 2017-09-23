@@ -34,7 +34,7 @@
         android:gravity="center_vertical">
 
         <TextView
-            android:uid="@+uid/recipe_name_tv"
+            android:id="@+id/recipe_name_tv"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -46,7 +46,7 @@
             tools:text="Amazing Pie" />
 
         <TextView
-            android:uid="@+uid/recipe_servings_tv"
+            android:id="@+id/recipe_servings_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             tools:text="@string/serving"

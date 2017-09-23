@@ -274,6 +274,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         if (data != null) {
+            // Use an asyncTask to parse the multi-table db using the Cursor data
             new DbMultiTableParsingAsyncTask()
                     .setContentResolver(this.getContentResolver())
                     .setCursor(data)

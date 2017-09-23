@@ -147,7 +147,7 @@ public class StepDetailActivity extends AppCompatActivity implements
 
     private static class StepsAdapter extends ArrayAdapter<Step> implements ThemedSpinnerAdapter {
         private final ThemedSpinnerAdapter.Helper mDropDownHelper;
-        private Context mContext;
+        private final Context mContext;
 
         public StepsAdapter(Context context, ArrayList<Step> steps) {
             super(context, android.R.layout.simple_list_item_1, steps);

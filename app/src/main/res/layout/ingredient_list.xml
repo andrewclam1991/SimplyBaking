@@ -59,7 +59,7 @@
                 <!-- Recipe Ingredients SubTitle-->
                 <TextView
                     style="@style/ListLabelTitleSubStyle"
-                    android:uid="@+uid/recipe_servings_tv"
+                    android:id="@+id/recipe_servings_tv"
                     tools:text="Serves 4" />
 
             </LinearLayout>
@@ -68,7 +68,7 @@
 
         <!-- Recipe Ingredient List -->
         <android.support.v7.widget.RecyclerView
-            android:uid="@+uid/ingredient_list_rv"
+            android:id="@+id/ingredient_list_rv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="@dimen/list_padding_top"

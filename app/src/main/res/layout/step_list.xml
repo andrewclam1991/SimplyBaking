@@ -22,6 +22,7 @@
   -->
 
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -42,7 +43,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="16dp"
-                android:src="@drawable/ic_direction_make" />
+                app:srcCompat="@drawable/ic_direction_make" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -58,7 +59,7 @@
                 <!-- Recipe Steps SubTitle-->
                 <TextView
                     style="@style/ListLabelTitleSubStyle"
-                    android:uid="@+uid/steps_num_tv"
+                    android:id="@+id/steps_num_tv"
                     tools:text="12 Steps" />
 
             </LinearLayout>
@@ -67,7 +68,7 @@
 
         <!-- Recipe Steps List -->
         <android.support.v7.widget.RecyclerView
-            android:uid="@+uid/step_list_rv"
+            android:id="@+id/step_list_rv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="@dimen/list_padding_top"
