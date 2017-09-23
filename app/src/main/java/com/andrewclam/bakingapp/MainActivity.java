@@ -25,7 +25,10 @@ package com.andrewclam.bakingapp;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -38,6 +41,7 @@ import com.andrewclam.bakingapp.adapters.RecipeRecyclerViewAdapter;
 import com.andrewclam.bakingapp.asyncTasks.FetchRecipeAsyncTask;
 import com.andrewclam.bakingapp.models.Recipe;
 import com.andrewclam.bakingapp.services.SyncDbIntentService;
+import com.andrewclam.bakingapp.utils.NetworkUtils;
 import com.squareup.picasso.Picasso;
 
 import org.parceler.Parcels;
@@ -47,8 +51,11 @@ import java.util.ArrayList;
 import static com.andrewclam.bakingapp.Constants.ACTION_APPWIDGET_CONFIG;
 import static com.andrewclam.bakingapp.Constants.DATA_URL;
 import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE;
+import static com.andrewclam.bakingapp.data.RecipeDbContract.RecipeEntry.CONTENT_URI_RECIPE;
+import static com.andrewclam.bakingapp.utils.RecipeDbParsingUtil.parseEntriesFromCursor;
 
 public class MainActivity extends AppCompatActivity implements
+        LoaderManager.LoaderCallbacks<Cursor>,
         FetchRecipeAsyncTask.onFetchRecipeActionListener,
         RecipeRecyclerViewAdapter.OnRecipeItemClickedListener {
     /**
@@ -93,11 +100,36 @@ public class MainActivity extends AppCompatActivity implements
         }
         mRecipeRv.setLayoutManager(mLayoutManager);
 
-        /* Async Load Recipe Data */
-        new FetchRecipeAsyncTask()
-                .setDataURL(DATA_URL)
-                .setListener(this)
-                .execute();
+
+        /* Check Network Connection */
+        // TODO check network connection with resultReceiver
+        if (NetworkUtils.getNetworkState(this)) {
+            /* Async Load The Latest Recipe Data (NETWORK CONNECTED) */
+            new FetchRecipeAsyncTask()
+                    .setDataURL(DATA_URL)
+                    .setListener(this)
+                    .execute();
+        }else
+        {
+            /* Load Cached Recipe Data from Database */
+            Cursor cursor = getContentResolver().query(
+                    CONTENT_URI_RECIPE, null, null, null, null);
+
+            if (cursor != null && cursor.moveToNext()) {
+                while(cursor.moveToNext())
+                {
+                    // Get the recipe fields from the database
+
+                    // Create a recipe object to store the recipe
+                    Recipe recipe = new Recipe();
+                    recipe.setName();
+                    cursor.getColumnIndex();
+                }
+
+                cursor.close();
+            }
+        }
+
 
         /* Loading Progress Bar - Visible*/
         mProgressBar = findViewById(R.id.progress_bar);
@@ -166,8 +198,7 @@ public class MainActivity extends AppCompatActivity implements
 
             // Set title to select recipe
             setTitle(getString(R.string.app_widget_select_recipe_title));
-        }else
-        {
+        } else {
             // Set the flag to false, activity was started normally
             mStartedForAppWidgetConfig = false;
         }
@@ -203,18 +234,16 @@ public class MainActivity extends AppCompatActivity implements
 
         // UI - Image Icon Check if recipe has an image for icon
         String imageUrl = recipe.getImageURL();
-        if (imageUrl != null && !imageUrl.isEmpty())
-        {
+        if (imageUrl != null && !imageUrl.isEmpty()) {
             // Use picasso to load the image into the remoteView
             Picasso.with(this).load(imageUrl).into(
                     views,
                     R.id.widget_small_icon,
                     new int[]{mAppWidgetId}
             );
-        }else
-        {
+        } else {
             // default to cupcake icon
-            views.setImageViewResource(R.id.widget_small_icon,R.drawable.ic_cupcake);
+            views.setImageViewResource(R.id.widget_small_icon, R.drawable.ic_cupcake);
         }
 
 
@@ -228,5 +257,30 @@ public class MainActivity extends AppCompatActivity implements
 
         // Finish the configuration activity
         finish();
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        /* Load Cached Recipe Data from Database */
+        Cursor cursor = getContentResolver().query(
+                CONTENT_URI_RECIPE, null, null, null, null);
+        return null;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        if (data != null && data.moveToNext()) {
+            while(data.moveToNext())
+            {
+                mAdapter.setRecipeData(parseEntriesFromCursor(data));
+                mAdapter.notifyDataSetChanged();
+            }
+            data.close();
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
     }
 }

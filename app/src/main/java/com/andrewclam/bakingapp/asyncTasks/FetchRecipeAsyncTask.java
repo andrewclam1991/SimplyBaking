@@ -26,8 +26,8 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.andrewclam.bakingapp.models.Recipe;
-import com.andrewclam.bakingapp.utils.BakingAppJsonUtils;
 import com.andrewclam.bakingapp.utils.NetworkUtils;
+import com.andrewclam.bakingapp.utils.RecipeJsonUtils;
 
 import org.json.JSONException;
 
@@ -107,7 +107,7 @@ public class FetchRecipeAsyncTask extends AsyncTask<Void, Void, ArrayList<Recipe
             if (jsonResponse == null) return entries;
 
             // Got a JsonResponse from the web, parse the jsonResponse using the JsonUtils
-            entries = BakingAppJsonUtils.getRecipesFromJson(jsonResponse);
+            entries = RecipeJsonUtils.getRecipesFromJson(jsonResponse);
 
         } catch (IOException e) {
             Log.e(TAG, "FetchRecipeAsyncTask - doInBackground - " +

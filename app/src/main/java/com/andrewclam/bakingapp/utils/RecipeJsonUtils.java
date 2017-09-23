@@ -37,11 +37,11 @@ import java.util.ArrayList;
 /**
  * Created by Andrew Chi Heng Lam on 8/19/2017.
  * <p>
- * BakingAppJsonUtils contain methods to parse the JSON response into individual JSON Object, and
+ * RecipeJsonUtils contain methods to parse the JSON response into individual JSON Object, and
  * store the data in a model class (eg. recipe)
  */
 
-public final class BakingAppJsonUtils {
+public final class RecipeJsonUtils {
     /* JSON Key Constants */
     private static final String RECIPE_ID = "id";
     private static final String RECIPE_NAME = "name";
@@ -62,7 +62,7 @@ public final class BakingAppJsonUtils {
     private static final String RECIPE_IMAGE = "image";
 
     /* Log Tag */
-    private static final String TAG = BakingAppJsonUtils.class.getSimpleName();
+    private static final String TAG = RecipeJsonUtils.class.getSimpleName();
 
     /**
      * This method parses a JSON String from a web response and returns an ArrayList of objects
