@@ -28,6 +28,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -36,8 +37,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.RemoteViews;
+import android.widget.Toast;
 
 import com.andrewclam.bakingapp.adapters.RecipeRecyclerViewAdapter;
+import com.andrewclam.bakingapp.asyncTasks.DbMultiTableParsingAsyncTask;
 import com.andrewclam.bakingapp.asyncTasks.FetchRecipeAsyncTask;
 import com.andrewclam.bakingapp.models.Recipe;
 import com.andrewclam.bakingapp.services.SyncDbIntentService;
@@ -52,7 +55,6 @@ import static com.andrewclam.bakingapp.Constants.ACTION_APPWIDGET_CONFIG;
 import static com.andrewclam.bakingapp.Constants.DATA_URL;
 import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE;
 import static com.andrewclam.bakingapp.data.RecipeDbContract.RecipeEntry.CONTENT_URI_RECIPE;
-import static com.andrewclam.bakingapp.utils.RecipeDbParsingUtil.parseEntriesFromCursor;
 
 public class MainActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor>,
@@ -75,6 +77,14 @@ public class MainActivity extends AppCompatActivity implements
      */
     private boolean mStartedForAppWidgetConfig;
     private int mAppWidgetId;
+
+    /**
+     * This ID will be used to identify the Loader responsible for loading our offline database. In
+     * some cases, one Activity can deal with many Loaders. However, in our case, there is only one.
+     * We will still use this ID to initialize the loader and create the loader for best practice.
+    */
+    private static final int RECIPE_LOADER_ID = 8888;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,23 +121,9 @@ public class MainActivity extends AppCompatActivity implements
                     .execute();
         }else
         {
-            /* Load Cached Recipe Data from Database */
-            Cursor cursor = getContentResolver().query(
-                    CONTENT_URI_RECIPE, null, null, null, null);
-
-            if (cursor != null && cursor.moveToNext()) {
-                while(cursor.moveToNext())
-                {
-                    // Get the recipe fields from the database
-
-                    // Create a recipe object to store the recipe
-                    Recipe recipe = new Recipe();
-                    recipe.setName();
-                    cursor.getColumnIndex();
-                }
-
-                cursor.close();
-            }
+            /* Network disconnected, fallback to cached database*/
+            // Restart the cursorLoader
+            getSupportLoaderManager().restartLoader(RECIPE_LOADER_ID, null, this);
         }
 
 
@@ -147,6 +143,7 @@ public class MainActivity extends AppCompatActivity implements
         // Call syncDbIntentService's method to download recipe data
         SyncDbIntentService.syncRecipes(this, recipes);
 
+        // Set data to the adapter
         mAdapter.setRecipeData(recipes);
         mAdapter.notifyDataSetChanged();
 
@@ -259,28 +256,51 @@ public class MainActivity extends AppCompatActivity implements
         finish();
     }
 
+    /**
+     * CursorLoader and LoaderManager Implementation
+     * Do db query off the main thread and communicate via these callbacks
+     */
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        /* Load Cached Recipe Data from Database */
-        Cursor cursor = getContentResolver().query(
-                CONTENT_URI_RECIPE, null, null, null, null);
-        return null;
+        /* Load ALL Cached Recipe Data from Database */
+        return new CursorLoader(this,
+                CONTENT_URI_RECIPE,
+                null,
+                null,
+                null,
+                null);
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        if (data != null && data.moveToNext()) {
-            while(data.moveToNext())
-            {
-                mAdapter.setRecipeData(parseEntriesFromCursor(data));
-                mAdapter.notifyDataSetChanged();
-            }
-            data.close();
+        if (data != null) {
+            new DbMultiTableParsingAsyncTask()
+                    .setContentResolver(this.getContentResolver())
+                    .setCursor(data)
+                    .setListener(new DbMultiTableParsingAsyncTask.OnParsingActionComplete() {
+                        @Override
+                        public void onEntriesParsed(ArrayList<Recipe> recipes) {
+                            mAdapter.setRecipeData(recipes);
+                            mAdapter.notifyDataSetChanged();
+                        }
+            });
+        }else
+        {
+            // Show empty view, no data available
+            // TODO design a cuter empty view and show that instead
+            Toast.makeText(this,getString(R.string.data_unavailable),Toast.LENGTH_SHORT).show();
         }
+
+        /* Loading Progress Bar - Data Loaded, Be GONE */
+        mProgressBar.setVisibility(View.GONE);
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-
+        /*
+         * Since this Loader's data is now invalid, we need to clear the Adapter that is
+         * displaying the data.
+         */
+        mAdapter.setRecipeData(null);
     }
 }

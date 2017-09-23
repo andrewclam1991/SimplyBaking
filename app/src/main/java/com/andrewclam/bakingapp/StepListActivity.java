@@ -236,7 +236,7 @@ public class StepListActivity extends AppCompatActivity implements
             }else
             {
                 // Not the intro step, prepend the item with step number
-                holder.mStepIdTv.setText(getString(R.string.step, step.getId()));
+                holder.mStepIdTv.setText(getString(R.string.step, step.getStepNum()));
             }
 
             // Last Step, Don't show divider

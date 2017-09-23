@@ -205,7 +205,7 @@ public class StepDetailActivity extends AppCompatActivity implements
             // Set the spinner text to be the step's short description;
             TextView labelTv = view.findViewById(android.R.id.text1);
 
-            String labelText = mContext.getString(R.string.step, step.getId()) + " "
+            String labelText = mContext.getString(R.string.step, step.getStepNum()) + " "
                     + step.getShortDescription();
 
             labelTv.setText(labelText);

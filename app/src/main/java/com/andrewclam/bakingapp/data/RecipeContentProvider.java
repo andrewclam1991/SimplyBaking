@@ -38,8 +38,6 @@ import com.andrewclam.bakingapp.data.RecipeDbContract.IngredientEntry;
 import com.andrewclam.bakingapp.data.RecipeDbContract.RecipeEntry;
 import com.andrewclam.bakingapp.data.RecipeDbContract.StepEntry;
 
-import static com.andrewclam.bakingapp.data.RecipeDbContract.SET_TABLE_STATEMENT;
-
 public class RecipeContentProvider extends ContentProvider {
 
     // Define final integer constants for the directory of plants and a single item.
@@ -129,7 +127,7 @@ public class RecipeContentProvider extends ContentProvider {
                         values);
 
                 if (ingredientId > 0) {
-                    returnUri = ContentUris.withAppendedId(RecipeEntry.CONTENT_URI_RECIPE, ingredientId);
+                    returnUri = ContentUris.withAppendedId(IngredientEntry.CONTENT_URI_INGREDIENT, ingredientId);
                 } else {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 }
@@ -138,12 +136,12 @@ public class RecipeContentProvider extends ContentProvider {
             case CODE_STEPS:
                 // Insert new values into the database
                 long stepId = db.insert(
-                        IngredientEntry.TABLE_NAME,
+                        StepEntry.TABLE_NAME,
                         null,
                         values);
 
                 if (stepId > 0) {
-                    returnUri = ContentUris.withAppendedId(RecipeEntry.CONTENT_URI_RECIPE, stepId);
+                    returnUri = ContentUris.withAppendedId(StepEntry.CONTENT_URI_STEP, stepId);
                 } else {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 }
@@ -358,7 +356,7 @@ public class RecipeContentProvider extends ContentProvider {
         switch (match) {
             // Query for the recipes directory
             case CODE_RECIPES:
-                queryBuilder.setTables(SET_TABLE_STATEMENT);
+                queryBuilder.setTables(RecipeDbContract.RecipeEntry.TABLE_NAME);
 
                 retCursor = queryBuilder.query(db,
                         projection,
@@ -375,6 +373,28 @@ public class RecipeContentProvider extends ContentProvider {
                         projection,
                         "_id=?",
                         new String[]{id},
+                        null,
+                        null,
+                        sortOrder);
+                break;
+
+            case CODE_INGREDIENTS:
+                queryBuilder.setTables(IngredientEntry.TABLE_NAME);
+                retCursor = queryBuilder.query(db,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder);
+                break;
+
+            case CODE_STEPS:
+                queryBuilder.setTables(StepEntry.TABLE_NAME);
+                retCursor = queryBuilder.query(db,
+                        projection,
+                        selection,
+                        selectionArgs,
                         null,
                         null,
                         sortOrder);

@@ -52,7 +52,7 @@ public final class RecipeJsonUtils {
     private static final String RECIPE_INGREDIENTS_INGREDIENT_NAME = "ingredient";
 
     private static final String RECIPE_STEPS = "steps";
-    private static final String RECIPE_STEPS_ID = "id";
+    private static final String RECIPE_STEPS_NUM = "id";
     private static final String RECIPE_STEPS_SHORT_DESCRIPTION = "shortDescription";
     private static final String RECIPE_STEPS_DESCRIPTION = "description";
     private static final String RECIPE_STEPS_VIDEO_URL = "videoURL";
@@ -101,12 +101,12 @@ public final class RecipeJsonUtils {
                 String imageURL = recipeJSON.getString(RECIPE_IMAGE);
 
                 /* Store each element into the data model class */
-                recipe.setId(id);
+                recipe.setUid(id);
                 recipe.setName(name);
                 recipe.setServings(servings);
                 recipe.setImageURL(imageURL);
-                recipe.setIngredients(getIngredientFromRecipeJson(recipeJSON));
-                recipe.setSteps(getStepsFromRecipeJson(recipeJSON));
+                recipe.setIngredients(getIngredientFromRecipeJson(recipeJSON,id));
+                recipe.setSteps(getStepsFromRecipeJson(recipeJSON,id));
 
 
                 /* Add the recipe object to the list */
@@ -127,7 +127,7 @@ public final class RecipeJsonUtils {
      * @return a list of steps in an array list
      */
 
-    private static ArrayList<Step> getStepsFromRecipeJson(JSONObject recipeJSON)
+    private static ArrayList<Step> getStepsFromRecipeJson(JSONObject recipeJSON, Long recipeId)
             throws JSONException {
         // Get the steps as an array from the result
         JSONArray array = recipeJSON.getJSONArray(RECIPE_STEPS);
@@ -141,7 +141,7 @@ public final class RecipeJsonUtils {
         // Loop through each element step in the stepsArray;
         for (int i = 0; i < array.length(); i++) {
             JSONObject jsonObject = array.getJSONObject(i);
-            long id = jsonObject.getLong(RECIPE_STEPS_ID);
+            long stepNum = jsonObject.getLong(RECIPE_STEPS_NUM);
             String shortDescription = jsonObject.getString(RECIPE_STEPS_SHORT_DESCRIPTION);
             String description = jsonObject.getString(RECIPE_STEPS_DESCRIPTION);
             String videoURL = jsonObject.getString(RECIPE_STEPS_VIDEO_URL);
@@ -149,11 +149,16 @@ public final class RecipeJsonUtils {
 
             // Create an instance of the model class step to store the info*/
             Step step = new Step();
-            step.setId(id);
+
+            // Create UID of the ingredient for a particular id
+            String stepUid = createUid(recipeId,String.valueOf(stepNum));
+
+            step.setUid(stepUid);
+            step.setStepNum(stepNum);
             step.setShortDescription(shortDescription);
             step.setDescription(description);
             step.setVideoURL(videoURL);
-            step.setThumbnialURL(thumbnailURL);
+            step.setThumbnailURL(thumbnailURL);
 
             // Add the step to the list of steps
             steps.add(step);
@@ -168,7 +173,8 @@ public final class RecipeJsonUtils {
      *
      * @return a list of ingredients in an array list
      */
-    private static ArrayList<Ingredient> getIngredientFromRecipeJson(JSONObject recipeJSON)
+    private static ArrayList<Ingredient> getIngredientFromRecipeJson(JSONObject recipeJSON,
+                                                                     Long recipeId)
             throws JSONException {
         // Get the ingredients as an array from the result
         JSONArray array = recipeJSON.getJSONArray(RECIPE_INGREDIENTS);
@@ -190,6 +196,10 @@ public final class RecipeJsonUtils {
             // Create an instance of the model class step to set the info*/
             Ingredient ingredient = new Ingredient();
 
+            // Create UID of the ingredient for a particular id
+            String ingredientUid = createUid(recipeId,ingredientName);
+
+            ingredient.setUid(ingredientUid);
             ingredient.setQuantity(quantity);
             ingredient.setMeasure(measure);
             ingredient.setIngredientName(ingredientName);
@@ -199,5 +209,10 @@ public final class RecipeJsonUtils {
         }
 
         return ingredients;
+    }
+
+    private static String createUid(Long recipeId, String identifier)
+    {
+        return recipeId + "_" + identifier;
     }
 }

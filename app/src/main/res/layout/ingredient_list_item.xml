@@ -30,7 +30,7 @@
     <LinearLayout style="@style/ListItemStyle">
 
         <TextView
-            android:id="@+id/ingredient_name_tv"
+            android:uid="@+uid/ingredient_name_tv"
             style="@style/ListSubItemStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -39,7 +39,7 @@
             tools:text="Butter Cream" />
 
         <TextView
-            android:id="@+id/ingredient_quantity_tv"
+            android:uid="@+uid/ingredient_quantity_tv"
             style="@style/ListSubItemStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -49,7 +49,7 @@
             tools:text="3 1/2" />
 
         <TextView
-            android:id="@+id/ingredient_measure_tv"
+            android:uid="@+uid/ingredient_measure_tv"
             style="@style/ListSubItemStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -62,6 +62,6 @@
     <!-- bottom divider -->
     <FrameLayout
         style="@style/ListItemDividerStyle"
-        android:id="@+id/list_divider"/>
+        android:uid="@+uid/list_divider"/>
 
 </LinearLayout>

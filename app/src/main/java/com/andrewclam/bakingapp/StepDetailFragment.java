@@ -295,7 +295,7 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
             mTwoPane = savedInstanceState.getBoolean(EXTRA_TWO_PANE);
         } else {
             // No saved instance state, form the title using the item
-            mCurrentStepTitle = getString(R.string.step, mStepItem.getId()) + " "
+            mCurrentStepTitle = getString(R.string.step, mStepItem.getStepNum()) + " "
                     + mStepItem.getShortDescription();
         }
 

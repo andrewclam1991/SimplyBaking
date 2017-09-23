@@ -60,7 +60,7 @@ public class RecipeDbContract {
                     " INNER JOIN " +
                     IngredientEntry.TABLE_NAME +
                     " ON " +
-                    RecipeEntry.TABLE_NAME + "." + RecipeEntry.COLUMN_RECIPE_ID +
+                    RecipeEntry.TABLE_NAME + "." + RecipeEntry.COLUMN_RECIPE_UID +
                     " = " +
                     IngredientEntry.TABLE_NAME + "." + IngredientEntry.COLUMN_INGREDIENT_RECIPE_KEY +
                     " INNER JOIN " +
@@ -68,7 +68,7 @@ public class RecipeDbContract {
                     " ON " +
                     StepEntry.TABLE_NAME + "." + StepEntry.COLUMN_STEP_RECIPE_KEY +
                     " = " +
-                    RecipeEntry.TABLE_NAME + "." + RecipeEntry.COLUMN_RECIPE_ID;
+                    RecipeEntry.TABLE_NAME + "." + RecipeEntry.COLUMN_RECIPE_UID;
 
     public static final class RecipeEntry implements BaseColumns {
         // RecipeEntry
@@ -77,10 +77,10 @@ public class RecipeDbContract {
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_RECIPES).build();
 
         public static final String TABLE_NAME = "recipes";
-        public static final String COLUMN_RECIPE_ID = "id";
-        public static final String COLUMN_RECIPE_NAME = "name";
-        public static final String COLUMN_RECIPE_SERVINGS = "servings";
-        public static final String COLUMN_RECIPE_IMAGE_URL = "image_url";
+        public static final String COLUMN_RECIPE_UID = "recipe_uid";
+        public static final String COLUMN_RECIPE_NAME = "recipe_name";
+        public static final String COLUMN_RECIPE_SERVINGS = "recipe_servings";
+        public static final String COLUMN_RECIPE_IMAGE_URL = "recipe_image_url";
     }
 
     public static final class IngredientEntry implements BaseColumns{
@@ -91,9 +91,10 @@ public class RecipeDbContract {
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_INGREDIENTS).build();
 
         public static final String TABLE_NAME = "ingredients";
-        public static final String COLUMN_INGREDIENT_QUANTITY = "quantity";
-        public static final String COLUMN_INGREDIENT_MEASURE = "measure";
-        public static final String COLUMN_INGREDIENT_NAME = "name";
+        public static final String COLUMN_INGREDIENT_UID = "ingredient_uid";
+        public static final String COLUMN_INGREDIENT_QUANTITY = "ingredient_quantity";
+        public static final String COLUMN_INGREDIENT_MEASURE = "ingredient_measure";
+        public static final String COLUMN_INGREDIENT_NAME = "ingredient_name";
         public static final String COLUMN_INGREDIENT_RECIPE_KEY = "recipe_id";
     }
 
@@ -105,11 +106,12 @@ public class RecipeDbContract {
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_STEPS).build();
 
         public static final String TABLE_NAME = "steps";
-        public static final String COLUMN_STEP_ID = "id";
-        public static final String COLUMN_STEP_SHORT_DESCRIPTION = "short_description";
-        public static final String COLUMN_STEP_DESCRIPTION = "description";
-        public static final String COLUMN_STEP_VIDEO_URL = "video_url";
-        public static final String COLUMN_STEP_THUMBNAIL_URL = "thumbnail_url";
+        public static final String COLUMN_STEP_UID = "step_uid";
+        public static final String COLUMN_STEP_NUM = "step_num";
+        public static final String COLUMN_STEP_SHORT_DESCRIPTION = "step_short_description";
+        public static final String COLUMN_STEP_DESCRIPTION = "step_description";
+        public static final String COLUMN_STEP_VIDEO_URL = "step_video_url";
+        public static final String COLUMN_STEP_THUMBNAIL_URL = "step_thumbnail_url";
         public static final String COLUMN_STEP_RECIPE_KEY = "recipe_id";
     }
 

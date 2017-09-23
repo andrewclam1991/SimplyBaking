@@ -45,12 +45,12 @@ public class RecipeDbHelper extends SQLiteOpenHelper {
             "CREATE TABLE " +
                     RecipeEntry.TABLE_NAME + " (" +
                     RecipeEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    RecipeEntry.COLUMN_RECIPE_ID + " INTEGER UNIQUE NOT NULL, " +
+                    RecipeEntry.COLUMN_RECIPE_UID + " TEXT UNIQUE NOT NULL, " +
                     RecipeEntry.COLUMN_RECIPE_NAME + " TEXT NOT NULL, " +
                     RecipeEntry.COLUMN_RECIPE_SERVINGS + " INTEGER NOT NULL, " +
                     RecipeEntry.COLUMN_RECIPE_IMAGE_URL + " TEXT, " +
 
-                    "UNIQUE (" + RecipeEntry.COLUMN_RECIPE_ID + ") ON CONFLICT REPLACE "
+                    "UNIQUE (" + RecipeEntry.COLUMN_RECIPE_UID + ") ON CONFLICT REPLACE "
 
                     +")";
 
@@ -59,14 +59,17 @@ public class RecipeDbHelper extends SQLiteOpenHelper {
             "CREATE TABLE " +
                     IngredientEntry.TABLE_NAME + " (" +
                     IngredientEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    IngredientEntry.COLUMN_INGREDIENT_UID + "TEXT UNIQUE NOT NULL, " +
                     IngredientEntry.COLUMN_INGREDIENT_NAME + " TEXT NOT NULL, " +
                     IngredientEntry.COLUMN_INGREDIENT_MEASURE + " TEXT NOT NULL, " +
                     IngredientEntry.COLUMN_INGREDIENT_QUANTITY + " REAL NOT NULL, " +
                     IngredientEntry.COLUMN_INGREDIENT_RECIPE_KEY + " INTEGER NOT NULL, " +
 
+                    "UNIQUE (" + IngredientEntry.COLUMN_INGREDIENT_UID + ") ON CONFLICT REPLACE " +
+
                     "FOREIGN KEY (" + IngredientEntry.COLUMN_INGREDIENT_RECIPE_KEY + ") " +
-                    "REFERENCES " + RecipeEntry.TABLE_NAME + "("+ RecipeEntry.COLUMN_RECIPE_ID + ") "
-                    + "ON UPDATE NO ACTION "
+                    "REFERENCES " + RecipeEntry.TABLE_NAME + "("+ RecipeEntry.COLUMN_RECIPE_UID + ") "
+                    + "ON UPDATE SET NULL "
                     + "ON DELETE SET NULL "
 
                     + ")";
@@ -76,18 +79,19 @@ public class RecipeDbHelper extends SQLiteOpenHelper {
             "CREATE TABLE " +
                     StepEntry.TABLE_NAME + " (" +
                     StepEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    StepEntry.COLUMN_STEP_ID + " INTEGER UNIQUE NOT NULL, " +
+                    StepEntry.COLUMN_STEP_UID + " TEXT UNIQUE NOT NULL, " +
+                    StepEntry.COLUMN_STEP_NUM + " INTEGER NOT NULL, " +
                     StepEntry.COLUMN_STEP_SHORT_DESCRIPTION + " TEXT NOT NULL, " +
                     StepEntry.COLUMN_STEP_DESCRIPTION + " TEXT NOT NULL, " +
                     StepEntry.COLUMN_STEP_THUMBNAIL_URL + " TEXT, " +
                     StepEntry.COLUMN_STEP_VIDEO_URL + " TEXT, " +
                     StepEntry.COLUMN_STEP_RECIPE_KEY + " INTEGER NOT NULL, " +
 
-                    "UNIQUE (" + StepEntry.COLUMN_STEP_ID + ") ON CONFLICT REPLACE, " +
+                    "UNIQUE (" + StepEntry.COLUMN_STEP_UID + ") ON CONFLICT REPLACE " +
 
                     "FOREIGN KEY (" + StepEntry.COLUMN_STEP_RECIPE_KEY + ") " +
-                    "REFERENCES " + RecipeEntry.TABLE_NAME + "("+ RecipeEntry.COLUMN_RECIPE_ID + ") "
-                    + "ON UPDATE NO ACTION "
+                    "REFERENCES " + RecipeEntry.TABLE_NAME + "("+ RecipeEntry.COLUMN_RECIPE_UID + ") "
+                    + "ON UPDATE SET NULL "
                     + "ON DELETE SET NULL "
 
                     + " )";

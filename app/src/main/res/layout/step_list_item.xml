@@ -31,7 +31,7 @@
         style="@style/ListItemStyle">
 
         <TextView
-            android:id="@+id/step_id_tv"
+            android:uid="@+uid/step_id_tv"
             style="@style/ListSubItemStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -39,7 +39,7 @@
             tools:text="Step 1" />
 
         <TextView
-            android:id="@+id/step_short_description_tv"
+            android:uid="@+uid/step_short_description_tv"
             style="@style/ListSubItemStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -52,6 +52,6 @@
     <!-- bottom divider -->
     <FrameLayout
         style="@style/ListItemDividerStyle"
-        android:id="@+id/list_divider"/>
+        android:uid="@+uid/list_divider"/>
 
 </LinearLayout>

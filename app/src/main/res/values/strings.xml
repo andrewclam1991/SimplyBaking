@@ -49,4 +49,5 @@
     <string name="start_recipe_btn">Start a Recipe</string>
     <string name="cancel">Cancel</string>
     <string name="app_widget_select_recipe_title">Select Recipe</string>
+    <string name="data_unavailable">No recipes available</string>
 </resources>

@@ -47,7 +47,7 @@
 
     <!-- Detail View -->
     <FrameLayout
-        android:id="@+id/step_detail_container"
+        android:uid="@+uid/step_detail_container"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="3" />

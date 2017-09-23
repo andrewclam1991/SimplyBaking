@@ -34,7 +34,7 @@ import java.util.ArrayList;
 
 @Parcel(Parcel.Serialization.BEAN)
 public class Recipe {
-    private long id;
+    private long uid;
     private String name;
     private ArrayList<Ingredient> ingredients;
     private ArrayList<Step> steps;
@@ -44,12 +44,12 @@ public class Recipe {
     @ParcelConstructor
     public Recipe() {}
 
-    public long getId() {
-        return id;
+    public long getUid() {
+        return uid;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public void setUid(long uid) {
+        this.uid = uid;
     }
 
     public String getName() {

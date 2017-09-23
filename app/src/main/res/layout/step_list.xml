@@ -58,7 +58,7 @@
                 <!-- Recipe Steps SubTitle-->
                 <TextView
                     style="@style/ListLabelTitleSubStyle"
-                    android:id="@+id/steps_num_tv"
+                    android:uid="@+uid/steps_num_tv"
                     tools:text="12 Steps" />
 
             </LinearLayout>
@@ -67,7 +67,7 @@
 
         <!-- Recipe Steps List -->
         <android.support.v7.widget.RecyclerView
-            android:id="@+id/step_list_rv"
+            android:uid="@+uid/step_list_rv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="@dimen/list_padding_top"

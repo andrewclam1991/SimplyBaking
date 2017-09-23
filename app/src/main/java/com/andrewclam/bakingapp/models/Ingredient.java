@@ -27,14 +27,15 @@ import org.parceler.ParcelConstructor;
 
 /**
  * Created by lamch on 9/14/2017.
- * The model class to store recipe's each ingredient data
+ * The model class to store recipe's each ingredientName data
  */
 
 @Parcel(Parcel.Serialization.BEAN)
 public class Ingredient {
+    private String uid;
     private double quantity;
     private String measure;
-    private String ingredient;
+    private String ingredientName;
 
     @ParcelConstructor
     public Ingredient(){}
@@ -56,10 +57,18 @@ public class Ingredient {
     }
 
     public String getIngredientName() {
-        return ingredient;
+        return ingredientName;
     }
 
-    public void setIngredientName(String ingredient) {
-        this.ingredient = ingredient;
+    public void setIngredientName(String ingredientName) {
+        this.ingredientName = ingredientName;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 }

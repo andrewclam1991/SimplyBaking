@@ -32,11 +32,12 @@ import org.parceler.ParcelConstructor;
 
 @Parcel(Parcel.Serialization.BEAN)
 public class Step {
-    private long id;
+    private long stepNum;
+    private String uid;
     private String shortDescription;
     private String description;
     private String videoURL;
-    private String thumbnialURL;
+    private String thumbnailURL;
 
     @ParcelConstructor
     public Step()
@@ -44,12 +45,12 @@ public class Step {
 
     }
 
-    public long getId() {
-        return id;
+    public long getStepNum() {
+        return stepNum;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public void setStepNum(long stepNum) {
+        this.stepNum = stepNum;
     }
 
     public String getShortDescription() {
@@ -77,10 +78,18 @@ public class Step {
     }
 
     public String getThumbnailURL() {
-        return thumbnialURL;
+        return thumbnailURL;
     }
 
-    public void setThumbnialURL(String thumbnialURL) {
-        this.thumbnialURL = thumbnialURL;
+    public void setThumbnailURL(String thumbnailURL) {
+        this.thumbnailURL = thumbnailURL;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 }

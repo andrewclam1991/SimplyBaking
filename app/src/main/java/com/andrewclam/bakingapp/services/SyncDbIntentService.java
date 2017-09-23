@@ -45,17 +45,19 @@ import static com.andrewclam.bakingapp.data.RecipeDbContract.IngredientEntry.COL
 import static com.andrewclam.bakingapp.data.RecipeDbContract.IngredientEntry.COLUMN_INGREDIENT_NAME;
 import static com.andrewclam.bakingapp.data.RecipeDbContract.IngredientEntry.COLUMN_INGREDIENT_QUANTITY;
 import static com.andrewclam.bakingapp.data.RecipeDbContract.IngredientEntry.COLUMN_INGREDIENT_RECIPE_KEY;
+import static com.andrewclam.bakingapp.data.RecipeDbContract.IngredientEntry.COLUMN_INGREDIENT_UID;
 import static com.andrewclam.bakingapp.data.RecipeDbContract.IngredientEntry.CONTENT_URI_INGREDIENT;
-import static com.andrewclam.bakingapp.data.RecipeDbContract.RecipeEntry.COLUMN_RECIPE_ID;
 import static com.andrewclam.bakingapp.data.RecipeDbContract.RecipeEntry.COLUMN_RECIPE_IMAGE_URL;
 import static com.andrewclam.bakingapp.data.RecipeDbContract.RecipeEntry.COLUMN_RECIPE_NAME;
 import static com.andrewclam.bakingapp.data.RecipeDbContract.RecipeEntry.COLUMN_RECIPE_SERVINGS;
+import static com.andrewclam.bakingapp.data.RecipeDbContract.RecipeEntry.COLUMN_RECIPE_UID;
 import static com.andrewclam.bakingapp.data.RecipeDbContract.RecipeEntry.CONTENT_URI_RECIPE;
 import static com.andrewclam.bakingapp.data.RecipeDbContract.StepEntry.COLUMN_STEP_DESCRIPTION;
-import static com.andrewclam.bakingapp.data.RecipeDbContract.StepEntry.COLUMN_STEP_ID;
+import static com.andrewclam.bakingapp.data.RecipeDbContract.StepEntry.COLUMN_STEP_NUM;
 import static com.andrewclam.bakingapp.data.RecipeDbContract.StepEntry.COLUMN_STEP_RECIPE_KEY;
 import static com.andrewclam.bakingapp.data.RecipeDbContract.StepEntry.COLUMN_STEP_SHORT_DESCRIPTION;
 import static com.andrewclam.bakingapp.data.RecipeDbContract.StepEntry.COLUMN_STEP_THUMBNAIL_URL;
+import static com.andrewclam.bakingapp.data.RecipeDbContract.StepEntry.COLUMN_STEP_UID;
 import static com.andrewclam.bakingapp.data.RecipeDbContract.StepEntry.COLUMN_STEP_VIDEO_URL;
 import static com.andrewclam.bakingapp.data.RecipeDbContract.StepEntry.CONTENT_URI_STEP;
 
@@ -127,11 +129,11 @@ public class SyncDbIntentService extends IntentService {
         // Iterate over all the recipes
         for (Recipe recipe : recipes) {
             // Get the unique recipe id first, this is used as foreign key for child tables
-            Long recipeId = recipe.getId();
+            Long recipeId = recipe.getUid();
 
             // Put the java fields into key-value pairs
             ContentValues cv = new ContentValues();
-            cv.put(COLUMN_RECIPE_ID, recipeId);
+            cv.put(COLUMN_RECIPE_UID, recipeId);
             cv.put(COLUMN_RECIPE_IMAGE_URL, recipe.getImageURL());
             cv.put(COLUMN_RECIPE_NAME, recipe.getName());
             cv.put(COLUMN_RECIPE_SERVINGS, recipe.getServings());
@@ -171,10 +173,10 @@ public class SyncDbIntentService extends IntentService {
                                                 List<Step> steps,
                                                 Long recipeId) {
 
-        ContentValues[] stepsCvArray = new ContentValues[steps.size()];
+        ContentValues[] cvArray = new ContentValues[steps.size()];
 
         try {
-            // set a count index for the foreach loop, this index value is for
+            // Set a count index for the foreach loop, this index value is for
             // referencing the correct ContentValue in the ContentValue[] to
             // store each entry.
             int i = 0;
@@ -182,13 +184,14 @@ public class SyncDbIntentService extends IntentService {
             // Iterate over all the ingredients
             for (Step step : steps) {
                 ContentValues cv = new ContentValues();
-                cv.put(COLUMN_STEP_ID, step.getId());
+                cv.put(COLUMN_STEP_UID, step.getUid());
+                cv.put(COLUMN_STEP_NUM, step.getStepNum());
                 cv.put(COLUMN_STEP_DESCRIPTION, step.getDescription());
                 cv.put(COLUMN_STEP_SHORT_DESCRIPTION, step.getShortDescription());
                 cv.put(COLUMN_STEP_THUMBNAIL_URL, step.getThumbnailURL());
                 cv.put(COLUMN_STEP_VIDEO_URL, step.getVideoURL());
                 cv.put(COLUMN_STEP_RECIPE_KEY, recipeId);
-                stepsCvArray[i] = cv;
+                cvArray[i] = cv;
 
                 // increment one after iteration for the next set of cv
                 i++;
@@ -200,7 +203,7 @@ public class SyncDbIntentService extends IntentService {
 
         } finally {
             // use the contentResolver bulkInsert to insert all the cv values
-            final int rowInserted = contentResolver.bulkInsert(CONTENT_URI_STEP, stepsCvArray);
+            final int rowInserted = contentResolver.bulkInsert(CONTENT_URI_STEP, cvArray);
             if (rowInserted <= 0) Log.e(TAG,"syncStepsTable() failed");
         }
     }
@@ -216,6 +219,7 @@ public class SyncDbIntentService extends IntentService {
     synchronized private void syncIngredientsTable(@NonNull ContentResolver contentResolver,
                                                       List<Ingredient> ingredients,
                                                       Long recipeId) {
+
         ContentValues[] cvArray = new ContentValues[ingredients.size()];
 
         try {
@@ -227,6 +231,7 @@ public class SyncDbIntentService extends IntentService {
             // Iterate over all the ingredients
             for (Ingredient ingredient : ingredients) {
                 ContentValues cv = new ContentValues();
+                cv.put(COLUMN_INGREDIENT_UID,ingredient.getUid());
                 cv.put(COLUMN_INGREDIENT_MEASURE, ingredient.getMeasure());
                 cv.put(COLUMN_INGREDIENT_NAME, ingredient.getIngredientName());
                 cv.put(COLUMN_INGREDIENT_QUANTITY, ingredient.getQuantity());
