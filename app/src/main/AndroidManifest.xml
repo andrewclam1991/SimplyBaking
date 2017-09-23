@@ -93,7 +93,7 @@
             android:exported="false"/>
 
         <!-- TODO [Widget] Step 1 - Register the widget update receiver with the widget provider -->
-        <receiver android:name=".WidgetProvider">
+        <receiver android:name=".widget.WidgetProvider">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>

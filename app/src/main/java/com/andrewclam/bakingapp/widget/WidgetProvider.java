@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-package com.andrewclam.bakingapp;
+package com.andrewclam.bakingapp.widget;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
@@ -29,6 +29,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.widget.RemoteViews;
 
+import com.andrewclam.bakingapp.R;
+import com.andrewclam.bakingapp.StepListActivity;
 import com.andrewclam.bakingapp.models.Recipe;
 import com.andrewclam.bakingapp.services.WidgetRemoteViewService;
 
@@ -48,7 +50,7 @@ public class WidgetProvider extends AppWidgetProvider {
 
     void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
                                 int appWidgetId) {
-        RemoteViews views = new RemoteViews(context.getPackageName(),R.layout.widget_recipe_small);
+        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_recipe_small);
         appWidgetManager.updateAppWidget(appWidgetId, views);
 
         boolean done = false;

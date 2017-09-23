@@ -30,7 +30,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.util.Log;
 
-import com.andrewclam.bakingapp.WidgetProvider;
+import com.andrewclam.bakingapp.widget.WidgetProvider;
 import com.andrewclam.bakingapp.utils.NotificationUtil;
 
 import static com.andrewclam.bakingapp.Constants.PACKAGE_NAME;

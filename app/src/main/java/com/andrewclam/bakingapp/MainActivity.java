@@ -45,6 +45,7 @@ import com.andrewclam.bakingapp.asyncTasks.FetchRecipeAsyncTask;
 import com.andrewclam.bakingapp.models.Recipe;
 import com.andrewclam.bakingapp.services.SyncDbIntentService;
 import com.andrewclam.bakingapp.utils.NetworkUtils;
+import com.andrewclam.bakingapp.widget.WidgetUtils;
 import com.squareup.picasso.Picasso;
 
 import org.parceler.Parcels;
@@ -153,7 +154,11 @@ public class MainActivity extends AppCompatActivity implements
         if (mStartedForAppWidgetConfig) {
             // 1) Call create AppWidget to populate the RemoteView and create the widget with
             // AppWidgetManager
-            createAppWidget(recipe);
+            Intent resultValue = WidgetUtils.createAppWidgetResult(this,mAppWidgetId,recipe);
+            setResult(RESULT_OK, resultValue);
+
+            // Finish the configuration activity once the result is set
+            finish();
 
         } else {
             // 2) Otherwise, should just launch the detailActivity showing the recipe's full info
@@ -196,7 +201,7 @@ public class MainActivity extends AppCompatActivity implements
     /**
      * App Widget Configuration
      * <p>
-     * createAppWidget() creates the AppWidget user selecting a recipe from the list
+     * createAppWidgetResult() creates the AppWidget user selecting a recipe from the list
      * new widget serves as the shortcut to the particular selected recipe.
      *
      * @param recipe the recipe object that the user clicked
