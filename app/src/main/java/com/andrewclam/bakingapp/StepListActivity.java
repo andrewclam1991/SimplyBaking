@@ -26,6 +26,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -189,8 +190,20 @@ public class StepListActivity extends AppCompatActivity implements
             Step introStep = mSteps.get(0);
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.step_detail_container,
-                            StepDetailFragment.newInstance(introStep,mTwoPane))
+                            StepDetailFragment.newInstance(introStep,mTwoPane),
+                            StepDetailFragment.TAG) // TAG used to remove
                     .commit();
+        }else
+        {
+            // (!) Bug, when TABLET switched from landscape to vertical, fragment auto launches
+            // due to system-auto-attaching activity fragment
+            // Not in two pane mode, explicitly remove the auto-attached previous fragment
+            Fragment detail = getSupportFragmentManager().findFragmentByTag(StepDetailFragment.TAG);
+            if (detail != null) {
+                getSupportFragmentManager().beginTransaction()
+                        .remove(detail)
+                        .commit();
+            }
         }
     }
 
@@ -234,25 +247,16 @@ public class StepListActivity extends AppCompatActivity implements
             holder.setStepItem(step);
 
             // UI Styling
-            // TODO [NEED ADVICE] What is the best practice to find the first/last visible item in recyclerView?
 
             // Intro-Step , Don't number it
             // Check if it is the intro-step (intro step is with id of 0)
-            if (position == 0) {
-                // Not the intro step, prepend the item with step number
-                holder.mStepIdTv.setText(getString(R.string.start));
-            }else
-            {
-                // Not the intro step, prepend the item with step number
-                holder.mStepIdTv.setText(getString(R.string.step, step.getStepNum()));
-            }
+            holder.mStepIdTv.setText(position == 0 ?
+                    getString(R.string.start):getString(R.string.step, step.getStepNum()));
 
             // Last Step, Don't show divider
             // Check if the position is at the last step
-            if (position == getItemCount() - 1)
-            {
-                holder.mItemDivider.setVisibility(View.GONE);
-            }
+            holder.mItemDivider.setVisibility(position == getItemCount() - 1 ?
+                    View.GONE: View.VISIBLE);
 
             holder.mShortDescriptionTv.setText(String.valueOf(step.getShortDescription()));
 

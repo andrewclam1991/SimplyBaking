@@ -94,9 +94,9 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
      */
     public static final String ARG_TWO_PANE_MODE = "two_pane_mode";
     /**
-     * Debug TAG
+     * Debug and fragment TAG
      */
-    private static final String TAG = StepDetailFragment.class.getSimpleName();
+    public static final String TAG = StepDetailFragment.class.getSimpleName();
     /**
      * Context - for getting resources
      */
