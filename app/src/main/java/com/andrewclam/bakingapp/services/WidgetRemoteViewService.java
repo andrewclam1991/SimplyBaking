@@ -80,7 +80,7 @@ class CollectionViewsRemoteViewFactory implements RemoteViewsService.RemoteViews
     public void onDataSetChanged() {
         // Implement to load cursor if using contentResolver and a SQLite database to store
         // recipe offline
-        // TODO ! get the list of ingredients using the content provider
+        // FIXME ! get the list of ingredients using the content provider
         Log.d(TAG, "onDataSetChanged() called with intent");
     }
 

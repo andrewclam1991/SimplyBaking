@@ -41,29 +41,29 @@ public class RecipeDbContract {
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + AUTHORITY);
 
     // Define the possible paths for accessing data in this contract
-    // This is the path for the "recipes" directory
     public static final String PATH_RECIPES = "recipes";
-    // This is the path for the "ingredient" directory
     public static final String PATH_INGREDIENTS = "ingredients";
-    // This is the path for the "steps" directory
     public static final String PATH_STEPS = "steps";
+    public static final String PATH_FAVORITES = "favorites";
+    public static final String PATH_APP_WIDGET_IDS = "app_widget_ids";
 
     // Invalid Case Constants
     public static final long INVALID_RECIPE_ID = -1;
     public static final long INVALID_INGREDIENT_ID = -1;
     public static final long INVALID_STEP_ID = -1;
+    public static final long INVALID_FAVORITE_ID = -1;
+    public static final long INVALID_APP_WIDGET_ID = -1;
 
-    // TODO Test this wildy untested sqlite table statement
     // Declare a SQLiteQueryBuilder.setTable Statement to JOIN all tables for query
     static final String SET_TABLE_STATEMENT =
             RecipeEntry.TABLE_NAME +
-                    " INNER JOIN " +
+                    " LEFT JOIN " +
                     IngredientEntry.TABLE_NAME +
                     " ON " +
                     RecipeEntry.TABLE_NAME + "." + RecipeEntry.COLUMN_RECIPE_UID +
                     " = " +
                     IngredientEntry.TABLE_NAME + "." + IngredientEntry.COLUMN_INGREDIENT_RECIPE_KEY +
-                    " INNER JOIN " +
+                    " LEFT JOIN " +
                     StepEntry.TABLE_NAME +
                     " ON " +
                     StepEntry.TABLE_NAME + "." + StepEntry.COLUMN_STEP_RECIPE_KEY +
@@ -71,8 +71,6 @@ public class RecipeDbContract {
                     RecipeEntry.TABLE_NAME + "." + RecipeEntry.COLUMN_RECIPE_UID;
 
     public static final class RecipeEntry implements BaseColumns {
-        // RecipeEntry
-        // content URI = base content URI + path
         public static final Uri CONTENT_URI_RECIPE =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_RECIPES).build();
 
@@ -84,9 +82,6 @@ public class RecipeDbContract {
     }
 
     public static final class IngredientEntry implements BaseColumns{
-
-        // IngredientEntry
-        // content URI = base content URI + path
         public static final Uri CONTENT_URI_INGREDIENT =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_INGREDIENTS).build();
 
@@ -99,9 +94,6 @@ public class RecipeDbContract {
     }
 
     public static final class StepEntry implements BaseColumns{
-
-        // StepEntry
-        // content URI = base content URI + path
         public static final Uri CONTENT_URI_STEP =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_STEPS).build();
 
@@ -113,6 +105,24 @@ public class RecipeDbContract {
         public static final String COLUMN_STEP_VIDEO_URL = "step_video_url";
         public static final String COLUMN_STEP_THUMBNAIL_URL = "step_thumbnail_url";
         public static final String COLUMN_STEP_RECIPE_KEY = "recipe_id";
+    }
+
+    public static final class FavoriteEntry implements BaseColumns{
+        public static final Uri CONTENT_URI_FAVORITE =
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH_FAVORITES).build();
+
+        public static final String TABLE_NAME = "favorites";
+        public static final String COLUMN_FAVORITE_BOOL = "is_favorite";
+        public static final String COLUMN_FAVORITE_RECIPE_KEY = "recipe_id";
+    }
+
+    public static final class AppWidgetIdEntry implements BaseColumns{
+        public static final Uri CONTENT_URI_APP_WIDGET_ID =
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH_FAVORITES).build();
+
+        public static final String TABLE_NAME = "app_widget_ids";
+        public static final String COLUMN_APP_WIDGET_UID = "app_widget_uid";
+        public static final String COLUMN_APP_WIDGET_RECIPE_KEY = "recipe_id";
     }
 
     /**

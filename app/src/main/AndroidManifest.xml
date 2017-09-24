@@ -87,7 +87,7 @@
             android:name=".services.WidgetIntentService"
             android:exported="false" />
 
-        <!-- todo [Content Provider] Step 1 - Register IntentService for database operation -->
+        <!-- TODO [Content Provider] Step 1 - Register IntentService for parsing recipes to db -->
         <service
             android:name=".services.SyncDbIntentService"
             android:exported="false"/>

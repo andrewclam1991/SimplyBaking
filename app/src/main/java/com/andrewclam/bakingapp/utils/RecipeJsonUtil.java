@@ -108,7 +108,6 @@ public final class RecipeJsonUtil {
                 recipe.setIngredients(getIngredientFromRecipeJson(recipeJSON,id));
                 recipe.setSteps(getStepsFromRecipeJson(recipeJSON,id));
 
-
                 /* Add the recipe object to the list */
                 recipes.add(recipe);
             } else {

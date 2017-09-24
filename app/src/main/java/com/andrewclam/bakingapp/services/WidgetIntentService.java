@@ -23,14 +23,11 @@
 package com.andrewclam.bakingapp.services;
 
 import android.app.IntentService;
-import android.appwidget.AppWidgetManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.util.Log;
 
-import com.andrewclam.bakingapp.widget.WidgetProvider;
 import com.andrewclam.bakingapp.utils.NotificationUtil;
 
 import static com.andrewclam.bakingapp.Constants.PACKAGE_NAME;
@@ -112,10 +109,11 @@ public class WidgetIntentService extends IntentService{
             );
         }
 
-        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
-
-        int[] appWidgetIds = appWidgetManager.getAppWidgetIds(
-                new ComponentName(this, WidgetProvider.class));
+        // TODO do db query with the widget
+//        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
+//
+//        int[] appWidgetIds = appWidgetManager.getAppWidgetIds(
+//                new ComponentName(this, WidgetProvider.class));
 
         // Call the static method in the widget provider class to do widget update
 //        WidgetProvider.updateSimplyBakingWidgets(

@@ -22,11 +22,14 @@
 
 package com.andrewclam.bakingapp;
 
-import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -34,9 +37,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.RemoteViews;
 import android.widget.Toast;
 
 import com.andrewclam.bakingapp.adapters.RecipeRecyclerViewAdapter;
@@ -46,7 +49,6 @@ import com.andrewclam.bakingapp.models.Recipe;
 import com.andrewclam.bakingapp.services.SyncDbIntentService;
 import com.andrewclam.bakingapp.utils.NetworkUtils;
 import com.andrewclam.bakingapp.widget.WidgetUtils;
-import com.squareup.picasso.Picasso;
 
 import org.parceler.Parcels;
 
@@ -61,6 +63,12 @@ public class MainActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor>,
         FetchRecipeAsyncTask.onFetchRecipeActionListener,
         RecipeRecyclerViewAdapter.OnRecipeItemClickedListener {
+
+    /**
+     * Debug Tag
+     */
+    private final static String TAG = MainActivity.class.getSimpleName();
+
     /**
      * RecyclerView to show the list of recipes
      */
@@ -80,6 +88,15 @@ public class MainActivity extends AppCompatActivity implements
     private int mAppWidgetId;
 
     /**
+     * Broadcast Receiver to listen to Network State Change broadcasts
+     */
+    private Context mContext;
+    private NetworkChangeReceiver mNetworkChangeReceiver;
+    private Snackbar mNetworkDisconnectedSnackbar;
+    private static final String ACTION_CONNECTIVITY_CHANGE = "android.net.conn.CONNECTIVITY_CHANGE";
+
+    /**
+     * LoaderManager Instance for Loading offline db data
      * This ID will be used to identify the Loader responsible for loading our offline database. In
      * some cases, one Activity can deal with many Loaders. However, in our case, there is only one.
      * We will still use this ID to initialize the loader and create the loader for best practice.
@@ -100,10 +117,12 @@ public class MainActivity extends AppCompatActivity implements
         mAdapter = new RecipeRecyclerViewAdapter(this, this);
         mRecipeRv.setAdapter(mAdapter);
 
-        // Determine device's orientation and adjust layout type accordingly
-        if (findViewById(R.id.recipe_list_container_land) == null) {
-            // The device is not in landscape mode,
+        /* Determine device's orientation and adjust layout type accordingly */
+        View rootView = findViewById(R.id.recipe_list_container_land);
+        if (rootView == null) {
+            // The device is not in landscape mode, reference the single view
             // layout the recipe list in a linear layout
+            rootView = findViewById(R.id.recipe_list_container);
             mLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         } else {
             // The device is in landscape mode, use grid layout
@@ -111,25 +130,78 @@ public class MainActivity extends AppCompatActivity implements
         }
         mRecipeRv.setLayoutManager(mLayoutManager);
 
-
-        /* Check Network Connection */
-        // TODO check network connection with resultReceiver
-        if (NetworkUtils.getNetworkState(this)) {
-            /* Async Load The Latest Recipe Data (NETWORK CONNECTED) */
-            new FetchRecipeAsyncTask()
-                    .setDataURL(DATA_URL)
-                    .setListener(this)
-                    .execute();
-        }
-
-        /* Load Data from Database using CursorLoader */
-        // If offline, will still load the database cached data
-        getSupportLoaderManager().restartLoader(RECIPE_LOADER_ID, null, this);
-
+        /* Create a Snack bar to show network disconnected (if it is) */
+        mNetworkDisconnectedSnackbar = Snackbar.make(
+                rootView,
+                getString(R.string.network_unavailable),
+                Snackbar.LENGTH_INDEFINITE);
 
         /* Loading Progress Bar - Visible*/
         mProgressBar = findViewById(R.id.progress_bar);
         mProgressBar.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        /* Monitor Network State Connection Changes */
+        // Create the networkChangeReceiver
+        mNetworkChangeReceiver = new NetworkChangeReceiver();
+
+        // Register the receiver with this Activity
+        mContext = MainActivity.this;
+        mContext.registerReceiver(
+                mNetworkChangeReceiver,
+                new IntentFilter(ACTION_CONNECTIVITY_CHANGE));
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Cleanup, unregister the dynamic broadcast receiver with context
+        if (mContext != null)
+        {
+            mContext.unregisterReceiver(mNetworkChangeReceiver);
+            mNetworkChangeReceiver = null;
+        }
+    }
+
+    /**
+     * BroadcastReceiver to listen to system's network state change broadcast, and handle
+     * onReceive of such intent
+     */
+    public class NetworkChangeReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(final Context context, final Intent intent) {
+            if (intent.getAction().equals(ACTION_CONNECTIVITY_CHANGE)) {
+
+                // Network State Changed, Check the network state
+                boolean isConnected = NetworkUtils.getNetworkState(context);
+
+                if (isConnected) {
+                    /* Connected  */
+                    // Async Load The Latest Recipe Data
+                    new FetchRecipeAsyncTask()
+                            .setDataURL(DATA_URL)
+                            .setListener(MainActivity.this)
+                            .execute();
+
+                     /* Show network is now connected from being connected*/
+                     // dismiss the disconnected snackbar
+                    if (mNetworkDisconnectedSnackbar != null) mNetworkDisconnectedSnackbar.dismiss();
+
+                } else {
+                    /* Disconnected */
+                    // Load cached data from client database
+                    getSupportLoaderManager().restartLoader(RECIPE_LOADER_ID, null,
+                            MainActivity.this);
+
+                    /* Show network is now disconnected from being connected*/
+                    if (mNetworkDisconnectedSnackbar != null) mNetworkDisconnectedSnackbar.show();
+                }
+            }
+        }
     }
 
     /**
@@ -142,6 +214,14 @@ public class MainActivity extends AppCompatActivity implements
     public void onRecipesReady(ArrayList<Recipe> recipes) {
         // Call intent service to update the database with the latest recipes
         SyncDbIntentService.syncRecipes(this, recipes);
+
+        Log.d(TAG,"recipe size: " + recipes.size());
+
+        mAdapter.setRecipeData(recipes);
+        mAdapter.notifyDataSetChanged();
+
+        /* Loading Progress Bar - Data Loaded, Be GONE */
+        mProgressBar.setVisibility(View.GONE);
     }
 
     /**
@@ -199,61 +279,6 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     /**
-     * App Widget Configuration
-     * <p>
-     * createAppWidgetResult() creates the AppWidget user selecting a recipe from the list
-     * new widget serves as the shortcut to the particular selected recipe.
-     *
-     * @param recipe the recipe object that the user clicked
-     */
-    private void createAppWidget(Recipe recipe) {
-        // 1) If the app is started for AppWidget Configuration, upon user click the recipe
-        // user is selecting the recipe to be displayed as the widget on the home screen
-        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
-
-        // Data - Create the pending intent, as the widget act as the shortcut to the recipe
-        // the intent should launch the stepsListActivity by default with the recipe
-        Intent intent = new Intent(MainActivity.this, StepListActivity.class);
-        intent.putExtra(EXTRA_RECIPE, Parcels.wrap(recipe));
-        PendingIntent pendingIntent = PendingIntent.getActivity(this,
-                mAppWidgetId,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
-
-        // UI - Find and Bind Views
-        RemoteViews views = new RemoteViews(this.getPackageName(), R.layout.widget_recipe_small);
-
-        views.setOnClickPendingIntent(R.id.widget_small_root_view, pendingIntent);
-        views.setTextViewText(R.id.widget_small_recipe_name, recipe.getName());
-
-        // UI - Image Icon Check if recipe has an image for icon
-        String imageUrl = recipe.getImageURL();
-        if (imageUrl != null && !imageUrl.isEmpty()) {
-            // Use picasso to load the image into the remoteView
-            Picasso.with(this).load(imageUrl).into(
-                    views,
-                    R.id.widget_small_icon,
-                    new int[]{mAppWidgetId}
-            );
-        } else {
-            // default to cupcake icon
-            views.setImageViewResource(R.id.widget_small_icon, R.drawable.ic_cupcake);
-        }
-
-
-        // Widget Update - Use appWidgetManager to update/create the particular widget by id
-        appWidgetManager.updateAppWidget(mAppWidgetId, views);
-
-        // Send out an intent with the resulting appWidgetId, with the result OK
-        Intent resultValue = new Intent();
-        resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
-        setResult(RESULT_OK, resultValue);
-
-        // Finish the configuration activity
-        finish();
-    }
-
-    /**
      * CursorLoader and LoaderManager Implementation
      * Do db query off the main thread and communicate via these callbacks
      */
@@ -280,19 +305,20 @@ public class MainActivity extends AppCompatActivity implements
                         public void onEntriesParsed(ArrayList<Recipe> recipes) {
                             mAdapter.setRecipeData(recipes);
                             mAdapter.notifyDataSetChanged();
+
                             /* Loading Progress Bar - Data Loaded, Be GONE */
                             mProgressBar.setVisibility(View.GONE);
                         }
             }).execute();
         }else
         {
+            /* Loading Progress Bar - No Data, Be GONE */
+            mProgressBar.setVisibility(View.GONE);
+
             // Show empty view, no data available
             // TODO design a cuter empty view and show that instead
             Toast.makeText(this,getString(R.string.data_unavailable),Toast.LENGTH_SHORT).show();
         }
-
-        /* Loading Progress Bar - Data Loaded, Be GONE */
-        mProgressBar.setVisibility(View.GONE);
     }
 
     @Override

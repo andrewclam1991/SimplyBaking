@@ -32,6 +32,7 @@ import org.parceler.ParcelConstructor;
 
 @Parcel(Parcel.Serialization.BEAN)
 public class Ingredient {
+
     private String uid;
     private double quantity;
     private String measure;

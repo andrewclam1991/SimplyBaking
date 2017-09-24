@@ -32,8 +32,9 @@ import org.parceler.ParcelConstructor;
 
 @Parcel(Parcel.Serialization.BEAN)
 public class Step {
-    private long stepNum;
+
     private String uid;
+    private long stepNum;
     private String shortDescription;
     private String description;
     private String videoURL;

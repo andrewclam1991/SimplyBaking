@@ -98,6 +98,9 @@ public class WidgetUtils {
         Intent resultValueIntent = new Intent();
         resultValueIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
 
+        // TODO update appWidgetIdTable with
+        // the particular recipe in the database with the appWidgetId
+
         // return the resultValue intent
         return resultValueIntent;
     }

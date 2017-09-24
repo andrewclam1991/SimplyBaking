@@ -25,6 +25,7 @@ package com.andrewclam.bakingapp.asyncTasks;
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.andrewclam.bakingapp.data.RecipeDbContract;
@@ -68,7 +69,7 @@ public class DbMultiTableParsingAsyncTask extends AsyncTask<Void, Void, ArrayLis
     }
 
     /* Public Setter methods */
-    public DbMultiTableParsingAsyncTask setCursor(Cursor mCursor)
+    public DbMultiTableParsingAsyncTask setCursor(@NonNull final Cursor mCursor)
     {
         this.mCursor = mCursor;
         return this;
@@ -113,7 +114,7 @@ public class DbMultiTableParsingAsyncTask extends AsyncTask<Void, Void, ArrayLis
         if (mListener == null) {
             shouldWarn = true;
             msg = msg.concat("mListener is not implemented or set, " +
-                    "this task will not return any callback." + "\n");
+                    "this task will not return any callback upon completion." + "\n");
         }
 
         if (shouldWarn) {
@@ -122,19 +123,24 @@ public class DbMultiTableParsingAsyncTask extends AsyncTask<Void, Void, ArrayLis
     }
 
     @Override
-    protected ArrayList<Recipe> doInBackground(Void... voids) {
+    protected ArrayList<Recipe> doInBackground(Void... Void) {
         // Create an arrayList to store the entries
         final ArrayList<Recipe> entries = new ArrayList<>();
 
-        while (mCursor.moveToNext()) {
+        while(mCursor.moveToNext()){
             // Create a new entry to store the database
-            Recipe entry = new Recipe();
+            final Recipe entry = new Recipe();
 
-            // Get the index of each column from the cursor
-            int recipeIdColIndex = mCursor.getColumnIndex(RecipeDbContract.RecipeEntry.COLUMN_RECIPE_UID);
-            int recipeNameColIndex = mCursor.getColumnIndex(RecipeDbContract.RecipeEntry.COLUMN_RECIPE_NAME);
-            int servingColIndex = mCursor.getColumnIndex(RecipeDbContract.RecipeEntry.COLUMN_RECIPE_SERVINGS);
-            int imageUrlColIndex = mCursor.getColumnIndex(RecipeDbContract.RecipeEntry.COLUMN_RECIPE_IMAGE_URL);
+            // Get the index of each column from the cursor (LEFT JOINED TABLE)
+            // Parent Joined Table - Recipe Columns
+            int recipeIdColIndex =
+                    mCursor.getColumnIndex(RecipeDbContract.RecipeEntry.COLUMN_RECIPE_UID);
+            int recipeNameColIndex =
+                    mCursor.getColumnIndex(RecipeDbContract.RecipeEntry.COLUMN_RECIPE_NAME);
+            int servingColIndex =
+                    mCursor.getColumnIndex(RecipeDbContract.RecipeEntry.COLUMN_RECIPE_SERVINGS);
+            int imageUrlColIndex =
+                    mCursor.getColumnIndex(RecipeDbContract.RecipeEntry.COLUMN_RECIPE_IMAGE_URL);
 
             // Set each field to the entry
             Long recipeId = mCursor.getLong(recipeIdColIndex);
@@ -145,13 +151,9 @@ public class DbMultiTableParsingAsyncTask extends AsyncTask<Void, Void, ArrayLis
             entry.setImageURL(mCursor.getString(imageUrlColIndex));
 
             /* Child Tables */
-            // Steps
-            // Get Step cursor, select only rows with the key that equals to the id
-            parseSteps(entry,recipeId);
-
-            // Ingredients
-            // Get Ingredient cursor, select only rows with the key that equals to the id
+            // Steps and Ingredients
             parseIngredients(entry,recipeId);
+            parseSteps(entry,recipeId);
 
             // Add the populated entry into the entry list
             entries.add(entry);
@@ -197,12 +199,18 @@ public class DbMultiTableParsingAsyncTask extends AsyncTask<Void, Void, ArrayLis
                 while (stepCursor.moveToNext()) {
                     Step step = new Step();
 
-                    int stepUidIndex = stepCursor.getColumnIndex(RecipeDbContract.StepEntry.COLUMN_STEP_UID);
-                    int stepIdIndex = stepCursor.getColumnIndex(RecipeDbContract.StepEntry.COLUMN_STEP_NUM);
-                    int shortDescriptionIndex = stepCursor.getColumnIndex(RecipeDbContract.StepEntry.COLUMN_STEP_SHORT_DESCRIPTION);
-                    int descriptionIndex = stepCursor.getColumnIndex(RecipeDbContract.StepEntry.COLUMN_STEP_DESCRIPTION);
-                    int thumbnailIndex = stepCursor.getColumnIndex(RecipeDbContract.StepEntry.COLUMN_STEP_THUMBNAIL_URL);
-                    int videoIndex = stepCursor.getColumnIndex(RecipeDbContract.StepEntry.COLUMN_STEP_VIDEO_URL);
+                    int stepUidIndex =
+                            stepCursor.getColumnIndex(RecipeDbContract.StepEntry.COLUMN_STEP_UID);
+                    int stepIdIndex =
+                            stepCursor.getColumnIndex(RecipeDbContract.StepEntry.COLUMN_STEP_NUM);
+                    int shortDescriptionIndex =
+                            stepCursor.getColumnIndex(RecipeDbContract.StepEntry.COLUMN_STEP_SHORT_DESCRIPTION);
+                    int descriptionIndex =
+                            stepCursor.getColumnIndex(RecipeDbContract.StepEntry.COLUMN_STEP_DESCRIPTION);
+                    int thumbnailIndex =
+                            stepCursor.getColumnIndex(RecipeDbContract.StepEntry.COLUMN_STEP_THUMBNAIL_URL);
+                    int videoIndex =
+                            stepCursor.getColumnIndex(RecipeDbContract.StepEntry.COLUMN_STEP_VIDEO_URL);
 
                     step.setUid(stepCursor.getString(stepUidIndex));
                     step.setStepNum(stepCursor.getLong(stepIdIndex));
@@ -213,6 +221,7 @@ public class DbMultiTableParsingAsyncTask extends AsyncTask<Void, Void, ArrayLis
 
                     steps.add(step);
                 }
+
                 stepCursor.close();
             }
         }catch (Exception e)

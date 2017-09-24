@@ -22,21 +22,9 @@
 
 package com.andrewclam.bakingapp.widget;
 
-import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
-import android.content.Intent;
-import android.widget.RemoteViews;
-
-import com.andrewclam.bakingapp.R;
-import com.andrewclam.bakingapp.StepListActivity;
-import com.andrewclam.bakingapp.models.Recipe;
-import com.andrewclam.bakingapp.services.WidgetRemoteViewService;
-
-import org.parceler.Parcels;
-
-import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE;
 
 /**
  * Implementation of App Widget functionality.
@@ -48,41 +36,8 @@ public class WidgetProvider extends AppWidgetProvider {
      */
     private static final String TAG = WidgetProvider.class.getSimpleName();
 
-    void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
+    static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
                                 int appWidgetId) {
-        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_recipe_small);
-        appWidgetManager.updateAppWidget(appWidgetId, views);
-
-        boolean done = false;
-        if (done) {
-            views = new RemoteViews(context.getPackageName(),
-                    R.layout.widget_recipe_large);
-
-            // TODO get the recipe from the arg
-            Recipe recipe = new Recipe();
-            recipe.setName("Example");
-
-            // Recipe Name On Click launches the StepsListActivity
-            // Create pending intent to launch the StepListActivity
-            Intent intent = new Intent(context, StepListActivity.class);
-            intent.putExtra(EXTRA_RECIPE, Parcels.wrap(recipe));
-
-            PendingIntent pendingIntent = PendingIntent.getActivity(context, 1, intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT);
-
-            // Use RemoteViewService to bind ingredients listView with listItem remoteViews
-            // Intent to the WidgetRemoteViewService -> returns a factory with listItem remoteViews
-            Intent serviceAdapterIntent = new Intent(context, WidgetRemoteViewService.class);
-
-            // UI Biding
-            views.setTextViewText(R.id.widget_recipe_name_tv, recipe.getName());
-            views.setTextViewText(R.id.widget_recipe_servings_tv, context.getString(
-                    R.string.serving, recipe.getServings()));
-            views.setOnClickPendingIntent(R.id.widget_recipe_name_tv, pendingIntent);
-            views.setRemoteAdapter(R.id.widget_ingredient_list_lv, serviceAdapterIntent);
-
-            appWidgetManager.updateAppWidget(appWidgetId, views);
-        }
     }
 
     @Override
@@ -102,19 +57,6 @@ public class WidgetProvider extends AppWidgetProvider {
     @Override
     public void onDisabled(Context context) {
         // Enter relevant functionality for when the last widget is disabled
-    }
-
-
-    /**
-     * A place just to store code without commenting it out so it looks nice
-     * @param context
-     * @param views
-     */
-    private void codeholder(Context context, RemoteViews views)
-    {
-        // Setup the
-        Intent adapterIntent = new Intent(context, WidgetRemoteViewService.class);
-        views.setRemoteAdapter(R.id.widget_ingredient_list_lv,adapterIntent);
     }
 }
 

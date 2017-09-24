@@ -26,6 +26,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.andrewclam.bakingapp.data.RecipeDbContract.FavoriteEntry;
 import com.andrewclam.bakingapp.data.RecipeDbContract.IngredientEntry;
 import com.andrewclam.bakingapp.data.RecipeDbContract.RecipeEntry;
 import com.andrewclam.bakingapp.data.RecipeDbContract.StepEntry;
@@ -41,7 +42,7 @@ public class RecipeDbHelper extends SQLiteOpenHelper {
 
     // SQL CREATE TABLE String
     // Create a table to hold the recipes data
-    private final String SQL_CREATE_RECIPES_TABLE =
+    private final static String SQL_CREATE_RECIPES_TABLE =
             "CREATE TABLE " +
                     RecipeEntry.TABLE_NAME + " (" +
                     RecipeEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -55,7 +56,7 @@ public class RecipeDbHelper extends SQLiteOpenHelper {
                     +")";
 
     // Create a table to hold the ingredients data
-    private final String SQL_CREATE_INGREDIENTS_TABLE =
+    private final static String SQL_CREATE_INGREDIENTS_TABLE =
             "CREATE TABLE " +
                     IngredientEntry.TABLE_NAME + " (" +
                     IngredientEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -69,13 +70,13 @@ public class RecipeDbHelper extends SQLiteOpenHelper {
 
                     "FOREIGN KEY (" + IngredientEntry.COLUMN_INGREDIENT_RECIPE_KEY + ") " +
                     "REFERENCES " + RecipeEntry.TABLE_NAME + "("+ RecipeEntry.COLUMN_RECIPE_UID + ") "
-                    + "ON UPDATE SET NULL "
+                    + "ON UPDATE NO ACTION "
                     + "ON DELETE SET NULL "
 
                     + ")";
 
     // Create a table to hold the steps data
-    private final String SQL_CREATE_STEPS_TABLE =
+    private final static String SQL_CREATE_STEPS_TABLE =
             "CREATE TABLE " +
                     StepEntry.TABLE_NAME + " (" +
                     StepEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -91,7 +92,22 @@ public class RecipeDbHelper extends SQLiteOpenHelper {
 
                     "FOREIGN KEY (" + StepEntry.COLUMN_STEP_RECIPE_KEY + ") " +
                     "REFERENCES " + RecipeEntry.TABLE_NAME + "("+ RecipeEntry.COLUMN_RECIPE_UID + ") "
-                    + "ON UPDATE SET NULL "
+                    + "ON UPDATE NO ACTION "
+                    + "ON DELETE SET NULL "
+
+                    + " )";
+
+    // Create a table to hold the favorite data
+    private final static String SQL_CREATE_FAVORITE_TABLE =
+            "CREATE TABLE " +
+                    FavoriteEntry.TABLE_NAME + " (" +
+                    FavoriteEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    FavoriteEntry.COLUMN_FAVORITE_BOOL + " INTEGER DEFAULT 0, " +
+                    FavoriteEntry.COLUMN_FAVORITE_RECIPE_KEY + " INTEGER NOT NULL, " +
+
+                    "FOREIGN KEY (" + StepEntry.COLUMN_STEP_RECIPE_KEY + ") " +
+                    "REFERENCES " + RecipeEntry.TABLE_NAME + "("+ RecipeEntry.COLUMN_RECIPE_UID + ") "
+                    + "ON UPDATE NO ACTION "
                     + "ON DELETE SET NULL "
 
                     + " )";
@@ -106,6 +122,7 @@ public class RecipeDbHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(SQL_CREATE_RECIPES_TABLE);
         sqLiteDatabase.execSQL(SQL_CREATE_INGREDIENTS_TABLE);
         sqLiteDatabase.execSQL(SQL_CREATE_STEPS_TABLE);
+//        sqLiteDatabase.execSQL(SQL_CREATE_FAVORITE_TABLE);
     }
 
     @Override

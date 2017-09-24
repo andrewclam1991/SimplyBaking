@@ -226,7 +226,7 @@ public class StepListActivity extends AppCompatActivity implements
             holder.setStepItem(step);
 
             // UI Styling
-            // FIXME [NEED ADVICE] What is the best practice to find the first/last visible item in recyclerView?
+            // TODO [NEED ADVICE] What is the best practice to find the first/last visible item in recyclerView?
 
             // Intro-Step , Don't number it
             // Check if it is the intro-step (intro step is with id of 0)

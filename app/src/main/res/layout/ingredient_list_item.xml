@@ -36,6 +36,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="3"
             android:paddingEnd="@dimen/list_item_padding_left_right"
+            android:paddingStart="0dp"
             tools:text="Butter Cream" />
 
         <TextView
@@ -46,6 +47,7 @@
             android:layout_weight="1"
             android:gravity="end"
             android:paddingEnd="@dimen/list_item_padding_left_right"
+            android:paddingStart="0dp"
             tools:text="3 1/2" />
 
         <TextView

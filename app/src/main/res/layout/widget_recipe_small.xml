@@ -21,7 +21,7 @@
   ~ SOFTWARE.
   -->
 
-<RelativeLayout android:background="@color/cardview_light_background"
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/widget_small_root_view"

@@ -63,18 +63,21 @@ public class RecipeContentProvider extends ContentProvider {
         // Recipe Paths
         uriMatcher.addURI(RecipeDbContract.AUTHORITY, RecipeDbContract.PATH_RECIPES,
                 CODE_RECIPES);
+
         uriMatcher.addURI(RecipeDbContract.AUTHORITY, RecipeDbContract.PATH_RECIPES
                 + "/#", CODE_RECIPE_WITH_ID);
 
         // Ingredient Paths
         uriMatcher.addURI(RecipeDbContract.AUTHORITY, RecipeDbContract.PATH_INGREDIENTS,
                 CODE_INGREDIENTS);
+
         uriMatcher.addURI(RecipeDbContract.AUTHORITY, RecipeDbContract.PATH_INGREDIENTS
                 + "/#", CODE_INGREDIENT_WITH_ID);
 
         // Step Paths
         uriMatcher.addURI(RecipeDbContract.AUTHORITY, RecipeDbContract.PATH_STEPS,
                 CODE_STEPS);
+
         uriMatcher.addURI(RecipeDbContract.AUTHORITY, RecipeDbContract.PATH_STEPS
                 + "/#", CODE_STEP_WITH_ID);
         return uriMatcher;
@@ -93,9 +96,9 @@ public class RecipeContentProvider extends ContentProvider {
     /***
      * Handles requests to insert a single new row of data
      *
-     * @param uri
-     * @param values
-     * @return
+     * @param uri the content uri
+     * @param values the content values to be inserted given the uri
+     * @return the Uri that points to the newly inserted row
      */
     @Override
     public Uri insert(@NonNull Uri uri, ContentValues values) {
@@ -153,7 +156,7 @@ public class RecipeContentProvider extends ContentProvider {
         }
 
         // Notify the resolver if the uri has been changed, and return the newly inserted URI
-        getContext().getContentResolver().notifyChange(uri, null);
+        if (getContext() != null) getContext().getContentResolver().notifyChange(uri, null);
 
         // Return constructed uri (this points to the newly inserted row of data)
         return returnUri;
@@ -176,7 +179,7 @@ public class RecipeContentProvider extends ContentProvider {
     @Override
     public int bulkInsert(@NonNull Uri uri, @NonNull ContentValues[] values) {
         // Use uri matcher to make sure the call is pointing to the movie
-        int match = sUriMatcher.match(uri);
+        final int match = sUriMatcher.match(uri);
 
         switch (match) {
             case CODE_RECIPES: {
@@ -210,9 +213,7 @@ public class RecipeContentProvider extends ContentProvider {
                 } finally {
 
                     // Try block op ended, end this db transaction.
-                    // Close database connection for good measure after insert
                     db.endTransaction();
-                    db.close();
                 }
 
                 // Notify the content resolver of modified dataset if there are rowsInserted
@@ -260,7 +261,6 @@ public class RecipeContentProvider extends ContentProvider {
                     // Try block op ended, end this db transaction.
                     // Close database connection for good measure after insert
                     db.endTransaction();
-                    db.close();
                 }
 
                 // Notify the content resolver of modified dataset if there are rowsInserted
@@ -306,9 +306,7 @@ public class RecipeContentProvider extends ContentProvider {
                 } finally {
 
                     // Try block op ended, end this db transaction.
-                    // Close database connection for good measure after insert
                     db.endTransaction();
-                    db.close();
                 }
 
                 // Notify the content resolver of modified dataset if there are rowsInserted
@@ -332,12 +330,12 @@ public class RecipeContentProvider extends ContentProvider {
     /***
      * Handles requests for data by URI
      *
-     * @param uri
-     * @param projection
-     * @param selection
-     * @param selectionArgs
-     * @param sortOrder
-     * @return
+     * @param uri the content uri
+     * @param projection the column projection
+     * @param selection the column to form the table
+     * @param selectionArgs the arguments for the selection column
+     * @param sortOrder the sorting order of the query table
+     * @return a data cursor that contain data fitting the query criteria.
      */
     @Override
     public Cursor query(@NonNull Uri uri, String[] projection, String selection,
@@ -351,13 +349,13 @@ public class RecipeContentProvider extends ContentProvider {
 
         // Write URI match code and set a variable to return a Cursor
         int match = sUriMatcher.match(uri);
+
         Cursor retCursor;
 
         switch (match) {
             // Query for the recipes directory
             case CODE_RECIPES:
                 queryBuilder.setTables(RecipeDbContract.RecipeEntry.TABLE_NAME);
-
                 retCursor = queryBuilder.query(db,
                         projection,
                         selection,
@@ -379,8 +377,7 @@ public class RecipeContentProvider extends ContentProvider {
                 break;
 
             case CODE_INGREDIENTS:
-                queryBuilder.setTables(IngredientEntry.TABLE_NAME);
-                retCursor = queryBuilder.query(db,
+                retCursor = db.query(IngredientEntry.TABLE_NAME,
                         projection,
                         selection,
                         selectionArgs,
@@ -390,8 +387,7 @@ public class RecipeContentProvider extends ContentProvider {
                 break;
 
             case CODE_STEPS:
-                queryBuilder.setTables(StepEntry.TABLE_NAME);
-                retCursor = queryBuilder.query(db,
+                retCursor = db.query(StepEntry.TABLE_NAME,
                         projection,
                         selection,
                         selectionArgs,
@@ -405,34 +401,20 @@ public class RecipeContentProvider extends ContentProvider {
         }
 
         // Set a notification URI on the Cursor and return that Cursor
-        retCursor.setNotificationUri(getContext().getContentResolver(), uri);
+        if (getContext() != null) {
+            retCursor.setNotificationUri(getContext().getContentResolver(), uri);
+        }
 
         // Return the desired Cursor
         return retCursor;
     }
 
-    /***
-     * Deletes a single row of data
-     *
-     * @param uri
-     * @param selection
-     * @param selectionArgs
-     * @return number of rows affected
-     */
     @Override
     public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
         // No implementation
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
-    /***
-     * Updates a single row of data
-     *
-     * @param uri
-     * @param selection
-     * @param selectionArgs
-     * @return number of rows affected
-     */
     @Override
     public int update(@NonNull Uri uri, ContentValues values, String selection,
                       String[] selectionArgs) {
