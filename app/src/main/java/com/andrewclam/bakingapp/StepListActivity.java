@@ -31,6 +31,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -84,6 +85,12 @@ public class StepListActivity extends AppCompatActivity implements
      * List of steps for this particular recipe
      */
     private ArrayList<Step> mSteps;
+
+    /**
+     * The step that is currently selected (used in landscape mode for tablets)
+     * this is used to indicate which step the user is currently at
+     */
+    private int mSelectedPosition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -205,6 +212,7 @@ public class StepListActivity extends AppCompatActivity implements
             extends RecyclerView.Adapter<StepsRecyclerViewAdapter.StepViewHolder> {
 
         private final ArrayList<Step> mSteps;
+        private SparseBooleanArray selectedItems = new SparseBooleanArray();
 
         StepsRecyclerViewAdapter(ArrayList<Step> steps) {
             mSteps = steps;
@@ -252,6 +260,16 @@ public class StepListActivity extends AppCompatActivity implements
             holder.mView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    int adapterPosition = holder.getAdapterPosition();
+
+                    // Highlight the step that is selected(clicked)
+                    view.setSelected(true);
+
+                    // Look for the previous view where it is highlighted in the array
+                    // call m
+                    // Save the clicked positions to the SparseBooleanArray
+                    selectedItems.put(adapterPosition,true);
+
                     if (mTwoPane) {
                         // In two pane mode, replace a fragment with the step item to show the
                         // full detail
@@ -268,7 +286,7 @@ public class StepListActivity extends AppCompatActivity implements
                         Intent intent = new Intent(context, StepDetailActivity.class);
                         intent.putExtra(ARG_RECIPE_NAME,mRecipe.getName());
                         intent.putExtra(ARG_RECIPE_STEPS_LIST,Parcels.wrap(mSteps));
-                        intent.putExtra(ARG_RECIPE_STEP_POSITION,holder.getAdapterPosition());
+                        intent.putExtra(ARG_RECIPE_STEP_POSITION,adapterPosition);
                         intent.putExtra(ARG_TWO_PANE_MODE,mTwoPane);
 
                         context.startActivity(intent);
