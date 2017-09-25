@@ -31,7 +31,6 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -69,12 +68,11 @@ import com.squareup.picasso.Target;
 
 import org.parceler.Parcels;
 
-import java.util.ArrayList;
-
 import static android.view.View.GONE;
+import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE_ID;
+import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE_NAME;
+import static com.andrewclam.bakingapp.Constants.EXTRA_STEP_POSITION;
 import static com.andrewclam.bakingapp.Constants.PACKAGE_NAME;
-import static com.andrewclam.bakingapp.StepDetailActivity.ARG_RECIPE_NAME;
-import static com.andrewclam.bakingapp.StepDetailActivity.ARG_RECIPE_STEPS_LIST;
 
 /**
  * A fragment representing a single Step detail screen.
@@ -87,12 +85,13 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
      * The fragment argument representing the item ID that this fragment
      * represents.
      */
-    public static final String ARG_RECIPE_STEP = "item_id";
+    public static final String EXTRA_RECIPE_STEP = "item_id";
     /**
      * The fragment argument representing the boolean flag on whether this fragment is loaded
      * as part of a two-pane layout
      */
-    public static final String ARG_TWO_PANE_MODE = "two_pane_mode";
+    public static final String EXTRA_TWO_PANE_MODE = "two_pane_mode";
+
     /**
      * Debug and fragment TAG
      */
@@ -135,7 +134,12 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
     private ProgressBar mVideoLoadingPb;
     /**
      * For MediaStyle Notification
+     * (PendingIntent to host activities
+     * need the recipeId that this step is part of)
      */
+    private long mRecipeId;
+    private String mRecipeName;
+    private int mStepPosition;
     private NotificationManager mNotificationManager;
     private static final int NOTIFICATION_PENDING_INTENT_RC = 2333;
 
@@ -159,29 +163,17 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
      * @param mTwoPane  to indicate whether the fragment is part of the twoPane layout
      * @return a new instance of the fragment
      */
-    public static StepDetailFragment newInstance(Step mStepItem, boolean mTwoPane) {
+    public static StepDetailFragment newInstance(Long mRecipeId,
+                                                 String mRecipeName,
+                                                 int mStepPosition,
+                                                 Step mStepItem,
+                                                 boolean mTwoPane) {
         Bundle args = new Bundle();
-        args.putParcelable(ARG_RECIPE_STEP, Parcels.wrap(mStepItem));
-        args.putBoolean(ARG_TWO_PANE_MODE, mTwoPane);
-
-        StepDetailFragment fragment = new StepDetailFragment();
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-
-    /**
-     * Factory static method to create new instance of the fragment
-     * with the required parameters
-     *
-     * @param mStepParcelable the Step parcel, containing the recipe step object
-     * @param mTwoPane        to indicate whether the fragment is part of the twoPane layout
-     * @return a new instance of the fragment
-     */
-    public static StepDetailFragment newInstance(Parcelable mStepParcelable, boolean mTwoPane) {
-        Bundle args = new Bundle();
-        args.putParcelable(ARG_RECIPE_STEP, mStepParcelable);
-        args.putBoolean(ARG_TWO_PANE_MODE, mTwoPane);
+        args.putLong(EXTRA_RECIPE_ID, mRecipeId);
+        args.putString(EXTRA_RECIPE_NAME,mRecipeName);
+        args.putInt(EXTRA_STEP_POSITION, mStepPosition);
+        args.putParcelable(EXTRA_RECIPE_STEP, Parcels.wrap(mStepItem));
+        args.putBoolean(EXTRA_TWO_PANE_MODE, mTwoPane);
 
         StepDetailFragment fragment = new StepDetailFragment();
         fragment.setArguments(args);
@@ -195,13 +187,17 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
         // Initialize the context
         mContext = getContext();
 
-        if (getArguments().containsKey(ARG_RECIPE_STEP)
-                && getArguments().containsKey(ARG_TWO_PANE_MODE)) {
-            // Load the dummy content specified by the fragment
-            // arguments. In a real-world scenario, use a Loader
-            // to load content from a content provider.
-            mStepItem = Parcels.unwrap(getArguments().getParcelable(ARG_RECIPE_STEP));
-            mTwoPane = getArguments().getBoolean(ARG_TWO_PANE_MODE);
+        if (getArguments().containsKey(EXTRA_RECIPE_ID)
+                && getArguments().containsKey(EXTRA_RECIPE_NAME)
+                && getArguments().containsKey(EXTRA_STEP_POSITION)
+                && getArguments().containsKey(EXTRA_RECIPE_STEP)
+                && getArguments().containsKey(EXTRA_TWO_PANE_MODE)) {
+
+            mRecipeId = getArguments().getLong(EXTRA_RECIPE_ID);
+            mRecipeName = getArguments().getString(EXTRA_RECIPE_NAME);
+            mStepPosition = getArguments().getInt(EXTRA_STEP_POSITION);
+            mStepItem = Parcels.unwrap(getArguments().getParcelable(EXTRA_RECIPE_STEP));
+            mTwoPane = getArguments().getBoolean(EXTRA_TWO_PANE_MODE);
 
             if (BuildConfig.DEBUG) {
                 if (mStepItem == null)
@@ -411,37 +407,13 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
      */
     private void showNotification(PlaybackStateCompat state) {
         // Notification Content
-        String mRecipeName = "";
         String mRecipeStepTitle = getString(R.string.current_step, mCurrentStepTitle);
-
-        // Determine the host activity and get the RecipeName and Steps
-        // 1) Get the list of steps from the hosting activity
-        // The list is required to launch the hostingActivity in pendingIntent,
-        // when user clicks the notification to navigate back to the current recipe)
-        // 2) Get the RecipeName from the hosting activity
-        ArrayList<Step> mSteps = new ArrayList<>();
-        if (mContext instanceof RecipeDetailActivity) {
-            // Fragment's host activity is the master-detail two-pane activity
-            // on tablet landscape mode
-            mSteps = ((RecipeDetailActivity) mContext).getSteps();
-            mRecipeName = ((RecipeDetailActivity) mContext).getRecipeName();
-        } else if (mContext instanceof StepDetailActivity) {
-            // Fragment's host activity is the detail activity
-            mSteps = ((StepDetailActivity) mContext).getSteps();
-            mRecipeName = ((StepDetailActivity) mContext).getRecipeName();
-        }
-
-        if (BuildConfig.DEBUG) {
-            if (mSteps == null || mSteps.isEmpty())
-                throw new AssertionError("mSteps is null or empty, can't create the pendingIntent" +
-                        "for the notification");
-        }
 
         /* Create the pending content intent for the notification*/
         Intent intent = new Intent(mContext, StepDetailActivity.class);
-        intent.putExtra(ARG_RECIPE_NAME, mRecipeName);
-        intent.putExtra(ARG_RECIPE_STEPS_LIST, Parcels.wrap(mSteps));
-        intent.putExtra(ARG_TWO_PANE_MODE, mTwoPane);
+        intent.putExtra(EXTRA_RECIPE_ID,mRecipeId);
+        intent.putExtra(EXTRA_STEP_POSITION,mStepPosition);
+        intent.putExtra(EXTRA_TWO_PANE_MODE, mTwoPane);
 
         PendingIntent mContentIntent = PendingIntent.getActivity(
                 mContext,

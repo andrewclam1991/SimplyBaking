@@ -35,10 +35,10 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.andrewclam.bakingapp.data.RecipeDbContract.AppWidgetIdEntry;
+import com.andrewclam.bakingapp.data.RecipeDbContract.FavoriteEntry;
 import com.andrewclam.bakingapp.data.RecipeDbContract.IngredientEntry;
 import com.andrewclam.bakingapp.data.RecipeDbContract.RecipeEntry;
 import com.andrewclam.bakingapp.data.RecipeDbContract.StepEntry;
-import com.andrewclam.bakingapp.data.RecipeDbContract.FavoriteEntry;
 
 public class RecipeContentProvider extends ContentProvider {
 
@@ -255,7 +255,6 @@ public class RecipeContentProvider extends ContentProvider {
 
                     // Try block op ended, end this db transaction.
                     db.endTransaction();
-                    db.close();
                 }
 
                 // Notify the content resolver of modified dataset if there are rowsInserted
@@ -303,7 +302,6 @@ public class RecipeContentProvider extends ContentProvider {
                     // Try block op ended, end this db transaction.
                     // Close database connection for good measure after insert
                     db.endTransaction();
-                    db.close();
                 }
 
                 // Notify the content resolver of modified dataset if there are rowsInserted
@@ -350,7 +348,6 @@ public class RecipeContentProvider extends ContentProvider {
 
                     // Try block op ended, end this db transaction.
                     db.endTransaction();
-                    db.close();
                 }
 
                 // Notify the content resolver of modified dataset if there are rowsInserted

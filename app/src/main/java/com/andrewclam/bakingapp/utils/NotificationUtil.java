@@ -126,7 +126,7 @@ public class NotificationUtil {
             play_pause = mContext.getString(R.string.play);
         }
 
-        // Set the LargeIcon resource, if unavailable will use the default notification cupcake
+        // Set the LargeIcon resource if unavailable will use the default notification cupcake
         // icon in the resources
         if (largeIcon == null) {
             // use the resource default

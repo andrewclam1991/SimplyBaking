@@ -58,10 +58,10 @@ import java.util.ArrayList;
 import static android.support.v4.app.NavUtils.navigateUpFromSameTask;
 import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE;
 import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE_ID;
-import static com.andrewclam.bakingapp.StepDetailActivity.ARG_RECIPE_NAME;
-import static com.andrewclam.bakingapp.StepDetailActivity.ARG_RECIPE_STEPS_LIST;
-import static com.andrewclam.bakingapp.StepDetailActivity.ARG_RECIPE_STEP_POSITION;
-import static com.andrewclam.bakingapp.StepDetailFragment.ARG_TWO_PANE_MODE;
+import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE_NAME;
+import static com.andrewclam.bakingapp.Constants.EXTRA_STEPS_LIST;
+import static com.andrewclam.bakingapp.Constants.EXTRA_STEP_POSITION;
+import static com.andrewclam.bakingapp.StepDetailFragment.EXTRA_TWO_PANE_MODE;
 
 /**
  * An activity representing a list of Steps. This activity
@@ -73,8 +73,7 @@ import static com.andrewclam.bakingapp.StepDetailFragment.ARG_TWO_PANE_MODE;
  */
 public class RecipeDetailActivity extends AppCompatActivity implements
         StepDetailFragment.OnStepDetailFragmentInteraction,
-        LoaderManager.LoaderCallbacks<Cursor>
-{
+        LoaderManager.LoaderCallbacks<Cursor>{
 
     /**
      * Log Tag
@@ -104,12 +103,17 @@ public class RecipeDetailActivity extends AppCompatActivity implements
     private int mSelectedPosition;
 
     /**
-     * LoaderManager Instance for Loading offline db data
+     * LoaderManager Implementation for Loading offline db data
      * This ID will be used to identify the Loader responsible for loading our offline database. In
      * some cases, one Activity can deal with many Loaders. However, in our case, there is only one.
      * We will still use this ID to initialize the loader and create the loader for best practice.
      */
     private static final int RECIPE_DETAIL_LOADER_ID = 1688;
+
+    /**
+     * The unique id of the Recipe that this activity is displaying
+     */
+    private long mRecipeId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,6 +137,7 @@ public class RecipeDetailActivity extends AppCompatActivity implements
          */
         if (getIntent().hasExtra(EXTRA_RECIPE)) {
             mRecipe = Parcels.unwrap(getIntent().getParcelableExtra(EXTRA_RECIPE));
+            mRecipeId = mRecipe.getUid();
 
             // Continue setting up the UI
             setupRecipeDetail();
@@ -140,12 +145,12 @@ public class RecipeDetailActivity extends AppCompatActivity implements
         }else if(getIntent().hasExtra(EXTRA_RECIPE_ID))
         {
             // Get the recipeId and form the extra recipeId
-            long recipeId = getIntent().getLongExtra(EXTRA_RECIPE_ID, -1L);
+            mRecipeId = getIntent().getLongExtra(EXTRA_RECIPE_ID, -1L);
 
             // Init the cursorLoader, handle the callback with this activity
             // pass in the recipe id as the cursor loader argument
             Bundle args = new Bundle();
-            args.putLong(EXTRA_RECIPE_ID,recipeId);
+            args.putLong(EXTRA_RECIPE_ID,mRecipeId);
             getSupportLoaderManager().restartLoader(RECIPE_DETAIL_LOADER_ID,args,this);
         }
 
@@ -231,7 +236,12 @@ public class RecipeDetailActivity extends AppCompatActivity implements
             Step introStep = mSteps.get(0);
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.step_detail_container,
-                            StepDetailFragment.newInstance(introStep,mTwoPane),
+                            StepDetailFragment.newInstance(
+                                    mRecipeId,
+                                    mRecipe.getName(),
+                                    0,
+                                    introStep,
+                                    mTwoPane),
                             StepDetailFragment.TAG) // TAG used to remove
                     .commit();
         }else
@@ -356,7 +366,11 @@ public class RecipeDetailActivity extends AppCompatActivity implements
                         // full detail
                         getSupportFragmentManager().beginTransaction()
                                 .replace(R.id.step_detail_container,
-                                        StepDetailFragment.newInstance(holder.getStepItem(),
+                                        StepDetailFragment.newInstance(
+                                                mRecipeId,
+                                                mRecipe.getName(),
+                                                adapterPosition,
+                                                holder.getStepItem(),
                                                 mTwoPane))
                                 .commit();
                     } else {
@@ -365,10 +379,13 @@ public class RecipeDetailActivity extends AppCompatActivity implements
                         Context context = view.getContext();
 
                         Intent intent = new Intent(context, StepDetailActivity.class);
-                        intent.putExtra(ARG_RECIPE_NAME,mRecipe.getName());
-                        intent.putExtra(ARG_RECIPE_STEPS_LIST,Parcels.wrap(mSteps));
-                        intent.putExtra(ARG_RECIPE_STEP_POSITION,adapterPosition);
-                        intent.putExtra(ARG_TWO_PANE_MODE,mTwoPane);
+                        intent.putExtra(EXTRA_RECIPE_ID,mRecipeId);
+                        intent.putExtra(EXTRA_STEP_POSITION,adapterPosition);
+                        intent.putExtra(EXTRA_TWO_PANE_MODE,mTwoPane);
+
+                        // todo remove the extras recipe name and steps list
+                        intent.putExtra(EXTRA_RECIPE_NAME,mRecipe.getName());
+                        intent.putExtra(EXTRA_STEPS_LIST,Parcels.wrap(mSteps));
 
                         context.startActivity(intent);
                     }
@@ -483,6 +500,9 @@ public class RecipeDetailActivity extends AppCompatActivity implements
         }
     }
 
+
+
+    // todo remove the getter methods since the activities may not be created ??
     /**
      * Package-Private getter method for the fragment to get the steps
      * The list of steps is used for the notification pendingIntent

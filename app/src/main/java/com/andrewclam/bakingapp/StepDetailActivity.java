@@ -24,9 +24,14 @@ package com.andrewclam.bakingapp;
 
 import android.content.Context;
 import android.content.res.Resources.Theme;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ThemedSpinnerAdapter;
 import android.support.v7.widget.Toolbar;
@@ -39,17 +44,21 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.andrewclam.bakingapp.asyncTasks.DbMultiTableParsingAsyncTask;
+import com.andrewclam.bakingapp.data.RecipeDbContract;
+import com.andrewclam.bakingapp.models.Recipe;
 import com.andrewclam.bakingapp.models.Step;
 import com.google.android.exoplayer2.ui.BuildConfig;
 
-import org.parceler.Parcels;
-
 import java.util.ArrayList;
 
-import static com.andrewclam.bakingapp.StepDetailFragment.ARG_TWO_PANE_MODE;
+import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE_ID;
+import static com.andrewclam.bakingapp.Constants.EXTRA_STEP_POSITION;
+import static com.andrewclam.bakingapp.StepDetailFragment.EXTRA_TWO_PANE_MODE;
 
 public class StepDetailActivity extends AppCompatActivity implements
-        StepDetailFragment.OnStepDetailFragmentInteraction{
+        StepDetailFragment.OnStepDetailFragmentInteraction,
+        LoaderManager.LoaderCallbacks<Cursor>{
 
     /**
      * The list of steps to populate the dropdown spinner adapter
@@ -60,16 +69,22 @@ public class StepDetailActivity extends AppCompatActivity implements
     private boolean mTwoPane;
 
     /**
-     * Public keys for intent extras and args
-     */
-    public static final String ARG_RECIPE_STEPS_LIST = "extra.steps.list";
-    public static final String ARG_RECIPE_STEP_POSITION = "extra.step.position";
-    public static final String ARG_RECIPE_NAME ="extra.recipe.name";
-
-    /**
      * Instance of the StepsAdapter
      */
     private StepsAdapter mStepsAdapter;
+
+    /**
+     * LoaderManager Implementation for Loading offline db data
+     * This ID will be used to identify the Loader responsible for loading our offline database. In
+     * some cases, one Activity can deal with many Loaders. However, in our case, there is only one.
+     * We will still use this ID to initialize the loader and create the loader for best practice.
+     */
+    private static final int RECIPE_STEP_DETAIL_LOADER_ID = 1688;
+
+    /**
+     * The UID of the recipe
+     */
+    private long mRecipeId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,20 +99,24 @@ public class StepDetailActivity extends AppCompatActivity implements
         }
 
         // Get the list of steps from intent extra
-        if (getIntent().hasExtra(ARG_RECIPE_NAME)) {
-            mRecipeName = getIntent().getStringExtra(ARG_RECIPE_NAME);
+        if (getIntent().hasExtra(EXTRA_RECIPE_ID))
+        {
+            // Get the recipeId and form the extra recipeId
+            mRecipeId = getIntent().getLongExtra(EXTRA_RECIPE_ID, -1L);
+
+            // Init the cursorLoader, handle the callback with this activity
+            // pass in the recipe id as the cursor loader argument
+            Bundle args = new Bundle();
+            args.putLong(EXTRA_RECIPE_ID,mRecipeId);
+            getSupportLoaderManager().restartLoader(RECIPE_STEP_DETAIL_LOADER_ID,args,this);
         }
 
-        if (getIntent().hasExtra(ARG_RECIPE_STEPS_LIST)) {
-            mSteps = Parcels.unwrap(getIntent().getParcelableExtra(ARG_RECIPE_STEPS_LIST));
+        if (getIntent().hasExtra(EXTRA_STEP_POSITION)) {
+            mStepPosition = getIntent().getIntExtra(EXTRA_STEP_POSITION, 0);
         }
 
-        if (getIntent().hasExtra(ARG_RECIPE_STEP_POSITION)) {
-            mStepPosition = getIntent().getIntExtra(ARG_RECIPE_STEP_POSITION, 0);
-        }
-
-        if (getIntent().hasExtra(ARG_TWO_PANE_MODE)) {
-            mTwoPane = getIntent().getBooleanExtra(ARG_TWO_PANE_MODE, false);
+        if (getIntent().hasExtra(EXTRA_TWO_PANE_MODE)) {
+            mTwoPane = getIntent().getBooleanExtra(EXTRA_TWO_PANE_MODE, false);
 
             if (BuildConfig.DEBUG)
             {
@@ -107,6 +126,24 @@ public class StepDetailActivity extends AppCompatActivity implements
             }
         }
 
+        // TODO Remove THESE TWO below extra recipe name and steps list, as they can be populated using the
+        // cursor loader
+//        if (getIntent().hasExtra(EXTRA_RECIPE_NAME)) {
+//            mRecipeName = getIntent().getStringExtra(EXTRA_RECIPE_NAME);
+//        }
+//
+//        if (getIntent().hasExtra(EXTRA_STEPS_LIST)) {
+//            mSteps = Parcels.unwrap(getIntent().getParcelableExtra(EXTRA_STEPS_LIST));
+//        }
+
+    }
+
+    /**
+     * setupStepDetail() is fired when the steps are available
+     * populated by a cursor query/parsing, given the position
+     */
+    private void setupStepDetail()
+    {
         // Initialize the StepsAdapter
         mStepsAdapter = new StepsAdapter(this,mSteps);
 
@@ -130,7 +167,11 @@ public class StepDetailActivity extends AppCompatActivity implements
                 // fired in two panes mode
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.container, StepDetailFragment.newInstance(
-                                selectedStep, mTwoPane))
+                                mRecipeId,
+                                mRecipeName,
+                                position,
+                                selectedStep,
+                                mTwoPane))
                         .commit();
             }
 
@@ -138,15 +179,63 @@ public class StepDetailActivity extends AppCompatActivity implements
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
-
     }
 
+    /**
+     * CursorLoader and LoaderManager Implementation
+     * Do db query off the main thread and communicate via these callbacks
+     */
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        /* Return a cursor with a particular Recipe Data from Database */
+        long recipeId = args.getLong(EXTRA_RECIPE_ID);
+        Uri recipeIdUri = RecipeDbContract.buildRecipeUriWithId(recipeId);
+
+        return new CursorLoader(this,
+                recipeIdUri,
+                null,
+                null,
+                null,
+                null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        if (data != null)
+            new DbMultiTableParsingAsyncTask()
+                    .setContentResolver(this.getContentResolver())
+                    .setCursor(data)
+                    .setListener(new DbMultiTableParsingAsyncTask.OnParsingActionComplete() {
+                        @Override
+                        public void onEntriesParsed(ArrayList<Recipe> recipes) {
+                            Recipe recipe = recipes.get(0);
+                            mRecipeName = recipe.getName();
+                            mSteps = recipe.getSteps();
+
+                            // Continue setting up the UI
+                            setupStepDetail();
+                        }
+                    }).execute();
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mRecipeName = null;
+        mSteps.clear();
+    }
+
+    /**
+     * Fragment Interaction Callbacks
+     */
     @Override
     public void setTitle(String title) {
         // No need to set title
     }
 
-
+    /**
+     * Implementation of the ArrayAdapter to show user a spinner dropdown of all
+     * the recipe steps above the video
+     */
     private static class StepsAdapter extends ArrayAdapter<Step> implements ThemedSpinnerAdapter {
         private final ThemedSpinnerAdapter.Helper mDropDownHelper;
         private final Context mContext;
@@ -226,6 +315,7 @@ public class StepDetailActivity extends AppCompatActivity implements
         }
     }
 
+    // todo remove the getter methods since the activities may not be created ??
 
     /**
      * Package-Private getter method for the fragment to get the steps

@@ -37,8 +37,12 @@ public class Constants {
 
     /* Intent Extra Key */
     public static final String EXTRA_RECIPE = PACKAGE_NAME + ".extra.recipe.object";
+    public static final String EXTRA_RECIPE_NAME = PACKAGE_NAME + ".extra.recipe.name";
     public static final String EXTRA_RECIPE_LIST = PACKAGE_NAME + ".extra.recipe.list";
     public static final String EXTRA_RECIPE_ID = PACKAGE_NAME + ".extra.recipe.id";
+
+    public static final String EXTRA_STEPS_LIST = "extra.steps.list";
+    public static final String EXTRA_STEP_POSITION = "extra.step.position";
 
     /* App Widget Configuration Intent Action */
     final static String ACTION_APPWIDGET_CONFIG =
