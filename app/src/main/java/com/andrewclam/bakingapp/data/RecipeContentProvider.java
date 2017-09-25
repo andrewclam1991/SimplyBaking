@@ -255,6 +255,7 @@ public class RecipeContentProvider extends ContentProvider {
 
                     // Try block op ended, end this db transaction.
                     db.endTransaction();
+                    db.close();
                 }
 
                 // Notify the content resolver of modified dataset if there are rowsInserted
@@ -302,6 +303,7 @@ public class RecipeContentProvider extends ContentProvider {
                     // Try block op ended, end this db transaction.
                     // Close database connection for good measure after insert
                     db.endTransaction();
+                    db.close();
                 }
 
                 // Notify the content resolver of modified dataset if there are rowsInserted
@@ -348,6 +350,7 @@ public class RecipeContentProvider extends ContentProvider {
 
                     // Try block op ended, end this db transaction.
                     db.endTransaction();
+                    db.close();
                 }
 
                 // Notify the content resolver of modified dataset if there are rowsInserted

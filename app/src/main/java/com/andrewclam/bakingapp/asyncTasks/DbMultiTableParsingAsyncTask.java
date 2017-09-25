@@ -172,18 +172,11 @@ public class DbMultiTableParsingAsyncTask extends AsyncTask<Void, Void, ArrayLis
     }
 
     /**
-     * Interface for callback to the listener at stages where UI change is required
-     * postExecute to notify caller whether the contentResolver.update() was successful.
-     */
-    public interface OnParsingActionComplete {
-        void onEntriesParsed(ArrayList<Recipe> recipes);
-    }
-
-    /**
      * Child Table - Steps
      * SubRoutine Parsing Method
+     * get and parse the rows that has matching the foreign key from the parent table
      */
-    private void parseSteps(Recipe entry, Long recipeId)
+    synchronized private void parseSteps(Recipe entry, Long recipeId)
     {
         ArrayList<Step> steps = new ArrayList<>();
         try {
@@ -236,8 +229,9 @@ public class DbMultiTableParsingAsyncTask extends AsyncTask<Void, Void, ArrayLis
     /**
      * Child Table - Ingredients
      * SubRoutine Parsing Method
+     * get and parse the rows that has matching the foreign key from the parent table
      */
-    private void parseIngredients(Recipe entry, Long recipeId)
+    synchronized private void parseIngredients(Recipe entry, Long recipeId)
     {
         ArrayList<Ingredient> ingredients = new ArrayList<>();
         try {
@@ -275,4 +269,14 @@ public class DbMultiTableParsingAsyncTask extends AsyncTask<Void, Void, ArrayLis
             entry.setIngredients(ingredients);
         }
     }
+
+    /**
+     * Interface for callback to the listener at stages where UI change is required
+     * postExecute to notify caller whether the contentResolver.update() was successful.
+     */
+    public interface OnParsingActionComplete {
+        void onEntriesParsed(ArrayList<Recipe> recipes);
+    }
+
+
 }

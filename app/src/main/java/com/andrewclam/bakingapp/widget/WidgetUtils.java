@@ -28,6 +28,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.net.Uri;
 import android.widget.RemoteViews;
 
@@ -59,7 +60,8 @@ public class WidgetUtils {
      * @param recipeId the id of the recipe object that the user clicked
      */
 
-    public static Intent createAppWidgetResult(Context context, int mAppWidgetId, long recipeId) {
+    public static Intent createAppWidgetResult(Context context, int mAppWidgetId,
+                                                            long recipeId) {
         // If the app is started for AppWidget Configuration, upon user click the recipe
         // user is selecting the recipe to be displayed as the widget on the home screen
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
@@ -140,7 +142,12 @@ public class WidgetUtils {
         }else
         {
             // Error
-            throw new RuntimeException("Cursor is null, can't find the recipe in the client database");
+            throw new SQLException("Cursor is null, can't find the recipe in the database");
         }
+    }
+
+    public static RemoteViews updateAppWidget()
+    {
+        return null;
     }
 }

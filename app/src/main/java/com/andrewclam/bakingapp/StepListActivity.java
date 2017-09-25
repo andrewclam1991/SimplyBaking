@@ -24,9 +24,14 @@ package com.andrewclam.bakingapp;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -40,6 +45,8 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import com.andrewclam.bakingapp.asyncTasks.DbMultiTableParsingAsyncTask;
+import com.andrewclam.bakingapp.data.RecipeDbContract;
 import com.andrewclam.bakingapp.models.Ingredient;
 import com.andrewclam.bakingapp.models.Recipe;
 import com.andrewclam.bakingapp.models.Step;
@@ -50,6 +57,7 @@ import java.util.ArrayList;
 
 import static android.support.v4.app.NavUtils.navigateUpFromSameTask;
 import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE;
+import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE_ID;
 import static com.andrewclam.bakingapp.StepDetailActivity.ARG_RECIPE_NAME;
 import static com.andrewclam.bakingapp.StepDetailActivity.ARG_RECIPE_STEPS_LIST;
 import static com.andrewclam.bakingapp.StepDetailActivity.ARG_RECIPE_STEP_POSITION;
@@ -64,7 +72,9 @@ import static com.andrewclam.bakingapp.StepDetailFragment.ARG_TWO_PANE_MODE;
  * item details side-by-side using two vertical panes.
  */
 public class StepListActivity extends AppCompatActivity implements
-        StepDetailFragment.OnStepDetailFragmentInteraction{
+        StepDetailFragment.OnStepDetailFragmentInteraction,
+        LoaderManager.LoaderCallbacks<Cursor>
+{
 
     /**
      * Log Tag
@@ -93,6 +103,14 @@ public class StepListActivity extends AppCompatActivity implements
      */
     private int mSelectedPosition;
 
+    /**
+     * LoaderManager Instance for Loading offline db data
+     * This ID will be used to identify the Loader responsible for loading our offline database. In
+     * some cases, one Activity can deal with many Loaders. However, in our case, there is only one.
+     * We will still use this ID to initialize the loader and create the loader for best practice.
+     */
+    private static final int RECIPE_DETAIL_LOADER_ID = 1688;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -100,14 +118,6 @@ public class StepListActivity extends AppCompatActivity implements
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        /*
-         * Get the intent extra, store the passed in recipe object
-         * The recipe object contains the list of ingredients and steps
-         */
-        if (getIntent().hasExtra(EXTRA_RECIPE)) {
-            mRecipe = Parcels.unwrap(getIntent().getParcelableExtra(EXTRA_RECIPE));
-        }
 
         if (findViewById(R.id.step_detail_container) != null) {
             // The detail container view will be present only in the
@@ -117,7 +127,37 @@ public class StepListActivity extends AppCompatActivity implements
             mTwoPane = true;
         }
 
-        /* UI Setup - Recipe Header (Activity Title, Serving and Number of Steps)*/
+        /*
+         * Get the intent extra, store the passed in recipe object
+         * The recipe object contains the list of ingredients and steps
+         */
+        if (getIntent().hasExtra(EXTRA_RECIPE)) {
+            mRecipe = Parcels.unwrap(getIntent().getParcelableExtra(EXTRA_RECIPE));
+
+            // Continue setting up the UI
+            setupRecipeDetail();
+
+        }else if(getIntent().hasExtra(EXTRA_RECIPE_ID))
+        {
+            // Get the recipeId and form the extra recipeId
+            long recipeId = getIntent().getLongExtra(EXTRA_RECIPE_ID, -1L);
+
+            // Init the cursorLoader, handle the callback with this activity
+            // pass in the recipe id as the cursor loader argument
+            Bundle args = new Bundle();
+            args.putLong(EXTRA_RECIPE_ID,recipeId);
+            getSupportLoaderManager().restartLoader(RECIPE_DETAIL_LOADER_ID,args,this);
+        }
+
+    }
+
+    /**
+     * setupRecipeDetail() is fired when the mRecipe object is populated by either
+     * a direct parcel or a cursor query/parsing.
+     */
+    private void setupRecipeDetail()
+    {
+         /* UI Setup - Recipe Header (Activity Title, Serving and Number of Steps)*/
         // Show the Up button in the action bar.
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -138,6 +178,7 @@ public class StepListActivity extends AppCompatActivity implements
         setupIngredientsRecyclerView(ingredientRv);
         setupStepsRecyclerView(stepsRv);
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -214,6 +255,42 @@ public class StepListActivity extends AppCompatActivity implements
     @Override
     public void setTitle(String title) {
         if(getSupportActionBar() != null) getSupportActionBar().setTitle(title);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        /* Return a cursor with a particular Recipe Data from Database */
+        long recipeId = args.getLong(EXTRA_RECIPE_ID);
+        Uri recipeIdUri = RecipeDbContract.buildRecipeUriWithId(recipeId);
+
+        return new CursorLoader(this,
+                recipeIdUri,
+                null,
+                null,
+                null,
+                null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        if (data != null)
+            new DbMultiTableParsingAsyncTask()
+                    .setContentResolver(this.getContentResolver())
+                    .setCursor(data)
+                    .setListener(new DbMultiTableParsingAsyncTask.OnParsingActionComplete() {
+                        @Override
+                        public void onEntriesParsed(ArrayList<Recipe> recipes) {
+                            mRecipe = recipes.get(0);
+
+                            // Continue setting up the UI
+                            setupRecipeDetail();
+                        }
+                    }).execute();
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mRecipe = null;
     }
 
     /**
