@@ -23,7 +23,6 @@
 <resources>
     <string name="app_name">SimplyBaking</string>
     <string name="title_step_list">Steps</string>
-    <string name="title_step_detail">Step Detail</string>
     <string name="serving">Serves %1$d</string>
     <string name="step">Step %1$d</string>
     <string name="ingredients">Ingredients</string>
