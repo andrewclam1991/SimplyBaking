@@ -34,6 +34,8 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.andrewclam.bakingapp.data.RecipeDbContract.AppWidgetIdEntry;
+import com.andrewclam.bakingapp.data.RecipeDbContract.FavoriteEntry;
 import com.andrewclam.bakingapp.data.RecipeDbContract.IngredientEntry;
 import com.andrewclam.bakingapp.data.RecipeDbContract.RecipeEntry;
 import com.andrewclam.bakingapp.data.RecipeDbContract.StepEntry;
@@ -45,10 +47,13 @@ public class RecipeContentProvider extends ContentProvider {
     // and related ints (101, 102, ..) for items in that directory.
     public static final int CODE_RECIPES = 100;
     public static final int CODE_RECIPE_WITH_ID = 101;
+    public static final int CODE_RECIPE_WITH_APP_WIDGET_ID = 102;
     public static final int CODE_INGREDIENTS = 200;
     public static final int CODE_INGREDIENT_WITH_ID = 201;
     public static final int CODE_STEPS = 300;
     public static final int CODE_STEP_WITH_ID = 301;
+    public static final int CODE_FAVORITES = 400;
+    public static final int CODE_APP_WIDGET_IDS = 500;
 
     // Declare a static variable for the Uri matcher that you construct
     private static final UriMatcher sUriMatcher = buildUriMatcher();
@@ -63,20 +68,37 @@ public class RecipeContentProvider extends ContentProvider {
         // Recipe Paths
         uriMatcher.addURI(RecipeDbContract.AUTHORITY, RecipeDbContract.PATH_RECIPES,
                 CODE_RECIPES);
+
         uriMatcher.addURI(RecipeDbContract.AUTHORITY, RecipeDbContract.PATH_RECIPES
                 + "/#", CODE_RECIPE_WITH_ID);
+
+        uriMatcher.addURI(RecipeDbContract.AUTHORITY, RecipeDbContract.PATH_RECIPES
+                + "/" + RecipeDbContract.PATH_APP_WIDGET_IDS
+                + "/#", CODE_RECIPE_WITH_APP_WIDGET_ID);
+
 
         // Ingredient Paths
         uriMatcher.addURI(RecipeDbContract.AUTHORITY, RecipeDbContract.PATH_INGREDIENTS,
                 CODE_INGREDIENTS);
+
         uriMatcher.addURI(RecipeDbContract.AUTHORITY, RecipeDbContract.PATH_INGREDIENTS
                 + "/#", CODE_INGREDIENT_WITH_ID);
 
         // Step Paths
         uriMatcher.addURI(RecipeDbContract.AUTHORITY, RecipeDbContract.PATH_STEPS,
                 CODE_STEPS);
+
         uriMatcher.addURI(RecipeDbContract.AUTHORITY, RecipeDbContract.PATH_STEPS
                 + "/#", CODE_STEP_WITH_ID);
+
+        // Favorite Paths
+        uriMatcher.addURI(RecipeDbContract.AUTHORITY, RecipeDbContract.PATH_FAVORITES,
+                CODE_FAVORITES);
+
+        // App Widget
+        uriMatcher.addURI(RecipeDbContract.AUTHORITY, RecipeDbContract.PATH_APP_WIDGET_IDS,
+                CODE_APP_WIDGET_IDS);
+
         return uriMatcher;
     }
 
@@ -93,9 +115,9 @@ public class RecipeContentProvider extends ContentProvider {
     /***
      * Handles requests to insert a single new row of data
      *
-     * @param uri
-     * @param values
-     * @return
+     * @param uri the content uri
+     * @param values the content values to be inserted given the uri
+     * @return the Uri that points to the newly inserted row
      */
     @Override
     public Uri insert(@NonNull Uri uri, ContentValues values) {
@@ -147,13 +169,46 @@ public class RecipeContentProvider extends ContentProvider {
                 }
                 break;
 
+            case CODE_FAVORITES:
+                // Insert new values into the database
+                long favoriteId = db.insert(
+                        FavoriteEntry.TABLE_NAME,
+                        null,
+                        values);
+
+                if (favoriteId > 0) {
+                    returnUri = ContentUris.withAppendedId(FavoriteEntry.CONTENT_URI_FAVORITE, favoriteId);
+                } else {
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                }
+                break;
+
+            case CODE_APP_WIDGET_IDS:
+                // Insert new values into the database
+                Log.d(TAG, "Insert() CODE_APP_WIDGET_IDS uri matched, uri: " + uri);
+                Log.d(TAG, "Insert() ContentValue appWidgetId: " + values.getAsLong(AppWidgetIdEntry.COLUMN_APP_WIDGET_UID));
+                Log.d(TAG, "Insert() ContentValue recipeId: " + values.getAsLong(AppWidgetIdEntry.COLUMN_APP_WIDGET_RECIPE_KEY));
+                long appWidgetRowId = db.insert(
+                        AppWidgetIdEntry.TABLE_NAME,
+                        null,
+                        values);
+
+                if (appWidgetRowId > 0) {
+                    returnUri = ContentUris.withAppendedId(
+                            AppWidgetIdEntry.CONTENT_URI_APP_WIDGET_ID, appWidgetRowId);
+                    Log.d(TAG,"Insert() successfully inserted row, database row id " + appWidgetRowId);
+                } else {
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                }
+                break;
+
             // Default case throws an UnsupportedOperationException
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
 
         // Notify the resolver if the uri has been changed, and return the newly inserted URI
-        getContext().getContentResolver().notifyChange(uri, null);
+        if (getContext() != null) getContext().getContentResolver().notifyChange(uri, null);
 
         // Return constructed uri (this points to the newly inserted row of data)
         return returnUri;
@@ -176,7 +231,7 @@ public class RecipeContentProvider extends ContentProvider {
     @Override
     public int bulkInsert(@NonNull Uri uri, @NonNull ContentValues[] values) {
         // Use uri matcher to make sure the call is pointing to the movie
-        int match = sUriMatcher.match(uri);
+        final int match = sUriMatcher.match(uri);
 
         switch (match) {
             case CODE_RECIPES: {
@@ -210,9 +265,7 @@ public class RecipeContentProvider extends ContentProvider {
                 } finally {
 
                     // Try block op ended, end this db transaction.
-                    // Close database connection for good measure after insert
                     db.endTransaction();
-                    db.close();
                 }
 
                 // Notify the content resolver of modified dataset if there are rowsInserted
@@ -260,7 +313,6 @@ public class RecipeContentProvider extends ContentProvider {
                     // Try block op ended, end this db transaction.
                     // Close database connection for good measure after insert
                     db.endTransaction();
-                    db.close();
                 }
 
                 // Notify the content resolver of modified dataset if there are rowsInserted
@@ -306,9 +358,7 @@ public class RecipeContentProvider extends ContentProvider {
                 } finally {
 
                     // Try block op ended, end this db transaction.
-                    // Close database connection for good measure after insert
                     db.endTransaction();
-                    db.close();
                 }
 
                 // Notify the content resolver of modified dataset if there are rowsInserted
@@ -332,12 +382,12 @@ public class RecipeContentProvider extends ContentProvider {
     /***
      * Handles requests for data by URI
      *
-     * @param uri
-     * @param projection
-     * @param selection
-     * @param selectionArgs
-     * @param sortOrder
-     * @return
+     * @param uri the content uri
+     * @param projection the column projection
+     * @param selection the column to form the table
+     * @param selectionArgs the arguments for the selection column
+     * @param sortOrder the sorting order of the query table
+     * @return a data cursor that contain data fitting the query criteria.
      */
     @Override
     public Cursor query(@NonNull Uri uri, String[] projection, String selection,
@@ -351,13 +401,13 @@ public class RecipeContentProvider extends ContentProvider {
 
         // Write URI match code and set a variable to return a Cursor
         int match = sUriMatcher.match(uri);
+
         Cursor retCursor;
 
         switch (match) {
             // Query for the recipes directory
             case CODE_RECIPES:
                 queryBuilder.setTables(RecipeDbContract.RecipeEntry.TABLE_NAME);
-
                 retCursor = queryBuilder.query(db,
                         projection,
                         selection,
@@ -366,21 +416,64 @@ public class RecipeContentProvider extends ContentProvider {
                         null,
                         sortOrder);
                 break;
+
             case CODE_RECIPE_WITH_ID:
                 String id = uri.getPathSegments().get(1);
                 queryBuilder.setTables(RecipeDbContract.RecipeEntry.TABLE_NAME);
                 retCursor = queryBuilder.query(db,
                         projection,
-                        "_id=?",
+                        RecipeEntry.COLUMN_RECIPE_UID + "=?",
                         new String[]{id},
                         null,
                         null,
                         sortOrder);
                 break;
 
-            case CODE_INGREDIENTS:
-                queryBuilder.setTables(IngredientEntry.TABLE_NAME);
+            case CODE_RECIPE_WITH_APP_WIDGET_ID:
+                Log.d(TAG, "Query() CODE_RECIPE_WITH_APP_WIDGET_ID uri matched, uri: " + uri);
+
+                String appWidgetId = uri.getLastPathSegment();
+                // Left join the recipe table with the app widget table
+                // Set the projection to have the recipe detail, and select rows that has
+                // the recipe key value matching the appWidgetId
+
+                Log.d(TAG, "Query() CODE_RECIPE_WITH_APP_WIDGET_ID appWidgetId: " + appWidgetId);
+
+                String RECIPE_WIDGET_JOIN_TABLE =
+                        RecipeEntry.TABLE_NAME +
+                        " LEFT JOIN " +
+                        AppWidgetIdEntry.TABLE_NAME +
+                        " ON " +
+                        RecipeEntry.TABLE_NAME + "." + RecipeEntry.COLUMN_RECIPE_UID +
+                        " = " +
+                        AppWidgetIdEntry.TABLE_NAME + "." +
+                        AppWidgetIdEntry.COLUMN_APP_WIDGET_RECIPE_KEY;
+
+                Log.d(TAG, "Query() Join table statement: " + RECIPE_WIDGET_JOIN_TABLE);
+
+                queryBuilder.setTables(RECIPE_WIDGET_JOIN_TABLE);
+
                 retCursor = queryBuilder.query(db,
+                        new String[]{
+                                RecipeEntry.COLUMN_RECIPE_UID,
+                                RecipeEntry.COLUMN_RECIPE_NAME,
+                                RecipeEntry.COLUMN_RECIPE_IMAGE_URL,
+                                RecipeEntry.COLUMN_RECIPE_SERVINGS
+                        },
+                        AppWidgetIdEntry.COLUMN_APP_WIDGET_UID + "=?",
+                        new String[]{appWidgetId},
+                        null,
+                        null,
+                        null
+                        );
+
+                if (retCursor == null || retCursor.getCount() == 0)
+                    Log.e(TAG, "Query() can't find the corresponding recipe with appWidgetId: "
+                            + appWidgetId);
+                break;
+
+            case CODE_INGREDIENTS:
+                retCursor = db.query(IngredientEntry.TABLE_NAME,
                         projection,
                         selection,
                         selectionArgs,
@@ -390,8 +483,27 @@ public class RecipeContentProvider extends ContentProvider {
                 break;
 
             case CODE_STEPS:
-                queryBuilder.setTables(StepEntry.TABLE_NAME);
-                retCursor = queryBuilder.query(db,
+                retCursor = db.query(StepEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder);
+                break;
+
+            case CODE_FAVORITES:
+                retCursor = db.query(FavoriteEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder);
+                break;
+
+            case CODE_APP_WIDGET_IDS:
+                retCursor = db.query(AppWidgetIdEntry.TABLE_NAME,
                         projection,
                         selection,
                         selectionArgs,
@@ -405,34 +517,20 @@ public class RecipeContentProvider extends ContentProvider {
         }
 
         // Set a notification URI on the Cursor and return that Cursor
-        retCursor.setNotificationUri(getContext().getContentResolver(), uri);
+        if (getContext() != null) {
+            retCursor.setNotificationUri(getContext().getContentResolver(), uri);
+        }
 
         // Return the desired Cursor
         return retCursor;
     }
 
-    /***
-     * Deletes a single row of data
-     *
-     * @param uri
-     * @param selection
-     * @param selectionArgs
-     * @return number of rows affected
-     */
     @Override
     public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
         // No implementation
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
-    /***
-     * Updates a single row of data
-     *
-     * @param uri
-     * @param selection
-     * @param selectionArgs
-     * @return number of rows affected
-     */
     @Override
     public int update(@NonNull Uri uri, ContentValues values, String selection,
                       String[] selectionArgs) {

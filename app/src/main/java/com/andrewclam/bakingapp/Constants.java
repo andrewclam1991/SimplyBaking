@@ -32,18 +32,22 @@ public class Constants {
     public static final String PACKAGE_NAME = "com.andrewclam.bakingapp";
 
     /* Data Source URL */
-    public static final String DATA_URL =
+    static final String DATA_URL =
             "https://d17h27t6h515a5.cloudfront.net/topher/2017/May/59121517_baking/baking.json";
 
     /* Intent Extra Key */
-    public static final String EXTRA_RECIPE = PACKAGE_NAME + ".extra.recipe.object";
+    static final String EXTRA_RECIPE = PACKAGE_NAME + ".extra.recipe.object";
+    static final String EXTRA_RECIPE_NAME = PACKAGE_NAME + ".extra.recipe.name";
+    public static final String EXTRA_RECIPE_LIST = PACKAGE_NAME + ".extra.recipe.list";
+    public static final String EXTRA_RECIPE_ID = PACKAGE_NAME + ".extra.recipe.id";
 
-    /* EXTRA Key */
-    public static final String EXTRA_RECIPE_LIST = PACKAGE_NAME + ".extra_recipe_list";
+    public static final String EXTRA_STEPS_LIST = PACKAGE_NAME + "extra.steps.list";
+    static final String EXTRA_STEP_POSITION = PACKAGE_NAME + "extra.step.position";
+    public static final String EXTRA_APP_WIDGET_ID = PACKAGE_NAME + ".extra.app.widget.ids";
 
-
-    /* App Widget Configuration Intent Action */
-    final static String ACTION_APPWIDGET_CONFIG =
+    /* Intent Actions */
+    static final String ACTION_CONNECTIVITY_CHANGE = "android.net.conn.CONNECTIVITY_CHANGE";
+    static final String ACTION_APPWIDGET_CONFIG =
             "android.appwidget.action.APPWIDGET_CONFIGURE";
 
     private Constants() {

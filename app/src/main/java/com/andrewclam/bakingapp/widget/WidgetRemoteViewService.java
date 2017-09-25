@@ -20,18 +20,21 @@
  * SOFTWARE.
  */
 
-package com.andrewclam.bakingapp.services;
+package com.andrewclam.bakingapp.widget;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.util.Log;
+import android.view.View;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
 import com.andrewclam.bakingapp.R;
-import com.andrewclam.bakingapp.models.Ingredient;
+import com.andrewclam.bakingapp.data.RecipeDbContract;
 
-import java.util.ArrayList;
+import static com.andrewclam.bakingapp.data.RecipeDbContract.IngredientEntry.COLUMN_INGREDIENT_RECIPE_KEY;
+import static com.andrewclam.bakingapp.data.RecipeDbContract.IngredientEntry.CONTENT_URI_INGREDIENT;
 
 /**
  * Created by Andrew Chi Heng Lam on 9/20/2017.
@@ -47,28 +50,36 @@ public class WidgetRemoteViewService extends RemoteViewsService {
 
     @Override
     public RemoteViewsFactory onGetViewFactory(Intent intent) {
-        Log.d(TAG, "onGetViewFactory() call received");
-        return new CollectionViewsRemoteViewFactory(this.getApplicationContext());
+        // long mRecipeId = intent.getLongExtra(EXTRA_RECIPE_ID, -1L);
+
+        long mRecipeId = Long.valueOf(intent.getData().getSchemeSpecificPart());
+
+        if (mRecipeId == -1) throw new IllegalArgumentException("Invalid Recipe id");
+        Log.d(TAG, "onGetViewFactory() call received with mRecipeId " + mRecipeId);
+        return new WidgetRemoteViewsFactory(this.getApplicationContext(), mRecipeId);
     }
 }
 
 /**
  * A RemoteViewsFactory class implementation to produce individual item RemoteViews
  * for a collection view (Ex. ListView, StackView..etc)
- *
+ * <p>
  * (Like an Adapter populating each item ViewHolder for RecyclerView, ListView etc)
  */
-class CollectionViewsRemoteViewFactory implements RemoteViewsService.RemoteViewsFactory{
+class WidgetRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     /**
      * Debug Tag
      */
-    private final static String TAG = CollectionViewsRemoteViewFactory.class.getSimpleName();
+    private final static String TAG = WidgetRemoteViewsFactory.class.getSimpleName();
 
-    private final Context mContext;
-    private ArrayList<Ingredient> mIngredients;
+    private Context mContext;
+    private long mRecipeId;
+    private Cursor mCursor;
 
-    CollectionViewsRemoteViewFactory(Context mContext) {
+    WidgetRemoteViewsFactory(Context mContext, Long mRecipeId) {
         this.mContext = mContext;
+        this.mRecipeId = mRecipeId;
+        Log.d(TAG, "WidgetRemoteViewsFactory() constructed with recipeId: " + mRecipeId);
     }
 
     @Override
@@ -80,18 +91,34 @@ class CollectionViewsRemoteViewFactory implements RemoteViewsService.RemoteViews
     public void onDataSetChanged() {
         // Implement to load cursor if using contentResolver and a SQLite database to store
         // recipe offline
-        // TODO ! get the list of ingredients using the content provider
-        Log.d(TAG, "onDataSetChanged() called with intent");
+        Log.d(TAG, "onDataSetChanged() called with mRecipeId " + mRecipeId);
+        if (mCursor != null) mCursor.close();
+        mCursor = mContext.getContentResolver().query(
+                CONTENT_URI_INGREDIENT,
+                new String[]{
+                        RecipeDbContract.IngredientEntry.COLUMN_INGREDIENT_MEASURE,
+                        RecipeDbContract.IngredientEntry.COLUMN_INGREDIENT_NAME,
+                        RecipeDbContract.IngredientEntry.COLUMN_INGREDIENT_QUANTITY
+                },
+                COLUMN_INGREDIENT_RECIPE_KEY + "=?",
+                new String[]{String.valueOf(mRecipeId)},
+                null);
+
+        if (mCursor == null || mCursor.getCount() == 0)
+        {
+            Log.e(TAG, "mCursor of the ingredient is null or empty with mRecipeId: " + mRecipeId);
+        }
     }
 
     @Override
     public void onDestroy() {
-        mIngredients.clear();
+        mCursor.close();
     }
 
     @Override
     public int getCount() {
-        return mIngredients.size();
+        if (mCursor == null) return 0;
+        return mCursor.getCount();
     }
 
     /**
@@ -103,19 +130,32 @@ class CollectionViewsRemoteViewFactory implements RemoteViewsService.RemoteViews
      */
     @Override
     public RemoteViews getViewAt(int position) {
-        // Get the ingredient at the adapter position
-        Ingredient ingredient = mIngredients.get(position);
+        Log.d(TAG,"getViewAt() called with position " + position);
 
-        if (ingredient == null) return null;
+        // Get the ingredient at the adapter position
+        if (mCursor == null || mCursor.getCount() == 0) return null;
+        mCursor.moveToPosition(position);
+
+        int ingredientMeasureIndex =
+                mCursor.getColumnIndex(RecipeDbContract.IngredientEntry.COLUMN_INGREDIENT_MEASURE);
+        int ingredientNameIndex =
+                mCursor.getColumnIndex(RecipeDbContract.IngredientEntry.COLUMN_INGREDIENT_NAME);
+        int ingredientQuantityIndex =
+                mCursor.getColumnIndex(RecipeDbContract.IngredientEntry.COLUMN_INGREDIENT_QUANTITY);
+
+        String name = mCursor.getString(ingredientNameIndex);
+        String measure = mCursor.getString(ingredientMeasureIndex);
+        double quantity = mCursor.getDouble(ingredientQuantityIndex);
 
         // Create the remote view from the list item layout file
         RemoteViews views = new RemoteViews(mContext.getPackageName(),
                 R.layout.ingredient_list_item);
 
         // UI - Bind the data to the views
-        views.setTextViewText(R.id.ingredient_name_tv,ingredient.getIngredientName());
-        views.setTextViewText(R.id.ingredient_quantity_tv,String.valueOf(ingredient.getQuantity()));
-        views.setTextViewText(R.id.ingredient_measure_tv,ingredient.getMeasure());
+        views.setTextViewText(R.id.ingredient_name_tv, name);
+        views.setTextViewText(R.id.ingredient_quantity_tv, String.valueOf(quantity));
+        views.setTextViewText(R.id.ingredient_measure_tv, measure);
+        views.setViewVisibility(R.id.list_divider, View.GONE);
 
         return views;
     }
@@ -137,8 +177,7 @@ class CollectionViewsRemoteViewFactory implements RemoteViewsService.RemoteViews
 
     @Override
     public boolean hasStableIds() {
-        return false;
+        return true;
     }
-
 
 }

@@ -34,6 +34,7 @@ import java.util.ArrayList;
 
 @Parcel(Parcel.Serialization.BEAN)
 public class Recipe {
+
     private long uid;
     private String name;
     private ArrayList<Ingredient> ingredients;

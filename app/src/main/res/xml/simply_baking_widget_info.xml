@@ -23,11 +23,11 @@
 
 <!-- TODO [Widget] Step 2 - Set MainActivity as the configure activity, using configure attr-->
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-    android:initialKeyguardLayout="@layout/widget_recipe_small"
-    android:initialLayout="@layout/widget_recipe_small"
+    android:initialKeyguardLayout="@layout/widget_recipe"
+    android:initialLayout="@layout/widget_recipe"
     android:configure="com.andrewclam.bakingapp.MainActivity"
-    android:minHeight="40dp"
-    android:minWidth="40dp"
+    android:minHeight="110dp"
+    android:minWidth="180dp"
     android:previewImage="@drawable/example_appwidget_preview"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen"

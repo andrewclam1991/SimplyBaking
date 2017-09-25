@@ -154,7 +154,6 @@ public class SyncDbIntentService extends IntentService {
      *
      * @param contentResolver contentResolver to get the proper content provider given the uri
      * @param cv the content value for the recipe, less then child table lists
-     * @return
      */
     private void insertRecipes(@NonNull ContentResolver contentResolver, ContentValues cv) {
         // use the contentResolver bulkInsert to insert all the cv values

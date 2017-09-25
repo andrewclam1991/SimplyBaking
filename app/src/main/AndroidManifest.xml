@@ -46,7 +46,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".StepListActivity"
+            android:name=".RecipeDetailActivity"
             android:label="@string/title_step_list"
             android:launchMode="singleTop"
             android:parentActivityName=".MainActivity"
@@ -55,45 +55,36 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.andrewclam.bakingapp.MainActivity" />
         </activity>
-        <activity
-            android:name=".SimpleStepDetailActivity"
-            android:label="@string/title_step_detail"
-            android:launchMode="singleTop"
-            android:parentActivityName=".StepListActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.andrewclam.bakingapp.StepListActivity" />
-        </activity>
 
         <activity
             android:name=".StepDetailActivity"
             android:label="@string/title_activity_step_detail__phone"
             android:launchMode="singleTop"
-            android:parentActivityName=".StepListActivity"
+            android:parentActivityName=".RecipeDetailActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.andrewclam.bakingapp.StepListActivity" />
+                android:value="com.andrewclam.bakingapp.RecipeDetailActivity" />
         </activity>
 
         <!-- TODO [Widget] Step 4 - Register the widget remote view service for binding remote views
         -->
         <service
-            android:name=".services.WidgetRemoteViewService"
-            android:permission="android.permission.BIND_REMOTEVIEWS" />
+            android:name="com.andrewclam.bakingapp.widget.WidgetRemoteViewService"
+            android:permission="android.permission.BIND_REMOTEVIEWS" >
+        </service>
 
         <service
-            android:name=".services.WidgetIntentService"
+            android:name=".widget.WidgetIntentService"
             android:exported="false" />
 
-        <!-- todo [Content Provider] Step 1 - Register IntentService for database operation -->
+        <!-- TODO [Content Provider] Step 1 - Register IntentService for parsing recipes to db -->
         <service
             android:name=".services.SyncDbIntentService"
             android:exported="false"/>
 
         <!-- TODO [Widget] Step 1 - Register the widget update receiver with the widget provider -->
-        <receiver android:name=".WidgetProvider">
+        <receiver android:name=".widget.WidgetProvider">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -115,7 +106,7 @@
         <provider
             android:name=".data.RecipeContentProvider"
             android:authorities="com.andrewclam.bakingapp"
-            android:exported="false" />
+            android:exported="true"/> <!-- Exported so the widget can access the provider -->
 
     </application>
 

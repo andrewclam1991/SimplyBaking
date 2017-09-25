@@ -24,13 +24,20 @@ package com.andrewclam.bakingapp;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -38,6 +45,8 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import com.andrewclam.bakingapp.asyncTasks.DbMultiTableParsingAsyncTask;
+import com.andrewclam.bakingapp.data.RecipeDbContract;
 import com.andrewclam.bakingapp.models.Ingredient;
 import com.andrewclam.bakingapp.models.Recipe;
 import com.andrewclam.bakingapp.models.Step;
@@ -48,26 +57,26 @@ import java.util.ArrayList;
 
 import static android.support.v4.app.NavUtils.navigateUpFromSameTask;
 import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE;
-import static com.andrewclam.bakingapp.StepDetailActivity.ARG_RECIPE_NAME;
-import static com.andrewclam.bakingapp.StepDetailActivity.ARG_RECIPE_STEPS_LIST;
-import static com.andrewclam.bakingapp.StepDetailActivity.ARG_RECIPE_STEP_POSITION;
-import static com.andrewclam.bakingapp.StepDetailFragment.ARG_TWO_PANE_MODE;
+import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE_ID;
+import static com.andrewclam.bakingapp.Constants.EXTRA_STEP_POSITION;
+import static com.andrewclam.bakingapp.StepDetailFragment.EXTRA_TWO_PANE_MODE;
 
 /**
  * An activity representing a list of Steps. This activity
  * has different presentations for handset and tablet-size devices. On
  * handsets, the activity presents a list of items, which when touched,
- * lead to a {@link SimpleStepDetailActivity} representing
+ * lead to a {@link StepDetailActivity} representing
  * item details. On tablets, the activity presents the list of items and
  * item details side-by-side using two vertical panes.
  */
-public class StepListActivity extends AppCompatActivity implements
-        StepDetailFragment.OnStepDetailFragmentInteraction{
+public class RecipeDetailActivity extends AppCompatActivity implements
+        StepDetailFragment.OnStepDetailFragmentInteraction,
+        LoaderManager.LoaderCallbacks<Cursor>{
 
     /**
      * Log Tag
      */
-    private static final String TAG = StepListActivity.class.getSimpleName();
+    private static final String TAG = RecipeDetailActivity.class.getSimpleName();
 
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
@@ -85,6 +94,25 @@ public class StepListActivity extends AppCompatActivity implements
      */
     private ArrayList<Step> mSteps;
 
+    /**
+     * The step that is currently selected (used in landscape mode for tablets)
+     * this is used to indicate which step the user is currently at
+     */
+    private int mSelectedPosition;
+
+    /**
+     * LoaderManager Implementation for Loading offline db data
+     * This ID will be used to identify the Loader responsible for loading our offline database. In
+     * some cases, one Activity can deal with many Loaders. However, in our case, there is only one.
+     * We will still use this ID to initialize the loader and create the loader for best practice.
+     */
+    private static final int RECIPE_DETAIL_LOADER_ID = 1688;
+
+    /**
+     * The unique id of the Recipe that this activity is displaying
+     */
+    private long mRecipeId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,14 +120,6 @@ public class StepListActivity extends AppCompatActivity implements
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        /*
-         * Get the intent extra, store the passed in recipe object
-         * The recipe object contains the list of ingredients and steps
-         */
-        if (getIntent().hasExtra(EXTRA_RECIPE)) {
-            mRecipe = Parcels.unwrap(getIntent().getParcelableExtra(EXTRA_RECIPE));
-        }
 
         if (findViewById(R.id.step_detail_container) != null) {
             // The detail container view will be present only in the
@@ -109,7 +129,38 @@ public class StepListActivity extends AppCompatActivity implements
             mTwoPane = true;
         }
 
-        /* UI Setup - Recipe Header (Activity Title, Serving and Number of Steps)*/
+        /*
+         * Get the intent extra, store the passed in recipe object
+         * The recipe object contains the list of ingredients and steps
+         */
+        if (getIntent().hasExtra(EXTRA_RECIPE)) {
+            mRecipe = Parcels.unwrap(getIntent().getParcelableExtra(EXTRA_RECIPE));
+            mRecipeId = mRecipe.getUid();
+
+            // Continue setting up the UI
+            setupRecipeDetail();
+
+        }else if(getIntent().hasExtra(EXTRA_RECIPE_ID))
+        {
+            // Get the recipeId and form the extra recipeId
+            mRecipeId = getIntent().getLongExtra(EXTRA_RECIPE_ID, -1L);
+
+            // Init the cursorLoader, handle the callback with this activity
+            // pass in the recipe id as the cursor loader argument
+            Bundle args = new Bundle();
+            args.putLong(EXTRA_RECIPE_ID,mRecipeId);
+            getSupportLoaderManager().restartLoader(RECIPE_DETAIL_LOADER_ID,args,this);
+        }
+
+    }
+
+    /**
+     * setupRecipeDetail() is fired when the mRecipe object is populated by either
+     * a direct parcel or a cursor query/parsing.
+     */
+    private void setupRecipeDetail()
+    {
+         /* UI Setup - Recipe Header (Activity Title, Serving and Number of Steps)*/
         // Show the Up button in the action bar.
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -182,8 +233,25 @@ public class StepListActivity extends AppCompatActivity implements
             Step introStep = mSteps.get(0);
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.step_detail_container,
-                            StepDetailFragment.newInstance(introStep,mTwoPane))
+                            StepDetailFragment.newInstance(
+                                    mRecipeId,
+                                    mRecipe.getName(),
+                                    0,
+                                    introStep,
+                                    mTwoPane),
+                            StepDetailFragment.TAG) // TAG used to remove
                     .commit();
+        }else
+        {
+            // (!) Bug, when TABLET switched from landscape to vertical, fragment auto launches
+            // due to system-auto-attaching activity fragment
+            // Not in two pane mode, explicitly remove the auto-attached previous fragment
+            Fragment detail = getSupportFragmentManager().findFragmentByTag(StepDetailFragment.TAG);
+            if (detail != null) {
+                getSupportFragmentManager().beginTransaction()
+                        .remove(detail)
+                        .commit();
+            }
         }
     }
 
@@ -196,6 +264,42 @@ public class StepListActivity extends AppCompatActivity implements
         if(getSupportActionBar() != null) getSupportActionBar().setTitle(title);
     }
 
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        /* Return a cursor with a particular Recipe Data from Database */
+        long recipeId = args.getLong(EXTRA_RECIPE_ID);
+        Uri recipeIdUri = RecipeDbContract.buildRecipeUriWithId(recipeId);
+
+        return new CursorLoader(this,
+                recipeIdUri,
+                null,
+                null,
+                null,
+                null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        if (data != null)
+            new DbMultiTableParsingAsyncTask()
+                    .setContentResolver(this.getContentResolver())
+                    .setCursor(data)
+                    .setListener(new DbMultiTableParsingAsyncTask.OnParsingActionComplete() {
+                        @Override
+                        public void onEntriesParsed(ArrayList<Recipe> recipes) {
+                            mRecipe = recipes.get(0);
+
+                            // Continue setting up the UI
+                            setupRecipeDetail();
+                        }
+                    }).execute();
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mRecipe = null;
+    }
+
     /**
      * Steps RecyclerView Adapter
      * use to back the recyclerView with the data, also contains an inner
@@ -205,6 +309,7 @@ public class StepListActivity extends AppCompatActivity implements
             extends RecyclerView.Adapter<StepsRecyclerViewAdapter.StepViewHolder> {
 
         private final ArrayList<Step> mSteps;
+        private SparseBooleanArray selectedItems = new SparseBooleanArray();
 
         StepsRecyclerViewAdapter(ArrayList<Step> steps) {
             mSteps = steps;
@@ -226,25 +331,16 @@ public class StepListActivity extends AppCompatActivity implements
             holder.setStepItem(step);
 
             // UI Styling
-            // FIXME [NEED ADVICE] What is the best practice to find the first/last visible item in recyclerView?
 
             // Intro-Step , Don't number it
             // Check if it is the intro-step (intro step is with id of 0)
-            if (position == 0) {
-                // Not the intro step, prepend the item with step number
-                holder.mStepIdTv.setText(getString(R.string.start));
-            }else
-            {
-                // Not the intro step, prepend the item with step number
-                holder.mStepIdTv.setText(getString(R.string.step, step.getStepNum()));
-            }
+            holder.mStepIdTv.setText(position == 0 ?
+                    getString(R.string.start):getString(R.string.step, step.getStepNum()));
 
             // Last Step, Don't show divider
             // Check if the position is at the last step
-            if (position == getItemCount() - 1)
-            {
-                holder.mItemDivider.setVisibility(View.GONE);
-            }
+            holder.mItemDivider.setVisibility(position == getItemCount() - 1 ?
+                    View.GONE: View.VISIBLE);
 
             holder.mShortDescriptionTv.setText(String.valueOf(step.getShortDescription()));
 
@@ -252,12 +348,26 @@ public class StepListActivity extends AppCompatActivity implements
             holder.mView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    int adapterPosition = holder.getAdapterPosition();
+
+                    // Highlight the step that is selected(clicked)
+                    view.setSelected(true);
+
+                    // Look for the previous view where it is highlighted in the array
+                    // call m
+                    // Save the clicked positions to the SparseBooleanArray
+                    selectedItems.put(adapterPosition,true);
+
                     if (mTwoPane) {
                         // In two pane mode, replace a fragment with the step item to show the
                         // full detail
                         getSupportFragmentManager().beginTransaction()
                                 .replace(R.id.step_detail_container,
-                                        StepDetailFragment.newInstance(holder.getStepItem(),
+                                        StepDetailFragment.newInstance(
+                                                mRecipeId,
+                                                mRecipe.getName(),
+                                                adapterPosition,
+                                                holder.getStepItem(),
                                                 mTwoPane))
                                 .commit();
                     } else {
@@ -266,10 +376,9 @@ public class StepListActivity extends AppCompatActivity implements
                         Context context = view.getContext();
 
                         Intent intent = new Intent(context, StepDetailActivity.class);
-                        intent.putExtra(ARG_RECIPE_NAME,mRecipe.getName());
-                        intent.putExtra(ARG_RECIPE_STEPS_LIST,Parcels.wrap(mSteps));
-                        intent.putExtra(ARG_RECIPE_STEP_POSITION,holder.getAdapterPosition());
-                        intent.putExtra(ARG_TWO_PANE_MODE,mTwoPane);
+                        intent.putExtra(EXTRA_RECIPE_ID,mRecipeId);
+                        intent.putExtra(EXTRA_STEP_POSITION,adapterPosition);
+                        intent.putExtra(EXTRA_TWO_PANE_MODE,mTwoPane);
 
                         context.startActivity(intent);
                     }
@@ -383,27 +492,4 @@ public class StepListActivity extends AppCompatActivity implements
             }
         }
     }
-
-    /**
-     * Package-Private getter method for the fragment to get the steps
-     * The list of steps is used for the notification pendingIntent
-     * to launch the StepDetailActivity
-     * @return the list of steps of this current recipe
-     */
-    ArrayList<Step> getSteps()
-    {
-        return mSteps;
-    }
-
-    /**
-     * Package-private getter method for the fragment to get the recipe name
-     * The recipe name is used for the notification pendingIntent
-     * to launch the StepDetailActivity
-     * @return the recipe's name
-     */
-    String getRecipeName()
-    {
-        return mRecipe.getName();
-    }
-
 }

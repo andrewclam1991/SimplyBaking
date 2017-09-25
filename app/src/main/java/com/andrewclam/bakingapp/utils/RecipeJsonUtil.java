@@ -37,11 +37,11 @@ import java.util.ArrayList;
 /**
  * Created by Andrew Chi Heng Lam on 8/19/2017.
  * <p>
- * RecipeJsonUtils contain methods to parse the JSON response into individual JSON Object, and
+ * RecipeJsonUtil contain methods to parse the JSON response into individual JSON Object, and
  * store the data in a model class (eg. recipe)
  */
 
-public final class RecipeJsonUtils {
+public final class RecipeJsonUtil {
     /* JSON Key Constants */
     private static final String RECIPE_ID = "id";
     private static final String RECIPE_NAME = "name";
@@ -62,7 +62,7 @@ public final class RecipeJsonUtils {
     private static final String RECIPE_IMAGE = "image";
 
     /* Log Tag */
-    private static final String TAG = RecipeJsonUtils.class.getSimpleName();
+    private static final String TAG = RecipeJsonUtil.class.getSimpleName();
 
     /**
      * This method parses a JSON String from a web response and returns an ArrayList of objects
@@ -107,7 +107,6 @@ public final class RecipeJsonUtils {
                 recipe.setImageURL(imageURL);
                 recipe.setIngredients(getIngredientFromRecipeJson(recipeJSON,id));
                 recipe.setSteps(getStepsFromRecipeJson(recipeJSON,id));
-
 
                 /* Add the recipe object to the list */
                 recipes.add(recipe);

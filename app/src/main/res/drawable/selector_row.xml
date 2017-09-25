@@ -21,31 +21,9 @@
   ~ SOFTWARE.
   -->
 
-<RelativeLayout android:background="@color/cardview_light_background"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/widget_small_root_view"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="@dimen/widget_margin">
-
-    <ImageView
-        android:id="@+id/widget_small_icon"
-        android:padding="8dp"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"
-        tools:src="@drawable/ic_cupcake"/>
-
-    <TextView
-        android:id="@+id/widget_small_recipe_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/widget_small_icon"
-        android:layout_centerInParent="true"
-        android:textSize="13sp"
-        android:fontFamily="sans-serif-regular"
-        tools:text="Awesome Cake" />
-
-</RelativeLayout>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Color when the row is selected -->
+    <item android:drawable="@android:color/darker_gray" android:state_pressed="false" android:state_selected="true" />
+    <!-- Standard background color -->
+    <item android:drawable="@android:color/white" android:state_selected="false" />
+</selector>
