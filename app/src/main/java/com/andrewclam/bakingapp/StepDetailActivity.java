@@ -225,7 +225,8 @@ public class StepDetailActivity extends AppCompatActivity implements
      * Implementation of the ArrayAdapter to show user a spinner dropdown of all
      * the recipe steps above the video
      */
-    private static class StepsAdapter extends ArrayAdapter<Step> implements ThemedSpinnerAdapter {
+    private static class StepsAdapter extends ArrayAdapter<Step> implements
+            ThemedSpinnerAdapter {
         private final ThemedSpinnerAdapter.Helper mDropDownHelper;
         private final Context mContext;
 

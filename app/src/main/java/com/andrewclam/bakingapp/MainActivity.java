@@ -55,6 +55,7 @@ import org.parceler.Parcels;
 import java.util.ArrayList;
 
 import static com.andrewclam.bakingapp.Constants.ACTION_APPWIDGET_CONFIG;
+import static com.andrewclam.bakingapp.Constants.ACTION_CONNECTIVITY_CHANGE;
 import static com.andrewclam.bakingapp.Constants.DATA_URL;
 import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE;
 import static com.andrewclam.bakingapp.data.RecipeDbContract.RecipeEntry.CONTENT_URI_RECIPE;
@@ -93,7 +94,6 @@ public class MainActivity extends AppCompatActivity implements
     private Context mContext;
     private NetworkChangeReceiver mNetworkChangeReceiver;
     private Snackbar mNetworkStateSnackBar;
-    private static final String ACTION_CONNECTIVITY_CHANGE = "android.net.conn.CONNECTIVITY_CHANGE";
 
     /**
      * LoaderManager Instance for Loading offline db data

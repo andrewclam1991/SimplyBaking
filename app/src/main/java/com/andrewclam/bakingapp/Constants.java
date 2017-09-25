@@ -44,9 +44,13 @@ public class Constants {
     public static final String EXTRA_STEPS_LIST = "extra.steps.list";
     public static final String EXTRA_STEP_POSITION = "extra.step.position";
 
+    public static final String ACTION_CONNECTIVITY_CHANGE = "android.net.conn.CONNECTIVITY_CHANGE";
+
     /* App Widget Configuration Intent Action */
     final static String ACTION_APPWIDGET_CONFIG =
             "android.appwidget.action.APPWIDGET_CONFIGURE";
+
+
 
     private Constants() {
     }
