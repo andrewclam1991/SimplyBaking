@@ -26,11 +26,11 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.andrewclam.bakingapp.data.RecipeDbContract.AppWidgetIdEntry;
 import com.andrewclam.bakingapp.data.RecipeDbContract.FavoriteEntry;
 import com.andrewclam.bakingapp.data.RecipeDbContract.IngredientEntry;
 import com.andrewclam.bakingapp.data.RecipeDbContract.RecipeEntry;
 import com.andrewclam.bakingapp.data.RecipeDbContract.StepEntry;
-import com.andrewclam.bakingapp.data.RecipeDbContract.AppWidgetIdEntry;
 
 
 public class RecipeDbHelper extends SQLiteOpenHelper {
@@ -120,6 +120,8 @@ public class RecipeDbHelper extends SQLiteOpenHelper {
                     RecipeDbContract.AppWidgetIdEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                     RecipeDbContract.AppWidgetIdEntry.COLUMN_APP_WIDGET_UID + " INTEGER NOT NULL, " +
                     RecipeDbContract.AppWidgetIdEntry.COLUMN_APP_WIDGET_RECIPE_KEY + " INTEGER NOT NULL, " +
+
+                    "UNIQUE (" + AppWidgetIdEntry.COLUMN_APP_WIDGET_UID + ") ON CONFLICT REPLACE " +
 
                     "FOREIGN KEY (" + AppWidgetIdEntry.COLUMN_APP_WIDGET_RECIPE_KEY + ") " +
                     "REFERENCES " + RecipeEntry.TABLE_NAME + "("+ RecipeEntry.COLUMN_RECIPE_UID + ") "

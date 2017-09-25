@@ -137,4 +137,17 @@ public class RecipeDbContract {
         String idStr = String.valueOf(recipe_id);
         return CONTENT_URI_RECIPE.buildUpon().appendPath(idStr).build();
     }
+
+    /**
+     * Easy to use helper method to build the uri that points to a specific resource
+     * <p>
+     * Recipe with given its corresponding app widget id
+     *
+     * @param appWidgetId the unique appWidgetId that is registered with the recipe
+     * @return an Uri that points to that particular movie on the user's database
+     */
+    public static Uri buildRecipeUriWithAppWidgetId(Integer appWidgetId) {
+        String idStr = String.valueOf(appWidgetId);
+        return CONTENT_URI_RECIPE.buildUpon().appendPath(PATH_APP_WIDGET_IDS).appendPath(idStr).build();
+    }
 }

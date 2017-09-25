@@ -47,6 +47,7 @@ public class RecipeContentProvider extends ContentProvider {
     // and related ints (101, 102, ..) for items in that directory.
     public static final int CODE_RECIPES = 100;
     public static final int CODE_RECIPE_WITH_ID = 101;
+    public static final int CODE_RECIPE_WITH_APP_WIDGET_ID = 102;
     public static final int CODE_INGREDIENTS = 200;
     public static final int CODE_INGREDIENT_WITH_ID = 201;
     public static final int CODE_STEPS = 300;
@@ -70,6 +71,11 @@ public class RecipeContentProvider extends ContentProvider {
 
         uriMatcher.addURI(RecipeDbContract.AUTHORITY, RecipeDbContract.PATH_RECIPES
                 + "/#", CODE_RECIPE_WITH_ID);
+
+        uriMatcher.addURI(RecipeDbContract.AUTHORITY, RecipeDbContract.PATH_RECIPES
+                + "/" + RecipeDbContract.PATH_APP_WIDGET_IDS
+                + "/#", CODE_RECIPE_WITH_APP_WIDGET_ID);
+
 
         // Ingredient Paths
         uriMatcher.addURI(RecipeDbContract.AUTHORITY, RecipeDbContract.PATH_INGREDIENTS,
@@ -179,13 +185,18 @@ public class RecipeContentProvider extends ContentProvider {
 
             case CODE_APP_WIDGET_IDS:
                 // Insert new values into the database
-                long appWidgetId = db.insert(
+                Log.d(TAG, "Insert() CODE_APP_WIDGET_IDS uri matched, uri: " + uri);
+                Log.d(TAG, "Insert() ContentValue appWidgetId: " + values.getAsLong(AppWidgetIdEntry.COLUMN_APP_WIDGET_UID));
+                Log.d(TAG, "Insert() ContentValue recipeId: " + values.getAsLong(AppWidgetIdEntry.COLUMN_APP_WIDGET_RECIPE_KEY));
+                long appWidgetRowId = db.insert(
                         AppWidgetIdEntry.TABLE_NAME,
                         null,
                         values);
 
-                if (appWidgetId > 0) {
-                    returnUri = ContentUris.withAppendedId(AppWidgetIdEntry.CONTENT_URI_APP_WIDGET_ID, appWidgetId);
+                if (appWidgetRowId > 0) {
+                    returnUri = ContentUris.withAppendedId(
+                            AppWidgetIdEntry.CONTENT_URI_APP_WIDGET_ID, appWidgetRowId);
+                    Log.d(TAG,"Insert() successfully inserted row, database row id " + appWidgetRowId);
                 } else {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 }
@@ -405,6 +416,7 @@ public class RecipeContentProvider extends ContentProvider {
                         null,
                         sortOrder);
                 break;
+
             case CODE_RECIPE_WITH_ID:
                 String id = uri.getPathSegments().get(1);
                 queryBuilder.setTables(RecipeDbContract.RecipeEntry.TABLE_NAME);
@@ -415,6 +427,49 @@ public class RecipeContentProvider extends ContentProvider {
                         null,
                         null,
                         sortOrder);
+                break;
+
+            case CODE_RECIPE_WITH_APP_WIDGET_ID:
+                Log.d(TAG, "Query() CODE_RECIPE_WITH_APP_WIDGET_ID uri matched, uri: " + uri);
+
+                String appWidgetId = uri.getLastPathSegment();
+                // Left join the recipe table with the app widget table
+                // Set the projection to have the recipe detail, and select rows that has
+                // the recipe key value matching the appWidgetId
+
+                Log.d(TAG, "Query() CODE_RECIPE_WITH_APP_WIDGET_ID appWidgetId: " + appWidgetId);
+
+                String RECIPE_WIDGET_JOIN_TABLE =
+                        RecipeEntry.TABLE_NAME +
+                        " LEFT JOIN " +
+                        AppWidgetIdEntry.TABLE_NAME +
+                        " ON " +
+                        RecipeEntry.TABLE_NAME + "." + RecipeEntry.COLUMN_RECIPE_UID +
+                        " = " +
+                        AppWidgetIdEntry.TABLE_NAME + "." +
+                        AppWidgetIdEntry.COLUMN_APP_WIDGET_RECIPE_KEY;
+
+                Log.d(TAG, "Query() Join table statement: " + RECIPE_WIDGET_JOIN_TABLE);
+
+                queryBuilder.setTables(RECIPE_WIDGET_JOIN_TABLE);
+
+                retCursor = queryBuilder.query(db,
+                        new String[]{
+                                RecipeEntry.COLUMN_RECIPE_UID,
+                                RecipeEntry.COLUMN_RECIPE_NAME,
+                                RecipeEntry.COLUMN_RECIPE_IMAGE_URL,
+                                RecipeEntry.COLUMN_RECIPE_SERVINGS
+                        },
+                        AppWidgetIdEntry.COLUMN_APP_WIDGET_UID + "=?",
+                        new String[]{appWidgetId},
+                        null,
+                        null,
+                        null
+                        );
+
+                if (retCursor == null || retCursor.getCount() == 0)
+                    Log.e(TAG, "Query() can't find the corresponding recipe with appWidgetId: "
+                            + appWidgetId);
                 break;
 
             case CODE_INGREDIENTS:
