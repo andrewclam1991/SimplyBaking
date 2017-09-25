@@ -28,6 +28,7 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -125,7 +126,17 @@ public class WidgetProvider extends AppWidgetProvider {
 
         // UI - Set intent to act as the remoteView intent
         Intent remoteViewIntent = new Intent(context, WidgetRemoteViewService.class);
-        remoteViewIntent.putExtra(EXTRA_RECIPE_ID, recipeId);
+
+        /*
+         remoteViewIntent.putExtra(EXTRA_RECIPE_ID, recipeId);
+
+        // BUG: When multiple widgets are enabled, data is duplicated
+        // FIX: Instead of putExtra, must setData with Uri, see for solution
+        // https://stackoverflow.com/questions/11350287/ongetviewfactory-only-called-once-for
+        -multiple-widgets//
+        */
+
+        remoteViewIntent.setData(Uri.fromParts("content", String.valueOf(recipeId), null));
         Log.d(TAG, "RecipeId of the ingredients passed: " + recipeId);
         views.setRemoteAdapter(R.id.widget_recipe_ingredients_list, remoteViewIntent);
 
