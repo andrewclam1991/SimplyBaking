@@ -242,7 +242,7 @@ public class MainActivity extends AppCompatActivity implements
 
         } else {
             // 2) Otherwise, should just launch the detailActivity showing the recipe's full info
-            Intent intent = new Intent(this, StepListActivity.class);
+            Intent intent = new Intent(this, RecipeDetailActivity.class);
             intent.putExtra(EXTRA_RECIPE, Parcels.wrap(recipe));
             startActivity(intent);
         }

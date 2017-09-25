@@ -46,7 +46,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".StepListActivity"
+            android:name=".RecipeDetailActivity"
             android:label="@string/title_step_list"
             android:launchMode="singleTop"
             android:parentActivityName=".MainActivity"
@@ -55,26 +55,16 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.andrewclam.bakingapp.MainActivity" />
         </activity>
-        <activity
-            android:name=".SimpleStepDetailActivity"
-            android:label="@string/title_step_detail"
-            android:launchMode="singleTop"
-            android:parentActivityName=".StepListActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.andrewclam.bakingapp.StepListActivity" />
-        </activity>
 
         <activity
             android:name=".StepDetailActivity"
             android:label="@string/title_activity_step_detail__phone"
             android:launchMode="singleTop"
-            android:parentActivityName=".StepListActivity"
+            android:parentActivityName=".RecipeDetailActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.andrewclam.bakingapp.StepListActivity" />
+                android:value="com.andrewclam.bakingapp.RecipeDetailActivity" />
         </activity>
 
         <!-- TODO [Widget] Step 4 - Register the widget remote view service for binding remote views

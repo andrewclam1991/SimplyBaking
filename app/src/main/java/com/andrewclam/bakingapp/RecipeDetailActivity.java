@@ -67,11 +67,11 @@ import static com.andrewclam.bakingapp.StepDetailFragment.ARG_TWO_PANE_MODE;
  * An activity representing a list of Steps. This activity
  * has different presentations for handset and tablet-size devices. On
  * handsets, the activity presents a list of items, which when touched,
- * lead to a {@link SimpleStepDetailActivity} representing
+ * lead to a {@link StepDetailActivity} representing
  * item details. On tablets, the activity presents the list of items and
  * item details side-by-side using two vertical panes.
  */
-public class StepListActivity extends AppCompatActivity implements
+public class RecipeDetailActivity extends AppCompatActivity implements
         StepDetailFragment.OnStepDetailFragmentInteraction,
         LoaderManager.LoaderCallbacks<Cursor>
 {
@@ -79,7 +79,7 @@ public class StepListActivity extends AppCompatActivity implements
     /**
      * Log Tag
      */
-    private static final String TAG = StepListActivity.class.getSimpleName();
+    private static final String TAG = RecipeDetailActivity.class.getSimpleName();
 
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet

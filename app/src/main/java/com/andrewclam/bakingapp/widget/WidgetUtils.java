@@ -33,7 +33,7 @@ import android.net.Uri;
 import android.widget.RemoteViews;
 
 import com.andrewclam.bakingapp.R;
-import com.andrewclam.bakingapp.StepListActivity;
+import com.andrewclam.bakingapp.RecipeDetailActivity;
 import com.andrewclam.bakingapp.data.RecipeDbContract;
 import com.squareup.picasso.Picasso;
 
@@ -95,7 +95,7 @@ public class WidgetUtils {
 
             // Data - Create the pending intent, as the widget act as the shortcut to the recipe
             // the intent should launch the stepsListActivity by default with the recipe id
-            Intent intent = new Intent(context, StepListActivity.class);
+            Intent intent = new Intent(context, RecipeDetailActivity.class);
             intent.putExtra(EXTRA_RECIPE_ID, recipeId);
             PendingIntent pendingIntent = PendingIntent.getActivity(context,
                     mAppWidgetId,

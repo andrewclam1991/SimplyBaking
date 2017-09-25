@@ -78,8 +78,8 @@ import static com.andrewclam.bakingapp.StepDetailActivity.ARG_RECIPE_STEPS_LIST;
 
 /**
  * A fragment representing a single Step detail screen.
- * This fragment is either contained in a {@link StepListActivity}
- * in two-pane mode (on tablets) or a {@link SimpleStepDetailActivity}
+ * This fragment is either contained in a {@link RecipeDetailActivity}
+ * in two-pane mode (on tablets) or a {@link StepDetailActivity}
  * on handsets.
  */
 public class StepDetailFragment extends Fragment implements Target, Player.EventListener {
@@ -420,11 +420,11 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
         // when user clicks the notification to navigate back to the current recipe)
         // 2) Get the RecipeName from the hosting activity
         ArrayList<Step> mSteps = new ArrayList<>();
-        if (mContext instanceof StepListActivity) {
+        if (mContext instanceof RecipeDetailActivity) {
             // Fragment's host activity is the master-detail two-pane activity
             // on tablet landscape mode
-            mSteps = ((StepListActivity) mContext).getSteps();
-            mRecipeName = ((StepListActivity) mContext).getRecipeName();
+            mSteps = ((RecipeDetailActivity) mContext).getSteps();
+            mRecipeName = ((RecipeDetailActivity) mContext).getRecipeName();
         } else if (mContext instanceof StepDetailActivity) {
             // Fragment's host activity is the detail activity
             mSteps = ((StepDetailActivity) mContext).getSteps();
