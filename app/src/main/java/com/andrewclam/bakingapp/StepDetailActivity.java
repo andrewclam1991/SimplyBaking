@@ -125,17 +125,6 @@ public class StepDetailActivity extends AppCompatActivity implements
                         "start in twoPane mode");
             }
         }
-
-        // TODO Remove THESE TWO below extra recipe name and steps list, as they can be populated using the
-        // cursor loader
-//        if (getIntent().hasExtra(EXTRA_RECIPE_NAME)) {
-//            mRecipeName = getIntent().getStringExtra(EXTRA_RECIPE_NAME);
-//        }
-//
-//        if (getIntent().hasExtra(EXTRA_STEPS_LIST)) {
-//            mSteps = Parcels.unwrap(getIntent().getParcelableExtra(EXTRA_STEPS_LIST));
-//        }
-
     }
 
     /**
@@ -315,28 +304,5 @@ public class StepDetailActivity extends AppCompatActivity implements
         }
     }
 
-    // todo remove the getter methods since the activities may not be created ??
-
-    /**
-     * Package-Private getter method for the fragment to get the steps
-     * The list of steps is used for the notification pendingIntent
-     * to launch the StepDetailActivity
-     * @return the list of steps of this current recipe
-     */
-    ArrayList<Step> getSteps()
-    {
-        return mSteps;
-    }
-
-    /**
-     * Package-private getter method for the fragment to get the recipe name
-     * The recipe name is used for the notification pendingIntent
-     * to launch the StepDetailActivity
-     * @return the recipe's name
-     */
-    String getRecipeName()
-    {
-        return mRecipeName;
-    }
 
 }

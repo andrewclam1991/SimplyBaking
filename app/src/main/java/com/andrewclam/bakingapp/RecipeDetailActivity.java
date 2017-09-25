@@ -58,8 +58,6 @@ import java.util.ArrayList;
 import static android.support.v4.app.NavUtils.navigateUpFromSameTask;
 import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE;
 import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE_ID;
-import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE_NAME;
-import static com.andrewclam.bakingapp.Constants.EXTRA_STEPS_LIST;
 import static com.andrewclam.bakingapp.Constants.EXTRA_STEP_POSITION;
 import static com.andrewclam.bakingapp.StepDetailFragment.EXTRA_TWO_PANE_MODE;
 
@@ -183,7 +181,6 @@ public class RecipeDetailActivity extends AppCompatActivity implements
         setupIngredientsRecyclerView(ingredientRv);
         setupStepsRecyclerView(stepsRv);
     }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -383,10 +380,6 @@ public class RecipeDetailActivity extends AppCompatActivity implements
                         intent.putExtra(EXTRA_STEP_POSITION,adapterPosition);
                         intent.putExtra(EXTRA_TWO_PANE_MODE,mTwoPane);
 
-                        // todo remove the extras recipe name and steps list
-                        intent.putExtra(EXTRA_RECIPE_NAME,mRecipe.getName());
-                        intent.putExtra(EXTRA_STEPS_LIST,Parcels.wrap(mSteps));
-
                         context.startActivity(intent);
                     }
                 }
@@ -499,30 +492,4 @@ public class RecipeDetailActivity extends AppCompatActivity implements
             }
         }
     }
-
-
-
-    // todo remove the getter methods since the activities may not be created ??
-    /**
-     * Package-Private getter method for the fragment to get the steps
-     * The list of steps is used for the notification pendingIntent
-     * to launch the StepDetailActivity
-     * @return the list of steps of this current recipe
-     */
-    ArrayList<Step> getSteps()
-    {
-        return mSteps;
-    }
-
-    /**
-     * Package-private getter method for the fragment to get the recipe name
-     * The recipe name is used for the notification pendingIntent
-     * to launch the StepDetailActivity
-     * @return the recipe's name
-     */
-    String getRecipeName()
-    {
-        return mRecipe.getName();
-    }
-
 }

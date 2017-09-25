@@ -528,7 +528,6 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
 
     }
 
-
     /**
      * A method to Release ExoPlayer resources when
      * the fragment no longer needs it.
