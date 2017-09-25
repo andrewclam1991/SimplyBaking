@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-package com.andrewclam.bakingapp.services;
+package com.andrewclam.bakingapp.widget;
 
 import android.app.IntentService;
 import android.content.Context;
@@ -97,8 +97,7 @@ public class WidgetIntentService extends IntentService{
     private void handleActionUpdateWidget() {
         // Fetch recipe from the internet
         /* Async Load Recipe Data */
-        Log.d(TAG, "handleActionUpdateWidget() called, " +
-                "calling FetchRecipeAsyncTask() to get the recipes from the web");
+        Log.d(TAG, "handleActionUpdateWidget() called");
 
         // Android 0 Requirement
         // Post a brief foreground notification, notifying the user the app is enabling widget

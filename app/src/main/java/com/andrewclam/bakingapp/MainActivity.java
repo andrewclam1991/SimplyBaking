@@ -109,9 +109,6 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        /* Check if started for and Setup AppWidget Configuration */
-        initAppWidgetConfiguration();
-
         /* Recipes List Setup */
         mRecipeRv = findViewById(R.id.recipe_list_rv);
         mAdapter = new RecipeRecyclerViewAdapter(this, this);
@@ -139,6 +136,13 @@ public class MainActivity extends AppCompatActivity implements
         /* Loading Progress Bar - Visible*/
         mProgressBar = findViewById(R.id.progress_bar);
         mProgressBar.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        /* Check if started for and Setup AppWidget Configuration */
+        initAppWidgetConfiguration();
     }
 
     @Override
@@ -234,7 +238,8 @@ public class MainActivity extends AppCompatActivity implements
         if (mStartedForAppWidgetConfig) {
             // 1) Call create AppWidget to populate the RemoteView and create the widget with
             // AppWidgetManager
-            Intent resultValue = WidgetUtils.createAppWidgetResult(this,mAppWidgetId,recipe.getUid());
+            Intent resultValue = WidgetUtils.createAppWidgetResult(
+                    MainActivity.this,mAppWidgetId,recipe.getUid());
             setResult(RESULT_OK, resultValue);
 
             // Finish the configuration activity once the result is set

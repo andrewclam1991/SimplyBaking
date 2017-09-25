@@ -20,18 +20,25 @@
  * SOFTWARE.
  */
 
-package com.andrewclam.bakingapp.services;
+package com.andrewclam.bakingapp.widget;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.util.Log;
+import android.view.View;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
 import com.andrewclam.bakingapp.R;
+import com.andrewclam.bakingapp.data.RecipeDbContract;
 import com.andrewclam.bakingapp.models.Ingredient;
 
 import java.util.ArrayList;
+
+import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE_ID;
+import static com.andrewclam.bakingapp.data.RecipeDbContract.IngredientEntry.COLUMN_INGREDIENT_RECIPE_KEY;
+import static com.andrewclam.bakingapp.data.RecipeDbContract.IngredientEntry.CONTENT_URI_INGREDIENT;
 
 /**
  * Created by Andrew Chi Heng Lam on 9/20/2017.
@@ -48,7 +55,9 @@ public class WidgetRemoteViewService extends RemoteViewsService {
     @Override
     public RemoteViewsFactory onGetViewFactory(Intent intent) {
         Log.d(TAG, "onGetViewFactory() call received");
-        return new CollectionViewsRemoteViewFactory(this.getApplicationContext());
+        long mRecipeId = intent.getLongExtra(EXTRA_RECIPE_ID,-1L);
+        if (mRecipeId == -1) throw new IllegalArgumentException("Recipe id is -1");
+        return new CollectionViewsRemoteViewFactory(this.getApplicationContext(),mRecipeId);
     }
 }
 
@@ -65,10 +74,13 @@ class CollectionViewsRemoteViewFactory implements RemoteViewsService.RemoteViews
     private final static String TAG = CollectionViewsRemoteViewFactory.class.getSimpleName();
 
     private final Context mContext;
+    private long mRecipeId;
     private ArrayList<Ingredient> mIngredients;
+    private Cursor mCursor;
 
-    CollectionViewsRemoteViewFactory(Context mContext) {
+    CollectionViewsRemoteViewFactory(Context mContext, Long mRecipeId) {
         this.mContext = mContext;
+        this.mRecipeId = mRecipeId;
     }
 
     @Override
@@ -80,18 +92,59 @@ class CollectionViewsRemoteViewFactory implements RemoteViewsService.RemoteViews
     public void onDataSetChanged() {
         // Implement to load cursor if using contentResolver and a SQLite database to store
         // recipe offline
-        // FIXME ! get the list of ingredients using the content provider
         Log.d(TAG, "onDataSetChanged() called with intent");
+
+        // Ingredient Child Table
+        // Get its cursor, select only rows with the key that equals to the id
+        try {
+            if (mCursor != null) mCursor.close();
+            mCursor = mContext.getContentResolver().query(
+                    CONTENT_URI_INGREDIENT,
+                    null,
+                    COLUMN_INGREDIENT_RECIPE_KEY + "=?",
+                    new String[]{String.valueOf(mRecipeId)},
+                    null);
+
+            mIngredients = new ArrayList<>();
+
+            // Parse the ingredients
+            if (mCursor != null) {
+                while (mCursor.moveToNext()) {
+                    Ingredient ingredient = new Ingredient();
+
+                    int ingredientUidIndex =
+                            mCursor.getColumnIndex(RecipeDbContract.IngredientEntry.COLUMN_INGREDIENT_UID);
+                    int ingredientMeasureIndex =
+                            mCursor.getColumnIndex(RecipeDbContract.IngredientEntry.COLUMN_INGREDIENT_MEASURE);
+                    int ingredientNameIndex =
+                            mCursor.getColumnIndex(RecipeDbContract.IngredientEntry.COLUMN_INGREDIENT_NAME);
+                    int ingredientQuantityIndex =
+                            mCursor.getColumnIndex(RecipeDbContract.IngredientEntry.COLUMN_INGREDIENT_QUANTITY);
+
+                    ingredient.setUid(mCursor.getString(ingredientUidIndex));
+                    ingredient.setIngredientName(mCursor.getString(ingredientNameIndex));
+                    ingredient.setMeasure(mCursor.getString(ingredientMeasureIndex));
+                    ingredient.setQuantity(mCursor.getDouble(ingredientQuantityIndex));
+
+                    mIngredients.add(ingredient);
+                }
+            }
+        }catch (Exception e)
+        {
+            Log.e(TAG,e.getLocalizedMessage());
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void onDestroy() {
-        mIngredients.clear();
+        if (mCursor != null) mCursor.close();
     }
 
     @Override
     public int getCount() {
-        return mIngredients.size();
+        if (mIngredients != null) return mIngredients.size();
+        return 0;
     }
 
     /**
@@ -116,6 +169,7 @@ class CollectionViewsRemoteViewFactory implements RemoteViewsService.RemoteViews
         views.setTextViewText(R.id.ingredient_name_tv,ingredient.getIngredientName());
         views.setTextViewText(R.id.ingredient_quantity_tv,String.valueOf(ingredient.getQuantity()));
         views.setTextViewText(R.id.ingredient_measure_tv,ingredient.getMeasure());
+        views.setViewVisibility(R.id.list_divider, View.GONE);
 
         return views;
     }
@@ -137,7 +191,7 @@ class CollectionViewsRemoteViewFactory implements RemoteViewsService.RemoteViews
 
     @Override
     public boolean hasStableIds() {
-        return false;
+        return true;
     }
 
 

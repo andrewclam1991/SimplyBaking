@@ -41,7 +41,7 @@ import static com.andrewclam.bakingapp.data.RecipeDbContract.StepEntry.CONTENT_U
  * Created by Andrew Chi Heng Lam on 9/22/2017.
  * Rudimentary implementation of a multi-table query parsing to a list of model class
  */
-
+@Deprecated
 public class RecipeDbParsingUtil {
 
     /**
@@ -50,6 +50,7 @@ public class RecipeDbParsingUtil {
      *
      * @param recipeCursor the Cursor that is returned from the query from the client's database
      */
+    @Deprecated
     public static ArrayList<Recipe> parseEntriesFromCursor (Context context, final Cursor recipeCursor) {
         final ArrayList<Recipe> entries = new ArrayList<>();
         final ContentResolver contentResolver = context.getContentResolver();

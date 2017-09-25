@@ -35,7 +35,10 @@ import android.widget.RemoteViews;
 import com.andrewclam.bakingapp.R;
 import com.andrewclam.bakingapp.RecipeDetailActivity;
 import com.andrewclam.bakingapp.data.RecipeDbContract;
+import com.andrewclam.bakingapp.models.Ingredient;
 import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
 
 import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE_ID;
 import static com.andrewclam.bakingapp.data.RecipeDbContract.AppWidgetIdEntry.CONTENT_URI_APP_WIDGET_ID;
@@ -49,8 +52,9 @@ public class WidgetUtils {
     /**
      * Private Constructor prevent instantiation
      */
-
     private WidgetUtils(){}
+
+
     /**
      * App Widget Configuration
      * <p>
@@ -66,10 +70,16 @@ public class WidgetUtils {
         // user is selecting the recipe to be displayed as the widget on the home screen
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
 
+        // Data - The vars that the widget needs
+        String recipeName;
+        Long servings;
+        String imageUrl;
+        ArrayList<Ingredient> ingredients;
+
         // Data - Query the recipe id from the database
-        Uri recipeUriId = RecipeDbContract.buildRecipeUriWithId(recipeId);
+        Uri recipeUriWithId = RecipeDbContract.buildRecipeUriWithId(recipeId);
         Cursor recipeCursor = context.getContentResolver().query(
-                recipeUriId,
+                recipeUriWithId,
                 null,
                 null,
                 null,
@@ -86,64 +96,69 @@ public class WidgetUtils {
             int recipeImageUrlColIndex =
                     recipeCursor.getColumnIndex(RecipeDbContract.RecipeEntry.COLUMN_RECIPE_IMAGE_URL);
 
-            String recipeName = recipeCursor.getString(recipeNameColIndex);
-            long servings = recipeCursor.getLong(recipeServingColIndex);
-            String imageUrl = recipeCursor.getString(recipeImageUrlColIndex);
+            recipeName = recipeCursor.getString(recipeNameColIndex);
+            servings = recipeCursor.getLong(recipeServingColIndex);
+            imageUrl = recipeCursor.getString(recipeImageUrlColIndex);
 
             // Close the cursor
             recipeCursor.close();
-
-            // Data - Create the pending intent, as the widget act as the shortcut to the recipe
-            // the intent should launch the stepsListActivity by default with the recipe id
-            Intent intent = new Intent(context, RecipeDetailActivity.class);
-            intent.putExtra(EXTRA_RECIPE_ID, recipeId);
-            PendingIntent pendingIntent = PendingIntent.getActivity(context,
-                    mAppWidgetId,
-                    intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT);
-
-            // UI - Find and Bind Views
-            RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_recipe_small);
-
-            views.setOnClickPendingIntent(R.id.widget_small_root_view, pendingIntent);
-            views.setTextViewText(R.id.widget_small_recipe_name, recipeName);
-            views.setTextViewText(R.id.widget_small_recipe_serving,
-                    context.getString(R.string.serving,servings));
-
-            // UI - Image Icon Check if recipe has an image for icon
-            if (imageUrl != null && !imageUrl.isEmpty()) {
-                // Use picasso to load the image into the remoteView
-                Picasso.with(context).load(imageUrl).into(
-                        views,
-                        R.id.widget_small_icon,
-                        new int[]{mAppWidgetId}
-                );
-            } else {
-                // default to cupcake icon
-                views.setImageViewResource(R.id.widget_small_icon, R.drawable.ic_cupcake);
-            }
-
-            /* STORE APP WIDGET ID */
-            // update appWidgetIdTable with the particular recipe in the database with the appWidgetId
-            ContentValues cv = new ContentValues();
-            cv.put(RecipeDbContract.AppWidgetIdEntry.COLUMN_APP_WIDGET_RECIPE_KEY, recipeId);
-            cv.put(RecipeDbContract.AppWidgetIdEntry.COLUMN_APP_WIDGET_UID, mAppWidgetId);
-            context.getContentResolver().insert(CONTENT_URI_APP_WIDGET_ID, cv);
-
-            // Widget Update - Use appWidgetManager to update/create the particular widget by id
-            appWidgetManager.updateAppWidget(mAppWidgetId, views);
-
-            // Send out an intent with the resulting appWidgetId, with the result OK
-            Intent resultValueIntent = new Intent();
-            resultValueIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
-
-            // return the resultValue intent
-            return resultValueIntent;
         }else
         {
             // Error
             throw new SQLException("Cursor is null, can't find the recipe in the database");
         }
+
+        // Data - Create the pending intent, as the widget act as the shortcut to the recipe
+        // the intent should launch the stepsListActivity by default with the recipe id
+        Intent intent = new Intent(context, RecipeDetailActivity.class);
+        intent.putExtra(EXTRA_RECIPE_ID, recipeId);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context,
+                mAppWidgetId,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
+        // UI - Find and Bind Views
+        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_recipe);
+
+        views.setOnClickPendingIntent(R.id.widget_small_root_view, pendingIntent);
+        views.setTextViewText(R.id.widget_small_recipe_name, recipeName);
+        views.setTextViewText(R.id.widget_recipe_serving, context.getString(R.string.serving,servings));
+
+        // UI - Set intent to act as the remoteView intent
+        Intent remoteViewIntent = new Intent(context, WidgetRemoteViewService.class);
+        remoteViewIntent.putExtra(EXTRA_RECIPE_ID,recipeId);
+        views.setRemoteAdapter(R.id.widget_recipe_ingredients_list,remoteViewIntent);
+
+        // UI - Image Icon Check if recipe has an image for icon
+        if (imageUrl != null && !imageUrl.isEmpty()) {
+            // Use picasso to load the image into the remoteView
+            Picasso.with(context).load(imageUrl).into(
+                    views,
+                    R.id.widget_icon,
+                    new int[]{mAppWidgetId}
+            );
+        } else {
+            // default to cupcake icon
+            views.setImageViewResource(R.id.widget_icon, R.drawable.ic_cupcake);
+        }
+
+        /* STORE APP WIDGET ID */
+        // update appWidgetIdTable with the particular recipe in the database with the appWidgetId
+        ContentValues cv = new ContentValues();
+        cv.put(RecipeDbContract.AppWidgetIdEntry.COLUMN_APP_WIDGET_RECIPE_KEY, recipeId);
+        cv.put(RecipeDbContract.AppWidgetIdEntry.COLUMN_APP_WIDGET_UID, mAppWidgetId);
+        context.getContentResolver().insert(CONTENT_URI_APP_WIDGET_ID, cv);
+
+        // Widget Update - Use appWidgetManager to update/create the particular widget by id
+        appWidgetManager.updateAppWidget(mAppWidgetId, views);
+        appWidgetManager.notifyAppWidgetViewDataChanged(mAppWidgetId,R.id.widget_recipe_ingredients_list);
+
+        // Send out an intent with the resulting appWidgetId, with the result OK
+        Intent resultValueIntent = new Intent();
+        resultValueIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
+
+        // return the resultValue intent
+        return resultValueIntent;
     }
 
     public static RemoteViews updateAppWidget()
