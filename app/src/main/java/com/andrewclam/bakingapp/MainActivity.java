@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements
      */
     private Context mContext;
     private NetworkChangeReceiver mNetworkChangeReceiver;
-    private Snackbar mNetworkDisconnectedSnackbar;
+    private Snackbar mNetworkStateSnackBar;
     private static final String ACTION_CONNECTIVITY_CHANGE = "android.net.conn.CONNECTIVITY_CHANGE";
 
     /**
@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements
         mRecipeRv.setLayoutManager(mLayoutManager);
 
         /* Create a Snack bar to show network disconnected (if it is) */
-        mNetworkDisconnectedSnackbar = Snackbar.make(
+        mNetworkStateSnackBar = Snackbar.make(
                 rootView,
                 getString(R.string.network_unavailable),
                 Snackbar.LENGTH_INDEFINITE);
@@ -188,8 +188,8 @@ public class MainActivity extends AppCompatActivity implements
                             .execute();
 
                      /* Show network is now connected from being connected*/
-                     // dismiss the disconnected snackbar
-                    if (mNetworkDisconnectedSnackbar != null) mNetworkDisconnectedSnackbar.dismiss();
+                     // dismiss the disconnected snack bar
+                    if (mNetworkStateSnackBar != null) mNetworkStateSnackBar.dismiss();
 
                 } else {
                     /* Disconnected */
@@ -198,7 +198,7 @@ public class MainActivity extends AppCompatActivity implements
                             MainActivity.this);
 
                     /* Show network is now disconnected from being connected*/
-                    if (mNetworkDisconnectedSnackbar != null) mNetworkDisconnectedSnackbar.show();
+                    if (mNetworkStateSnackBar != null) mNetworkStateSnackBar.show();
                 }
             }
         }
@@ -234,7 +234,7 @@ public class MainActivity extends AppCompatActivity implements
         if (mStartedForAppWidgetConfig) {
             // 1) Call create AppWidget to populate the RemoteView and create the widget with
             // AppWidgetManager
-            Intent resultValue = WidgetUtils.createAppWidgetResult(this,mAppWidgetId,recipe);
+            Intent resultValue = WidgetUtils.createAppWidgetResult(this,mAppWidgetId,recipe.getUid());
             setResult(RESULT_OK, resultValue);
 
             // Finish the configuration activity once the result is set

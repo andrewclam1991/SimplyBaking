@@ -118,7 +118,7 @@ public class RecipeDbContract {
 
     public static final class AppWidgetIdEntry implements BaseColumns{
         public static final Uri CONTENT_URI_APP_WIDGET_ID =
-                BASE_CONTENT_URI.buildUpon().appendPath(PATH_FAVORITES).build();
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH_APP_WIDGET_IDS).build();
 
         public static final String TABLE_NAME = "app_widget_ids";
         public static final String COLUMN_APP_WIDGET_UID = "app_widget_uid";

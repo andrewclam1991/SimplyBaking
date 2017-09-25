@@ -30,6 +30,7 @@ import com.andrewclam.bakingapp.data.RecipeDbContract.FavoriteEntry;
 import com.andrewclam.bakingapp.data.RecipeDbContract.IngredientEntry;
 import com.andrewclam.bakingapp.data.RecipeDbContract.RecipeEntry;
 import com.andrewclam.bakingapp.data.RecipeDbContract.StepEntry;
+import com.andrewclam.bakingapp.data.RecipeDbContract.AppWidgetIdEntry;
 
 
 public class RecipeDbHelper extends SQLiteOpenHelper {
@@ -112,6 +113,21 @@ public class RecipeDbHelper extends SQLiteOpenHelper {
 
                     + " )";
 
+    // Create a table to hold the app widget id data
+    private final static String SQL_CREATE_APP_WIDGET_ID_TABLE =
+            "CREATE TABLE " +
+                    RecipeDbContract.AppWidgetIdEntry.TABLE_NAME + " (" +
+                    RecipeDbContract.AppWidgetIdEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    RecipeDbContract.AppWidgetIdEntry.COLUMN_APP_WIDGET_UID + " INTEGER NOT NULL, " +
+                    RecipeDbContract.AppWidgetIdEntry.COLUMN_APP_WIDGET_RECIPE_KEY + " INTEGER NOT NULL, " +
+
+                    "FOREIGN KEY (" + AppWidgetIdEntry.COLUMN_APP_WIDGET_RECIPE_KEY + ") " +
+                    "REFERENCES " + RecipeEntry.TABLE_NAME + "("+ RecipeEntry.COLUMN_RECIPE_UID + ") "
+                    + "ON UPDATE NO ACTION "
+                    + "ON DELETE SET NULL "
+
+                    + " )";
+
     // Constructor
     public RecipeDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -122,7 +138,8 @@ public class RecipeDbHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(SQL_CREATE_RECIPES_TABLE);
         sqLiteDatabase.execSQL(SQL_CREATE_INGREDIENTS_TABLE);
         sqLiteDatabase.execSQL(SQL_CREATE_STEPS_TABLE);
-//        sqLiteDatabase.execSQL(SQL_CREATE_FAVORITE_TABLE);
+        sqLiteDatabase.execSQL(SQL_CREATE_FAVORITE_TABLE);
+        sqLiteDatabase.execSQL(SQL_CREATE_APP_WIDGET_ID_TABLE);
     }
 
     @Override
@@ -134,6 +151,11 @@ public class RecipeDbHelper extends SQLiteOpenHelper {
                 RecipeDbContract.IngredientEntry.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " +
                 RecipeDbContract.StepEntry.TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " +
+                RecipeDbContract.FavoriteEntry.TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " +
+                RecipeDbContract.AppWidgetIdEntry.TABLE_NAME);
+
         onCreate(sqLiteDatabase);
     }
 }

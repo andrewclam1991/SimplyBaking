@@ -34,9 +34,11 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.andrewclam.bakingapp.data.RecipeDbContract.AppWidgetIdEntry;
 import com.andrewclam.bakingapp.data.RecipeDbContract.IngredientEntry;
 import com.andrewclam.bakingapp.data.RecipeDbContract.RecipeEntry;
 import com.andrewclam.bakingapp.data.RecipeDbContract.StepEntry;
+import com.andrewclam.bakingapp.data.RecipeDbContract.FavoriteEntry;
 
 public class RecipeContentProvider extends ContentProvider {
 
@@ -49,6 +51,8 @@ public class RecipeContentProvider extends ContentProvider {
     public static final int CODE_INGREDIENT_WITH_ID = 201;
     public static final int CODE_STEPS = 300;
     public static final int CODE_STEP_WITH_ID = 301;
+    public static final int CODE_FAVORITES = 400;
+    public static final int CODE_APP_WIDGET_IDS = 500;
 
     // Declare a static variable for the Uri matcher that you construct
     private static final UriMatcher sUriMatcher = buildUriMatcher();
@@ -80,6 +84,15 @@ public class RecipeContentProvider extends ContentProvider {
 
         uriMatcher.addURI(RecipeDbContract.AUTHORITY, RecipeDbContract.PATH_STEPS
                 + "/#", CODE_STEP_WITH_ID);
+
+        // Favorite Paths
+        uriMatcher.addURI(RecipeDbContract.AUTHORITY, RecipeDbContract.PATH_FAVORITES,
+                CODE_FAVORITES);
+
+        // App Widget
+        uriMatcher.addURI(RecipeDbContract.AUTHORITY, RecipeDbContract.PATH_APP_WIDGET_IDS,
+                CODE_APP_WIDGET_IDS);
+
         return uriMatcher;
     }
 
@@ -145,6 +158,34 @@ public class RecipeContentProvider extends ContentProvider {
 
                 if (stepId > 0) {
                     returnUri = ContentUris.withAppendedId(StepEntry.CONTENT_URI_STEP, stepId);
+                } else {
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                }
+                break;
+
+            case CODE_FAVORITES:
+                // Insert new values into the database
+                long favoriteId = db.insert(
+                        FavoriteEntry.TABLE_NAME,
+                        null,
+                        values);
+
+                if (favoriteId > 0) {
+                    returnUri = ContentUris.withAppendedId(FavoriteEntry.CONTENT_URI_FAVORITE, favoriteId);
+                } else {
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                }
+                break;
+
+            case CODE_APP_WIDGET_IDS:
+                // Insert new values into the database
+                long appWidgetId = db.insert(
+                        AppWidgetIdEntry.TABLE_NAME,
+                        null,
+                        values);
+
+                if (appWidgetId > 0) {
+                    returnUri = ContentUris.withAppendedId(AppWidgetIdEntry.CONTENT_URI_APP_WIDGET_ID, appWidgetId);
                 } else {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 }
@@ -369,7 +410,7 @@ public class RecipeContentProvider extends ContentProvider {
                 queryBuilder.setTables(RecipeDbContract.RecipeEntry.TABLE_NAME);
                 retCursor = queryBuilder.query(db,
                         projection,
-                        "_id=?",
+                        RecipeEntry.COLUMN_RECIPE_UID + "=?",
                         new String[]{id},
                         null,
                         null,
@@ -388,6 +429,26 @@ public class RecipeContentProvider extends ContentProvider {
 
             case CODE_STEPS:
                 retCursor = db.query(StepEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder);
+                break;
+
+            case CODE_FAVORITES:
+                retCursor = db.query(FavoriteEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder);
+                break;
+
+            case CODE_APP_WIDGET_IDS:
+                retCursor = db.query(AppWidgetIdEntry.TABLE_NAME,
                         projection,
                         selection,
                         selectionArgs,

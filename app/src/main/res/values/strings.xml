@@ -37,10 +37,10 @@
     <string name="media_notification_description">Current Recipe Step Notification</string>
     <string name="exoplayer_playback_error">Unable to play the video, please try again later</string>
     <string name="start">Start</string>
-    <string name="num_steps">%1$d steps</string>
+    <string name="num_steps">%1$d Steps</string>
     <string name="syncing_widget">Syncing Widget. Please Wait</string>
     <string name="download_notification_description">Recipe Download Notification</string>
     <string name="app_widget_select_recipe_title">Select Recipe</string>
     <string name="data_unavailable">No recipes available</string>
-    <string name="network_unavailable">Network Unavailable, Recipes may not be up-to-date</string>
+    <string name="network_unavailable">Device Offline. Recipes may not be up-to-date</string>
 </resources>

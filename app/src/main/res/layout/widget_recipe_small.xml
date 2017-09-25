@@ -43,9 +43,19 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/widget_small_icon"
-        android:layout_centerInParent="true"
+        android:layout_centerHorizontal="true"
         android:textSize="13sp"
         android:fontFamily="sans-serif-regular"
         tools:text="Awesome Cake" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/widget_small_recipe_serving"
+        android:layout_below="@+id/widget_small_recipe_name"
+        android:layout_centerHorizontal="true"
+        android:textSize="13sp"
+        android:fontFamily="sans-serif-regular"
+        tools:text="Serves 8"/>
 
 </RelativeLayout>
