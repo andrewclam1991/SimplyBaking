@@ -37,7 +37,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -91,7 +90,6 @@ public class MainActivity extends AppCompatActivity implements
     /**
      * Broadcast Receiver to listen to Network State Change broadcasts
      */
-    private Context mContext;
     private NetworkChangeReceiver mNetworkChangeReceiver;
     private Snackbar mNetworkStateSnackBar;
 
@@ -153,21 +151,15 @@ public class MainActivity extends AppCompatActivity implements
         mNetworkChangeReceiver = new NetworkChangeReceiver();
 
         // Register the receiver with this Activity
-        mContext = MainActivity.this;
-        mContext.registerReceiver(
-                mNetworkChangeReceiver,
-                new IntentFilter(ACTION_CONNECTIVITY_CHANGE));
+        registerReceiver(mNetworkChangeReceiver, new IntentFilter(ACTION_CONNECTIVITY_CHANGE));
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         // Cleanup, unregister the dynamic broadcast receiver with context
-        if (mContext != null)
-        {
-            mContext.unregisterReceiver(mNetworkChangeReceiver);
-            mNetworkChangeReceiver = null;
-        }
+        unregisterReceiver(mNetworkChangeReceiver);
+        mNetworkChangeReceiver = null;
     }
 
     /**
@@ -218,8 +210,6 @@ public class MainActivity extends AppCompatActivity implements
     public void onRecipesReady(ArrayList<Recipe> recipes) {
         // Call intent service to update the database with the latest recipes
         SyncDbIntentService.syncRecipes(this, recipes);
-
-        Log.d(TAG,"recipe size: " + recipes.size());
 
         mAdapter.setRecipeData(recipes);
         mAdapter.notifyDataSetChanged();
