@@ -29,6 +29,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.andrewclam.bakingapp.data.RecipeDbContract;
+import com.andrewclam.bakingapp.espresso.SimpleIdlingResource;
 import com.andrewclam.bakingapp.models.Ingredient;
 import com.andrewclam.bakingapp.models.Recipe;
 import com.andrewclam.bakingapp.models.Step;
@@ -62,6 +63,10 @@ public class DbMultiTableParsingAsyncTask extends AsyncTask<Void, Void, ArrayLis
     /* Data cursor for parsing*/
     private Cursor mCursor;
 
+    /* Idling Resource */
+    // for Espresso Test to know when the device completes network or other long transactions
+    private SimpleIdlingResource mIdlingResource;
+
     /**
      * No-args constructor
      */
@@ -87,9 +92,27 @@ public class DbMultiTableParsingAsyncTask extends AsyncTask<Void, Void, ArrayLis
         return this;
     }
 
+    public DbMultiTableParsingAsyncTask setIdlingResource(SimpleIdlingResource mIdlingResource)
+    {
+        this.mIdlingResource = mIdlingResource;
+        return this;
+    }
+
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
+        /**
+         * The IdlingResource is null in production as set by the @Nullable annotation which means
+         * the value is allowed to be null.
+         *
+         * If the idle state is true, Espresso can perform the next action.
+         * If the idle state is false, Espresso will wait until it is true before
+         * performing the next action.
+         */
+        if (mIdlingResource != null) {
+            mIdlingResource.setIdleState(false);
+        }
+
         // Check for required parameter before doInBackground
         String msg = "";
         boolean hasError = false;
@@ -169,6 +192,14 @@ public class DbMultiTableParsingAsyncTask extends AsyncTask<Void, Void, ArrayLis
     protected void onPostExecute(ArrayList<Recipe> recipes) {
         super.onPostExecute(recipes);
         if (mListener != null) mListener.onEntriesParsed(recipes);
+
+        /**
+         * set the idle state to true, this tells the test unit that the
+         * device is now idle
+         */
+        if (mIdlingResource != null) {
+            mIdlingResource.setIdleState(true);
+        }
     }
 
     /**

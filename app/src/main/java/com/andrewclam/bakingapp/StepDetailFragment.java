@@ -221,8 +221,8 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
         setupTitle(savedInstanceState);
 
         // Reference View and run assertion checks before proceeding
-        TextView stepDescriptionTv = rootView.findViewById(R.id.step_detail);
-        ImageView stepThumbnailIv = rootView.findViewById(R.id.step_thumbnail);
+        TextView stepDescriptionTv = rootView.findViewById(R.id.step_detail_description_tv);
+        ImageView stepThumbnailIv = rootView.findViewById(R.id.step_detail_thumbnail_iv);
         mExoPlayerView = rootView.findViewById(R.id.step_video_player_view);
 
         if (BuildConfig.DEBUG) {

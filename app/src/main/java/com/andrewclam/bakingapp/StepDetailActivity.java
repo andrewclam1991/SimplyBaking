@@ -28,6 +28,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
@@ -46,6 +48,7 @@ import android.widget.TextView;
 
 import com.andrewclam.bakingapp.asyncTasks.DbMultiTableParsingAsyncTask;
 import com.andrewclam.bakingapp.data.RecipeDbContract;
+import com.andrewclam.bakingapp.espresso.SimpleIdlingResource;
 import com.andrewclam.bakingapp.models.Recipe;
 import com.andrewclam.bakingapp.models.Step;
 import com.google.android.exoplayer2.ui.BuildConfig;
@@ -137,7 +140,7 @@ public class StepDetailActivity extends AppCompatActivity implements
         mStepsAdapter = new StepsAdapter(this,mSteps);
 
         // Setup spinner
-        Spinner spinner = findViewById(R.id.spinner);
+        Spinner spinner = findViewById(R.id.steps_spinner);
         spinner.setAdapter(mStepsAdapter);
 
         // Select spinner to the parameter step position
@@ -194,6 +197,7 @@ public class StepDetailActivity extends AppCompatActivity implements
             new DbMultiTableParsingAsyncTask()
                     .setContentResolver(this.getContentResolver())
                     .setCursor(data)
+                    .setIdlingResource(mIdlingResource)
                     .setListener(new DbMultiTableParsingAsyncTask.OnParsingActionComplete() {
                         @Override
                         public void onEntriesParsed(ArrayList<Recipe> recipes) {
@@ -305,5 +309,25 @@ public class StepDetailActivity extends AppCompatActivity implements
         }
     }
 
+    /**
+     * Espresso Test for idlingResource
+     */
+    // The Idling Resource which will be null in production.
+    @Nullable
+    private SimpleIdlingResource mIdlingResource;
+
+    /**
+     * For testing purposes to indicate whether the device is at an idle state
+     * (no pending network transactions, downloads or other long running operations)
+     * creates and returns a new {@link SimpleIdlingResource}.
+     */
+    @VisibleForTesting
+    @NonNull
+    public SimpleIdlingResource getIdlingResource() {
+        if (mIdlingResource == null) {
+            mIdlingResource = new SimpleIdlingResource();
+        }
+        return mIdlingResource;
+    }
 
 }

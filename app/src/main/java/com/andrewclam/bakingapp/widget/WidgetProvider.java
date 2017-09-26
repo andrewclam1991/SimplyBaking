@@ -150,7 +150,7 @@ public class WidgetProvider extends AppWidgetProvider {
             );
         } else {
             // default to cupcake icon
-            views.setImageViewResource(R.id.widget_icon, R.drawable.ic_cupcake);
+            views.setImageViewResource(R.id.widget_icon, R.drawable.ic_cupcake_full_color);
         }
 
         return views;
