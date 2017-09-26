@@ -517,7 +517,7 @@ public class RecipeContentProvider extends ContentProvider {
         }
 
         // Set a notification URI on the Cursor and return that Cursor
-        if (getContext() != null) {
+        if (getContext() != null && retCursor != null) {
             retCursor.setNotificationUri(getContext().getContentResolver(), uri);
         }
 

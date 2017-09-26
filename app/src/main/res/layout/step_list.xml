@@ -38,11 +38,12 @@
             style="@style/ListLabelContainerStyle"
             android:orientation="horizontal">
 
-            <!-- Recipe Ingredients Icon-->
+            <!-- Recipe Steps Icon-->
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="16dp"
+                android:contentDescription="@string/step_icon"
                 app:srcCompat="@drawable/ic_direction_make" />
 
             <LinearLayout

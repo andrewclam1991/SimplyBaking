@@ -42,4 +42,6 @@
     <string name="app_widget_select_recipe_title">Select Recipe</string>
     <string name="data_unavailable">No recipes available</string>
     <string name="network_unavailable">Device Offline. Recipes may not be up-to-date</string>
+    <string name="recipe_thumbnail">Recipe image thumbnail</string>
+    <string name="step_icon">Step icon</string>
 </resources>

@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (c) 2017 Andrew Chi Heng Lam
   ~
   ~ Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,65 +20,60 @@
   ~ SOFTWARE.
   -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="@color/cardview_light_background"
     android:id="@+id/widget_small_root_view"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/cardview_light_background"
+    android:orientation="vertical"
     android:padding="@dimen/widget_margin">
 
+    <!-- Recipe Ingredients Label -->
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        style="@style/ListLabelContainerStyle"
+        android:orientation="horizontal"
+        android:paddingTop="0dp">
 
-        <!-- Recipe Ingredients Label -->
+        <!-- Recipe Ingredients Icon-->
+        <ImageView
+            android:id="@+id/widget_icon"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_margin="16dp"
+            android:contentDescription="@string/ingredients"
+            tools:src="@drawable/ic_cupcake_full_color" />
+
         <LinearLayout
-            style="@style/ListLabelContainerStyle"
-            android:paddingTop="0dp"
-            android:orientation="horizontal">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:orientation="vertical">
 
-            <!-- Recipe Ingredients Icon-->
-            <ImageView
-                android:id="@+id/widget_icon"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_margin="16dp"
-                tools:src="@drawable/ic_cupcake_full_color" />
+            <!-- Recipe Steps Title-->
+            <TextView
+                android:id="@+id/widget_small_recipe_name"
+                style="@style/ListLabelTitleStyle"
+                tools:text="Amazing Cake" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:orientation="vertical">
-
-                <!-- Recipe Steps Title-->
-                <TextView
-                    style="@style/ListLabelTitleStyle"
-                    tools:text="Amazing Cake"
-                    android:id="@+id/widget_small_recipe_name"/>
-
-                <!-- Recipe Steps SubTitle-->
-                <TextView
-                    style="@style/ListLabelTitleSubStyle"
-                    android:id="@+id/widget_recipe_serving"
-                    tools:text="Serves 8" />
-
-            </LinearLayout>
+            <!-- Recipe Steps SubTitle-->
+            <TextView
+                android:id="@+id/widget_recipe_serving"
+                style="@style/ListLabelTitleSubStyle"
+                tools:text="Serves 8" />
 
         </LinearLayout>
 
-        <!-- Recipe Ingredients List -->
-        <ListView
-            android:id="@+id/widget_recipe_ingredients_list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="@dimen/list_padding_top"
-            android:paddingBottom="@dimen/list_padding_bottom"
-            tools:listitem="@layout/ingredient_list_item" />
-
     </LinearLayout>
 
+    <!-- Recipe Ingredients List -->
+    <ListView
+        android:id="@+id/widget_recipe_ingredients_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="@dimen/list_padding_bottom"
+        android:paddingTop="@dimen/list_padding_top"
+        tools:listitem="@layout/ingredient_list_item" />
 
-</RelativeLayout>
+</LinearLayout>
+

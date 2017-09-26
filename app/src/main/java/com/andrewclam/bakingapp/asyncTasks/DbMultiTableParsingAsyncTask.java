@@ -101,13 +101,13 @@ public class DbMultiTableParsingAsyncTask extends AsyncTask<Void, Void, ArrayLis
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-        /**
-         * The IdlingResource is null in production as set by the @Nullable annotation which means
-         * the value is allowed to be null.
-         *
-         * If the idle state is true, Espresso can perform the next action.
-         * If the idle state is false, Espresso will wait until it is true before
-         * performing the next action.
+        /*
+          The IdlingResource is null in production as set by the @Nullable annotation which means
+          the value is allowed to be null.
+
+          If the idle state is true, Espresso can perform the next action.
+          If the idle state is false, Espresso will wait until it is true before
+          performing the next action.
          */
         if (mIdlingResource != null) {
             mIdlingResource.setIdleState(false);
@@ -193,9 +193,9 @@ public class DbMultiTableParsingAsyncTask extends AsyncTask<Void, Void, ArrayLis
         super.onPostExecute(recipes);
         if (mListener != null) mListener.onEntriesParsed(recipes);
 
-        /**
-         * set the idle state to true, this tells the test unit that the
-         * device is now idle
+        /*
+          set the idle state to true, this tells the test unit that the
+          device is now idle
          */
         if (mIdlingResource != null) {
             mIdlingResource.setIdleState(true);
