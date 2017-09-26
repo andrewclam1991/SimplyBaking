@@ -25,6 +25,7 @@ package com.andrewclam.bakingapp.asyncTasks;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.andrewclam.bakingapp.espresso.SimpleIdlingResource;
 import com.andrewclam.bakingapp.models.Recipe;
 import com.andrewclam.bakingapp.utils.NetworkUtils;
 import com.andrewclam.bakingapp.utils.RecipeJsonUtil;
@@ -52,6 +53,10 @@ public class FetchRecipeAsyncTask extends AsyncTask<Void, Void, ArrayList<Recipe
     /* String of the URL to get the recipe */
     private String mDataURL;
 
+    /* Idling Resource */
+    // for Espresso Test to know when the device completes network or other long transactions
+    private SimpleIdlingResource mIdlingResource;
+
     /* No-args default constructor */
     public FetchRecipeAsyncTask() {
     }
@@ -67,9 +72,27 @@ public class FetchRecipeAsyncTask extends AsyncTask<Void, Void, ArrayList<Recipe
         return this;
     }
 
+    public FetchRecipeAsyncTask setIdlingResource(SimpleIdlingResource mIdlingResource)
+    {
+        this.mIdlingResource = mIdlingResource;
+        return this;
+    }
+
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
+        /**
+         * The IdlingResource is null in production as set by the @Nullable annotation which means
+         * the value is allowed to be null.
+         *
+         * If the idle state is true, Espresso can perform the next action.
+         * If the idle state is false, Espresso will wait until it is true before
+         * performing the next action.
+         */
+        if (mIdlingResource != null) {
+            mIdlingResource.setIdleState(false);
+        }
+
         // Check for required parameter before doInBackground
         String msg = "";
         boolean hasError = false;
@@ -129,6 +152,14 @@ public class FetchRecipeAsyncTask extends AsyncTask<Void, Void, ArrayList<Recipe
     protected void onPostExecute(ArrayList<Recipe> recipes) {
         super.onPostExecute(recipes);
         if (mListener != null) mListener.onRecipesReady(recipes);
+
+        /**
+         * set the idle state to true, this tells the test unit that the
+         * device is now idle
+         */
+        if (mIdlingResource != null) {
+            mIdlingResource.setIdleState(true);
+        }
     }
 
     /**

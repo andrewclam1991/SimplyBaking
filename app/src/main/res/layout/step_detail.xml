@@ -57,7 +57,7 @@
 
             <!-- Recipe Image (If Available) -->
             <ImageView
-                android:id="@+id/step_thumbnail"
+                android:id="@+id/step_detail_thumbnail_iv"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:contentDescription="@string/step_image_thumbnail"
@@ -65,7 +65,7 @@
 
             <!-- Recipe Description -->
             <TextView
-                android:id="@+id/step_detail"
+                android:id="@+id/step_detail_description_tv"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="16dp"

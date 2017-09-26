@@ -75,14 +75,7 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    androidTestCompile('com.android.support.test.espresso:espresso-core:3.0.1', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
-
-    androidTestCompile('com.android.support.test.espresso:espresso-intents:3.0.1', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
-
+    compile 'com.android.support.test.espresso:espresso-idling-resource:3.0.1'
     compile 'com.android.support:support-annotations:26.0.1'
     compile 'com.android.support:appcompat-v7:26.0.1'
     compile 'com.android.support:design:26.0.1'
@@ -97,4 +90,30 @@ dependencies {
 
     testCompile 'junit:junit:4.12'
     annotationProcessor 'org.parceler:parceler:1.1.9'
+
+
+    androidTestCompile('com.android.support.test.espresso:espresso-core:3.0.1', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+
+    androidTestCompile('com.android.support.test.espresso:espresso-intents:3.0.1', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+
+    androidTestCompile ('com.android.support.test.espresso:espresso-contrib:3.0.1'){
+        exclude group: 'com.android.support', module: 'appcompat-v7'
+        exclude group: 'com.android.support', module: 'support-v4'
+        exclude group: 'com.android.support', module: 'design'
+        exclude group: 'com.android.support', module: 'transition'
+        exclude group: 'com.android.support', module: 'support-annotations'
+        exclude module: 'recyclerview-v7'
+    }
+
+    androidTestCompile ('com.android.support.test:runner:1.0.1', {
+        exclude module: 'support-annotations'
+    })
+
+    androidTestCompile ('com.android.support.test:rules:1.0.1' , {
+        exclude module: 'support-annotations'
+    })
 }

@@ -29,6 +29,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -44,6 +47,7 @@ import android.widget.Toast;
 import com.andrewclam.bakingapp.adapters.RecipeRecyclerViewAdapter;
 import com.andrewclam.bakingapp.asyncTasks.DbMultiTableParsingAsyncTask;
 import com.andrewclam.bakingapp.asyncTasks.FetchRecipeAsyncTask;
+import com.andrewclam.bakingapp.espresso.SimpleIdlingResource;
 import com.andrewclam.bakingapp.models.Recipe;
 import com.andrewclam.bakingapp.services.SyncDbIntentService;
 import com.andrewclam.bakingapp.utils.NetworkUtils;
@@ -134,19 +138,21 @@ public class MainActivity extends AppCompatActivity implements
         /* Loading Progress Bar - Visible*/
         mProgressBar = findViewById(R.id.progress_bar);
         mProgressBar.setVisibility(View.VISIBLE);
-    }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        /* Check if started for and Setup AppWidget Configuration */
-        initAppWidgetConfiguration();
+        // Get the IdlingResource instance
+        getIdlingResource();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+        /* Check if started for and Setup AppWidget Configuration */
+        initAppWidgetConfiguration();
+
         /* Monitor Network State Connection Changes */
+        // Once the network state is determined, the network call/database operation would
+        // be executed in the broadcast receiver onReceive callback
+
         // Create the networkChangeReceiver
         mNetworkChangeReceiver = new NetworkChangeReceiver();
 
@@ -181,6 +187,7 @@ public class MainActivity extends AppCompatActivity implements
                     new FetchRecipeAsyncTask()
                             .setDataURL(DATA_URL)
                             .setListener(MainActivity.this)
+                            .setIdlingResource(mIdlingResource)
                             .execute();
 
                      /* Show network is now connected from being connected*/
@@ -295,6 +302,7 @@ public class MainActivity extends AppCompatActivity implements
             new DbMultiTableParsingAsyncTask()
                     .setContentResolver(this.getContentResolver())
                     .setCursor(data)
+                    .setIdlingResource(mIdlingResource)
                     .setListener(new DbMultiTableParsingAsyncTask.OnParsingActionComplete() {
                         @Override
                         public void onEntriesParsed(ArrayList<Recipe> recipes) {
@@ -323,5 +331,26 @@ public class MainActivity extends AppCompatActivity implements
          * displaying the data.
          */
         mAdapter.setRecipeData(null);
+    }
+
+    /**
+     * Espresso Test for idlingResource
+     */
+    // The Idling Resource which will be null in production.
+    @Nullable
+    private SimpleIdlingResource mIdlingResource;
+
+    /**
+     * For testing purposes to indicate whether the device is at an idle state
+     * (no pending network transactions, downloads or other long running operations)
+     * creates and returns a new {@link SimpleIdlingResource}.
+     */
+    @VisibleForTesting
+    @NonNull
+    public SimpleIdlingResource getIdlingResource() {
+        if (mIdlingResource == null) {
+            mIdlingResource = new SimpleIdlingResource();
+        }
+        return mIdlingResource;
     }
 }
