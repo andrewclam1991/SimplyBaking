@@ -37,7 +37,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -309,7 +308,6 @@ public class RecipeDetailActivity extends AppCompatActivity implements
             extends RecyclerView.Adapter<StepsRecyclerViewAdapter.StepViewHolder> {
 
         private final ArrayList<Step> mSteps;
-        private SparseBooleanArray selectedItems = new SparseBooleanArray();
 
         StepsRecyclerViewAdapter(ArrayList<Step> steps) {
             mSteps = steps;
@@ -349,14 +347,6 @@ public class RecipeDetailActivity extends AppCompatActivity implements
                 @Override
                 public void onClick(View view) {
                     int adapterPosition = holder.getAdapterPosition();
-
-                    // Highlight the step that is selected(clicked)
-                    view.setSelected(true);
-
-                    // Look for the previous view where it is highlighted in the array
-                    // call m
-                    // Save the clicked positions to the SparseBooleanArray
-                    selectedItems.put(adapterPosition,true);
 
                     if (mTwoPane) {
                         // In two pane mode, replace a fragment with the step item to show the
