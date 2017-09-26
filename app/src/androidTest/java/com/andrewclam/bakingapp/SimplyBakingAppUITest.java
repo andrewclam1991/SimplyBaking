@@ -138,9 +138,7 @@ public class SimplyBakingAppUITest {
         checkStepListExists();
         checkRecipeDetailIntroVideo();
         checkSpinnerAdapterNavigation();
-
     }
-
 
     /**
      * This method tests whether clicking the the recipe list at the parameter positions
@@ -206,40 +204,6 @@ public class SimplyBakingAppUITest {
                                 withParent(withId(R.id.appbar)))),
                         isDisplayed()));
         appCompatSpinner.perform(click());
-
-        // step spinner - click on the same intro element
-//        onData(anything()).inAdapterView(withId(R.id.steps_spinner)).atPosition(0).perform(click());
-
-        // In Phone (Vertical or Landscape mode), Tablet (Vertical Mode)
-        // should be in the step detail activity, check if it contains the exoPlayerview
-        // and the description "Recipe Introduction", all recipes should have the intro video
-//        onView(withId(R.id.step_video_player_view)).check(matches(isDisplayed()));
-//
-//        onView(withId(R.id.step_detail_description_tv))
-//                .check(matches(withText(STEP_0_INTRO_TITLE)));
-
-        // step spinner - click on the second element
-//        onData(anything()).inAdapterView(withId(R.id.steps_spinner)).atPosition(1).perform(click());
-
-//        onView(withId(R.id.step_detail_description_tv))
-//                .check(matches(withText(STEP_0_INTRO_TITLE)));
-    }
-
-    public static void checkLandscapeFullScreenVideo() {
-        // In the detail view, video should be the only view that is displayed
-        ViewInteraction frameLayout = onView(
-                allOf(withId(R.id.step_video_player_view),
-                        childAtPosition(
-                                childAtPosition(
-                                        withId(R.id.container),
-                                        0),
-                                0),
-                        isDisplayed()));
-
-        frameLayout.check(matches(isDisplayed()));
-
-        onView(withId(R.id.step_detail_description_tv))
-                .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
     }
 
     // Remember to unregister resources when not needed to avoid malfunction.

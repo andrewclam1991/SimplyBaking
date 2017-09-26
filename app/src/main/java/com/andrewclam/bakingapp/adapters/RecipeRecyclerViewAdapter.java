@@ -23,14 +23,17 @@
 package com.andrewclam.bakingapp.adapters;
 
 import android.content.Context;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.andrewclam.bakingapp.R;
 import com.andrewclam.bakingapp.models.Recipe;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -111,6 +114,12 @@ public class RecipeRecyclerViewAdapter extends RecyclerView.Adapter<RecipeRecycl
         // Call holder's set method to set the ui elements
         holder.setNameTv(name);
         holder.setServingTv(servings);
+
+        String imageURL = recipe.getImageURL();
+        Picasso.with(mContext)
+                .load(Uri.parse(imageURL))
+                .placeholder(R.drawable.ic_cupcake_full_color)
+                .into(holder.mRecipeImageIv);
     }
 
     /**
@@ -152,12 +161,14 @@ public class RecipeRecyclerViewAdapter extends RecyclerView.Adapter<RecipeRecycl
 
         private final TextView mNameTv;
         private final TextView mServingTv;
+        private final ImageView mRecipeImageIv;
 
         public RecipeViewHolder(View itemView) {
             super(itemView);
             // Reference the ui elements
             mNameTv = itemView.findViewById(R.id.recipe_name_tv);
             mServingTv = itemView.findViewById(R.id.recipe_servings_tv);
+            mRecipeImageIv = itemView.findViewById(R.id.recipe_image_iv);
 
             // Set an onClickListener onto the itemView
             itemView.setOnClickListener(new View.OnClickListener() {

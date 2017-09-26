@@ -208,7 +208,7 @@ public class RecipeDetailActivity extends AppCompatActivity implements
                 LinearLayoutManager.VERTICAL, false);
         recyclerView.setAdapter(new IngredientRecyclerViewAdapter(mRecipe.getIngredients()));
         recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setNestedScrollingEnabled(false);
+        recyclerView.setNestedScrollingEnabled(true);
     }
 
     /**

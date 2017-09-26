@@ -144,8 +144,8 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
+    protected void onResume() {
+        super.onResume();
         /* Check if started for and Setup AppWidget Configuration */
         initAppWidgetConfiguration();
 
@@ -161,8 +161,8 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    protected void onPause() {
+        super.onPause();
         // Cleanup, unregister the dynamic broadcast receiver with context
         unregisterReceiver(mNetworkChangeReceiver);
         mNetworkChangeReceiver = null;
