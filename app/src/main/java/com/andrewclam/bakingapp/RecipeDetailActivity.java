@@ -58,7 +58,7 @@ import static android.support.v4.app.NavUtils.navigateUpFromSameTask;
 import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE;
 import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE_ID;
 import static com.andrewclam.bakingapp.Constants.EXTRA_STEP_POSITION;
-import static com.andrewclam.bakingapp.StepDetailFragment.EXTRA_TWO_PANE_MODE;
+import static com.andrewclam.bakingapp.Constants.EXTRA_TWO_PANE_MODE;
 
 /**
  * An activity representing a list of Steps. This activity
@@ -71,7 +71,6 @@ import static com.andrewclam.bakingapp.StepDetailFragment.EXTRA_TWO_PANE_MODE;
 public class RecipeDetailActivity extends AppCompatActivity implements
         StepDetailFragment.OnStepDetailFragmentInteraction,
         LoaderManager.LoaderCallbacks<Cursor>{
-
     /**
      * Log Tag
      */

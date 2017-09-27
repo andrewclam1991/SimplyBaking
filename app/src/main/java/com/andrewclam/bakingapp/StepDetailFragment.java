@@ -71,7 +71,9 @@ import org.parceler.Parcels;
 import static android.view.View.GONE;
 import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE_ID;
 import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE_NAME;
+import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE_STEP;
 import static com.andrewclam.bakingapp.Constants.EXTRA_STEP_POSITION;
+import static com.andrewclam.bakingapp.Constants.EXTRA_TWO_PANE_MODE;
 import static com.andrewclam.bakingapp.Constants.PACKAGE_NAME;
 
 /**
@@ -81,17 +83,6 @@ import static com.andrewclam.bakingapp.Constants.PACKAGE_NAME;
  * on handsets.
  */
 public class StepDetailFragment extends Fragment implements Target, Player.EventListener {
-    /**
-     * The fragment argument representing the item ID that this fragment
-     * represents.
-     */
-    public static final String EXTRA_RECIPE_STEP = "item_id";
-    /**
-     * The fragment argument representing the boolean flag on whether this fragment is loaded
-     * as part of a two-pane layout
-     */
-    public static final String EXTRA_TWO_PANE_MODE = "two_pane_mode";
-
     /**
      * Debug and fragment TAG
      */
@@ -104,6 +95,10 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
      * The Step content this fragment is presenting.
      */
     private Step mStepItem;
+    /**
+     * The Video Url (if this recipe has one)
+     */
+    private String mVideoUrl;
     /**
      * The boolean flag to keep track whether the fragment is displayed in two pane mode
      */
@@ -239,14 +234,15 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
         /* Bind Data (Video, Image Thumbnail and Description) */
         // Bind Step Video
         // Check if the recipe step has a video (may be null or empty)
-        String videoURL = mStepItem.getVideoURL();
-        if (videoURL != null && !videoURL.isEmpty()) {
+        mVideoUrl = mStepItem.getVideoURL();
+        if (mVideoUrl != null && !mVideoUrl.isEmpty()) {
             // Reference the video loading progress bar
             mVideoLoadingPb = rootView.findViewById(R.id.video_loading_pb);
 
-            setupExoPlayerView();
-            setupMediaSession();
-            setupExoPlayer(Uri.parse(videoURL));
+            // TODO Following setup method calls are done in onResume() instead
+            // setupExoPlayerView();
+            // setupMediaSession();
+            // setupExoPlayer(Uri.parse(mVideoUrl));
 
             // Has Video (Video Full Screen Mode)
             // If the device is in landscape mode, let video take full screen mode on Phones
@@ -278,6 +274,7 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
 
         return rootView;
     }
+
 
     /**
      * subroutine method to set the app bar title in the activity level
@@ -533,15 +530,22 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
      * the fragment no longer needs it.
      */
     private void releasePlayer() {
+        // When the fragment is destroyed, cancel the media notification
         if (mNotificationManager != null) {
             mNotificationManager.cancelAll();
         }
 
+        // releasePlayer
         if (mExoPlayer != null) {
+            // Pause the video playback
+            mExoPlayer.setPlayWhenReady(false);
             mExoPlayer.stop();
             mExoPlayer.release();
             mExoPlayer = null;
         }
+
+        // Inactivate the mediaSession so no more media state callbacks handling
+        if (mMediaSession != null) mMediaSession.setActive(false);
     }
 
     /**
@@ -561,6 +565,20 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        // setup the video if the step detail has video
+        if (mVideoUrl != null && !mVideoUrl.isEmpty()) {
+            setupExoPlayerView();
+            setupMediaSession();
+            setupExoPlayer(Uri.parse(mVideoUrl));
+        }else {
+            // No video for this particular step, hide the player view
+            mExoPlayerView.setVisibility(GONE);
+        }
+    }
+
+    @Override
     public void onPause() {
         super.onPause();
         if (mContext != null) {
@@ -569,8 +587,18 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
             Picasso.with(mContext).cancelRequest(this);
         }
 
-        // Pause the video playback
-        if (mExoPlayer != null) mExoPlayer.setPlayWhenReady(false);
+        // Release the player when the fragment is stopped, and
+        // mark media session non=active
+        releasePlayer();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        // In case onPause() isn't called
+        // Release the player when the fragment is paused and/or destroyed
+        releasePlayer();
     }
 
     @Override
@@ -578,16 +606,6 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
         super.onSaveInstanceState(outState);
         outState.putString(EXTRA_STEP_TITLE, mCurrentStepTitle);
         outState.putBoolean(EXTRA_TWO_PANE, mTwoPane);
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        // Release the player when the fragment is destroyed, and
-        // mark media session non=active
-        releasePlayer();
-        if (mMediaSession != null) mMediaSession.setActive(false);
-
     }
 
     /**
@@ -616,16 +634,34 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
     private class MySessionCallback extends MediaSessionCompat.Callback {
         @Override
         public void onPlay() {
+            if (mExoPlayer == null) {
+                setupExoPlayerView();
+                setupMediaSession();
+                setupExoPlayer(Uri.parse(mVideoUrl));
+            }
+
             mExoPlayer.setPlayWhenReady(true);
         }
 
         @Override
         public void onPause() {
+            if (mExoPlayer == null) {
+                setupExoPlayerView();
+                setupMediaSession();
+                setupExoPlayer(Uri.parse(mVideoUrl));
+            }
+
             mExoPlayer.setPlayWhenReady(false);
         }
 
         @Override
         public void onSkipToPrevious() {
+            if (mExoPlayer == null) {
+                setupExoPlayerView();
+                setupMediaSession();
+                setupExoPlayer(Uri.parse(mVideoUrl));
+            }
+
             mExoPlayer.seekTo(0);
         }
     }

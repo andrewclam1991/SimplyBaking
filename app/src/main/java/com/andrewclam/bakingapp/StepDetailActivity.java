@@ -57,7 +57,7 @@ import java.util.ArrayList;
 
 import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE_ID;
 import static com.andrewclam.bakingapp.Constants.EXTRA_STEP_POSITION;
-import static com.andrewclam.bakingapp.StepDetailFragment.EXTRA_TWO_PANE_MODE;
+import static com.andrewclam.bakingapp.Constants.EXTRA_TWO_PANE_MODE;
 
 public class StepDetailActivity extends AppCompatActivity implements
         StepDetailFragment.OnStepDetailFragmentInteraction,

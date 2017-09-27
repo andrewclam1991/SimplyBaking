@@ -44,6 +44,8 @@ public class Constants {
     public static final String EXTRA_STEPS_LIST = PACKAGE_NAME + "extra.steps.list";
     static final String EXTRA_STEP_POSITION = PACKAGE_NAME + "extra.step.position";
     public static final String EXTRA_APP_WIDGET_ID = PACKAGE_NAME + ".extra.app.widget.ids";
+    static final String EXTRA_RECIPE_STEP = PACKAGE_NAME + ".extra.recipe_step";
+    static final String EXTRA_TWO_PANE_MODE = PACKAGE_NAME + ".extra.two_pane_mode";
 
     /* Intent Actions */
     static final String ACTION_CONNECTIVITY_CHANGE = "android.net.conn.CONNECTIVITY_CHANGE";

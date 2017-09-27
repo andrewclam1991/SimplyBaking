@@ -21,7 +21,8 @@
   ~ SOFTWARE.
   -->
 
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/recipe_detail_lists_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -33,4 +34,4 @@
     <!-- Single-Pane Master View -->
     <include layout="@layout/recipe_detail_list_content" />
 
-</ScrollView>
+</android.support.v4.widget.NestedScrollView>
