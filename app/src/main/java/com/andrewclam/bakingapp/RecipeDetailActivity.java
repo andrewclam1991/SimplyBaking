@@ -94,12 +94,6 @@ public class RecipeDetailActivity extends AppCompatActivity implements
     private ArrayList<Step> mSteps;
 
     /**
-     * The step that is currently selected (used in landscape mode for tablets)
-     * this is used to indicate which step the user is currently at
-     */
-    private int mSelectedPosition;
-
-    /**
      * LoaderManager Implementation for Loading offline db data
      * This ID will be used to identify the Loader responsible for loading our offline database. In
      * some cases, one Activity can deal with many Loaders. However, in our case, there is only one.
@@ -120,7 +114,8 @@ public class RecipeDetailActivity extends AppCompatActivity implements
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        if (findViewById(R.id.step_detail_container) != null) {
+        boolean tabletSize = getResources().getBoolean(R.bool.isTablet);
+        if (tabletSize) {
             // The detail container view will be present only in the
             // large-screen layouts (res/values-w900dp).
             // If this view is present, then the

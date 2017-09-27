@@ -69,9 +69,6 @@ public class SimplyBakingAppUITest {
     public ActivityTestRule<MainActivity> mActivityRule =
             new ActivityTestRule<>(MainActivity.class);
 
-    public ActivityTestRule<StepDetailActivity> mStepDetailActivityRule =
-            new ActivityTestRule<>(StepDetailActivity.class);
-
     private IdlingRegistry mIdlingRegistry;
     private IdlingResource mIdlingResource;
 
