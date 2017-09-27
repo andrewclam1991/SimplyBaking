@@ -22,27 +22,27 @@
 
 package com.andrewclam.bakingapp;
 
+import android.graphics.Rect;
+import android.support.test.espresso.PerformException;
+import android.support.test.espresso.UiController;
+import android.support.test.espresso.ViewAction;
+import android.support.test.espresso.action.ViewActions;
+import android.support.test.espresso.matcher.ViewMatchers;
+import android.support.test.espresso.util.HumanReadables;
+import android.support.v4.widget.NestedScrollView;
+import android.util.Log;
+import android.view.View;
+import android.widget.HorizontalScrollView;
+import android.widget.ScrollView;
+
+import org.hamcrest.Matcher;
+
 import static android.support.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static android.support.test.espresso.matcher.ViewMatchers.isDescendantOfA;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayingAtLeast;
 import static android.support.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.anyOf;
-import android.support.test.espresso.PerformException;
-import android.support.test.espresso.UiController;
-import android.support.test.espresso.ViewAction;
-import android.support.test.espresso.action.ViewActions;
-import android.support.test.espresso.matcher.ViewMatchers;
-import android.support.test.espresso.matcher.ViewMatchers.Visibility;
-import android.support.test.espresso.util.HumanReadables;
-import android.graphics.Rect;
-import android.support.v4.widget.NestedScrollView;
-import android.util.Log;
-import android.view.View;
-import android.widget.HorizontalScrollView;
-import android.widget.ListView;
-import android.widget.ScrollView;
-import org.hamcrest.Matcher;
 
 /**
  * Created by lamch on 9/26/2017.

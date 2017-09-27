@@ -24,20 +24,15 @@ package com.andrewclam.bakingapp;
 
 import android.support.test.espresso.IdlingRegistry;
 import android.support.test.espresso.IdlingResource;
-import android.support.test.espresso.ViewAction;
 import android.support.test.espresso.ViewInteraction;
-import android.support.test.espresso.action.ViewActions;
 import android.support.test.espresso.contrib.RecyclerViewActions;
 import android.support.test.espresso.matcher.ViewMatchers;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
-import android.widget.HorizontalScrollView;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import org.hamcrest.Description;
@@ -51,10 +46,8 @@ import org.junit.runner.RunWith;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
-import static android.support.test.espresso.action.ViewActions.scrollTo;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isAssignableFrom;
-import static android.support.test.espresso.matcher.ViewMatchers.isDescendantOfA;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
@@ -62,7 +55,6 @@ import static android.support.test.espresso.matcher.ViewMatchers.withParent;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.andrewclam.bakingapp.NestedScrollToAction.nestedScrollTo;
 import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.anyOf;
 
 /**
  * TODO [UI Test] Simple implementation to test ui elements of the app
@@ -74,7 +66,7 @@ import static org.hamcrest.Matchers.anyOf;
 public class SimplyBakingAppUITest {
 
     @Rule
-    public ActivityTestRule<MainActivity> mActivityRule =
+    public final ActivityTestRule<MainActivity> mActivityRule =
             new ActivityTestRule<>(MainActivity.class);
 
     private IdlingRegistry mIdlingRegistry;
@@ -219,11 +211,6 @@ public class SimplyBakingAppUITest {
             mIdlingRegistry.unregister(mIdlingResource);
         }
     }
-
-    /**
-     * Solution for handling scroll action in nestedScrollView
-     * @return
-     */
 
     private static Matcher<View> childAtPosition(
             final Matcher<View> parentMatcher, final int position) {

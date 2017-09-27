@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (c) 2017 Andrew Chi Heng Lam
   ~
   ~ Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -36,6 +35,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="3"
             android:paddingEnd="@dimen/list_item_padding_left_right"
+            android:paddingLeft="0dp"
+            android:paddingRight="@dimen/list_item_padding_left_right"
             android:paddingStart="0dp"
             tools:text="Butter Cream" />
 
@@ -47,6 +48,8 @@
             android:layout_weight="1"
             android:gravity="end"
             android:paddingEnd="@dimen/list_item_padding_left_right"
+            android:paddingLeft="0dp"
+            android:paddingRight="@dimen/list_item_padding_left_right"
             android:paddingStart="0dp"
             tools:text="3 1/2" />
 
@@ -63,7 +66,7 @@
 
     <!-- bottom divider -->
     <FrameLayout
-        style="@style/ListItemDividerStyle"
-        android:id="@+id/list_divider"/>
+        android:id="@+id/list_divider"
+        style="@style/ListItemDividerStyle" />
 
 </LinearLayout>

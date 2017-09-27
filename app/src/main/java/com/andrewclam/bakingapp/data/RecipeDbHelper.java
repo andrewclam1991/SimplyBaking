@@ -33,7 +33,7 @@ import com.andrewclam.bakingapp.data.RecipeDbContract.RecipeEntry;
 import com.andrewclam.bakingapp.data.RecipeDbContract.StepEntry;
 
 
-public class RecipeDbHelper extends SQLiteOpenHelper {
+class RecipeDbHelper extends SQLiteOpenHelper {
 
     // The database name
     private static final String DATABASE_NAME = "simplyBaking.db";

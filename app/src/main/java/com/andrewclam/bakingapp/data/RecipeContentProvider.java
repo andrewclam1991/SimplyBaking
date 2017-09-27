@@ -45,22 +45,22 @@ public class RecipeContentProvider extends ContentProvider {
     // Define final integer constants for the directory of plants and a single item.
     // It's convention to use 100, 200, 300, etc for directories,
     // and related ints (101, 102, ..) for items in that directory.
-    public static final int CODE_RECIPES = 100;
-    public static final int CODE_RECIPE_WITH_ID = 101;
-    public static final int CODE_RECIPE_WITH_APP_WIDGET_ID = 102;
-    public static final int CODE_INGREDIENTS = 200;
-    public static final int CODE_INGREDIENT_WITH_ID = 201;
-    public static final int CODE_STEPS = 300;
-    public static final int CODE_STEP_WITH_ID = 301;
-    public static final int CODE_FAVORITES = 400;
-    public static final int CODE_APP_WIDGET_IDS = 500;
+    private static final int CODE_RECIPES = 100;
+    private static final int CODE_RECIPE_WITH_ID = 101;
+    private static final int CODE_RECIPE_WITH_APP_WIDGET_ID = 102;
+    private static final int CODE_INGREDIENTS = 200;
+    private static final int CODE_INGREDIENT_WITH_ID = 201;
+    private static final int CODE_STEPS = 300;
+    private static final int CODE_STEP_WITH_ID = 301;
+    private static final int CODE_FAVORITES = 400;
+    private static final int CODE_APP_WIDGET_IDS = 500;
 
     // Declare a static variable for the Uri matcher that you construct
     private static final UriMatcher sUriMatcher = buildUriMatcher();
     private static final String TAG = RecipeContentProvider.class.getName();
 
     // Define a static buildUriMatcher method that associates URI's with their int match
-    public static UriMatcher buildUriMatcher() {
+    private static UriMatcher buildUriMatcher() {
         // Initialize a UriMatcher
         UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         // Add URI matches

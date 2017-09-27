@@ -28,8 +28,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.VisibleForTesting;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
@@ -37,6 +36,7 @@ import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ThemedSpinnerAdapter;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,13 +48,14 @@ import android.widget.TextView;
 
 import com.andrewclam.bakingapp.asyncTasks.DbMultiTableParsingAsyncTask;
 import com.andrewclam.bakingapp.data.RecipeDbContract;
-import com.andrewclam.bakingapp.espresso.SimpleIdlingResource;
 import com.andrewclam.bakingapp.models.Recipe;
 import com.andrewclam.bakingapp.models.Step;
 import com.google.android.exoplayer2.ui.BuildConfig;
 
 import java.util.ArrayList;
 
+import static com.andrewclam.bakingapp.Constants.EXTRA_PLAYER_CURRENT_POSITION;
+import static com.andrewclam.bakingapp.Constants.EXTRA_PLAYER_PLAY_WHEN_READY;
 import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE_ID;
 import static com.andrewclam.bakingapp.Constants.EXTRA_STEP_POSITION;
 import static com.andrewclam.bakingapp.Constants.EXTRA_TWO_PANE_MODE;
@@ -63,13 +64,22 @@ public class StepDetailActivity extends AppCompatActivity implements
         StepDetailFragment.OnStepDetailFragmentInteraction,
         LoaderManager.LoaderCallbacks<Cursor>{
 
+    private static final String TAG = StepDetailActivity.class.getSimpleName();
+
     /**
      * The list of steps to populate the dropdown spinner adapter
      */
     private String mRecipeName;
-    private int mStepPosition;
     private ArrayList<Step> mSteps;
+    private Spinner mNavSpinner;
+    private int mStepPosition;
     private boolean mTwoPane;
+
+    /**
+     * Saved instance of the positionMs and playWhenReady boolean for the fragment player
+     */
+    private long mPlayerPositionMs;
+    private boolean mPlayerPlayWhenReady;
 
     /**
      * Instance of the StepsAdapter
@@ -92,6 +102,7 @@ public class StepDetailActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_step_detail);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -128,6 +139,18 @@ public class StepDetailActivity extends AppCompatActivity implements
                         "start in twoPane mode");
             }
         }
+
+        // FIXME (Completed) restore player position upon fragment recreation or pause
+        if(savedInstanceState != null)
+        {
+            mStepPosition = savedInstanceState.getInt(EXTRA_STEP_POSITION,0);
+            mPlayerPositionMs = savedInstanceState.getLong(EXTRA_PLAYER_CURRENT_POSITION,0);
+            mPlayerPlayWhenReady = savedInstanceState.getBoolean(EXTRA_PLAYER_PLAY_WHEN_READY);
+            mTwoPane = savedInstanceState.getBoolean(EXTRA_TWO_PANE_MODE);
+
+            Log.d(TAG,"Activity onSaveInstanceState() called, player position restored: " + mPlayerPositionMs);
+            Log.d(TAG,"Activity onSaveInstanceState() called, restored position: " + mStepPosition);
+        }
     }
 
     /**
@@ -136,35 +159,61 @@ public class StepDetailActivity extends AppCompatActivity implements
      */
     private void setupStepDetail()
     {
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(StepDetailFragment.TAG);
+        if (fragment == null)
+        {
+            // Add the fragment to the container when there is no fragment
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.container, StepDetailFragment.newInstance(
+                            mRecipeId,
+                            mRecipeName,
+                            mStepPosition,
+                            mSteps.get(mStepPosition),
+                            mTwoPane), StepDetailFragment.TAG)
+                    .commit();
+        }else
+        {
+            // Replace with the existing fragment
+            getSupportFragmentManager().beginTransaction().replace(
+                    R.id.container,
+                    fragment,
+                    StepDetailFragment.TAG).commit();
+        }
+
         // Initialize the StepsAdapter
         mStepsAdapter = new StepsAdapter(this,mSteps);
 
-        // Setup spinner
-        Spinner spinner = findViewById(R.id.steps_spinner);
-        spinner.setAdapter(mStepsAdapter);
+        // Setup navigation spinner
+        mNavSpinner = findViewById(R.id.steps_spinner);
+        mNavSpinner.setAdapter(mStepsAdapter);
 
         // Select spinner to the parameter step position
-        spinner.setSelection(mStepPosition);
+        mNavSpinner.setSelection(mStepPosition);
 
-        spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+        mNavSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                // Only replace the step if the position differs from the previous step
+                if (mStepPosition != position)
+                {
+                    // Update the step position
+                    mStepPosition = position;
 
-                // Find the selected item in the adapter, this will be used
-                // to start the fragment
-                Step selectedStep = mStepsAdapter.getItem(position);
+                    // Find the selected item in the adapter, this will be used
+                    // to start the fragment
+                    Step selectedStep = mStepsAdapter.getItem(position);
 
-                // When the given dropdown item is selected, show its contents in the
-                // container view. set twoPane to false because this activity will not be
-                // fired in two panes mode
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.container, StepDetailFragment.newInstance(
-                                mRecipeId,
-                                mRecipeName,
-                                position,
-                                selectedStep,
-                                mTwoPane))
-                        .commit();
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.container,
+                                    StepDetailFragment.newInstance(
+                                            mRecipeId,
+                                            mRecipeName,
+                                            position,
+                                            selectedStep,
+                                            mTwoPane),
+                                    StepDetailFragment.TAG)
+                            .commit();
+                }
             }
 
             @Override
@@ -197,7 +246,6 @@ public class StepDetailActivity extends AppCompatActivity implements
             new DbMultiTableParsingAsyncTask()
                     .setContentResolver(this.getContentResolver())
                     .setCursor(data)
-                    .setIdlingResource(mIdlingResource)
                     .setListener(new DbMultiTableParsingAsyncTask.OnParsingActionComplete() {
                         @Override
                         public void onEntriesParsed(ArrayList<Recipe> recipes) {
@@ -223,6 +271,12 @@ public class StepDetailActivity extends AppCompatActivity implements
     @Override
     public void setTitle(String title) {
         // No need to set title
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(EXTRA_STEP_POSITION,mStepPosition);
     }
 
     /**
@@ -309,25 +363,19 @@ public class StepDetailActivity extends AppCompatActivity implements
         }
     }
 
-    /**
-     * Espresso Test for idlingResource
-     */
-    // The Idling Resource which will be null in production.
-    @Nullable
-    private SimpleIdlingResource mIdlingResource;
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mNavSpinner.setOnItemSelectedListener(null);
 
-    /**
-     * For testing purposes to indicate whether the device is at an idle state
-     * (no pending network transactions, downloads or other long running operations)
-     * creates and returns a new {@link SimpleIdlingResource}.
-     */
-    @VisibleForTesting
-    @NonNull
-    public SimpleIdlingResource getIdlingResource() {
-        if (mIdlingResource == null) {
-            mIdlingResource = new SimpleIdlingResource();
+        if (mStepsAdapter != null) {
+            mStepsAdapter.clear();
+            mStepsAdapter = null;
         }
-        return mIdlingResource;
-    }
 
+        if (mSteps != null) {
+            mSteps.clear();
+            mSteps = null;
+        }
+    }
 }

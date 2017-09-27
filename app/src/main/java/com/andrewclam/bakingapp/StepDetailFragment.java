@@ -69,10 +69,13 @@ import com.squareup.picasso.Target;
 import org.parceler.Parcels;
 
 import static android.view.View.GONE;
+import static com.andrewclam.bakingapp.Constants.EXTRA_PLAYER_CURRENT_POSITION;
+import static com.andrewclam.bakingapp.Constants.EXTRA_PLAYER_PLAY_WHEN_READY;
 import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE_ID;
 import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE_NAME;
 import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE_STEP;
 import static com.andrewclam.bakingapp.Constants.EXTRA_STEP_POSITION;
+import static com.andrewclam.bakingapp.Constants.EXTRA_STEP_TITLE;
 import static com.andrewclam.bakingapp.Constants.EXTRA_TWO_PANE_MODE;
 import static com.andrewclam.bakingapp.Constants.PACKAGE_NAME;
 
@@ -107,11 +110,7 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
      * Step Title
      */
     private String mCurrentStepTitle;
-    /**
-     * SavedInstanceState Key
-     */
-    private final static String EXTRA_STEP_TITLE = "extra_step_title";
-    private final static String EXTRA_TWO_PANE = "extra_two_pane";
+
     /**
      * Interface Callback listener (parent activity) to change title
      */
@@ -127,6 +126,9 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
     private PlaybackStateCompat.Builder mStateBuilder;
     private static MediaSessionCompat mMediaSession;
     private ProgressBar mVideoLoadingPb;
+    private Long mPlayerPositionMs;
+    private Boolean mPlayerPlayWhenReady;
+
     /**
      * For MediaStyle Notification
      * (PendingIntent to host activities
@@ -205,6 +207,13 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
             throw new RuntimeException(errorMsg);
         }
 
+        if (savedInstanceState != null)
+        {
+            mCurrentStepTitle = savedInstanceState.getString(EXTRA_STEP_TITLE);
+            mTwoPane = savedInstanceState.getBoolean(EXTRA_TWO_PANE_MODE);
+            mPlayerPositionMs = savedInstanceState.getLong(EXTRA_PLAYER_CURRENT_POSITION,0);
+            mPlayerPlayWhenReady = savedInstanceState.getBoolean(EXTRA_PLAYER_PLAY_WHEN_READY);
+        }
     }
 
     @Override
@@ -213,7 +222,7 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
         View rootView = inflater.inflate(R.layout.step_detail, container, false);
 
         // Setup the activity bar title (show step and a short description)
-        setupTitle(savedInstanceState);
+        setupTitle();
 
         // Reference View and run assertion checks before proceeding
         TextView stepDescriptionTv = rootView.findViewById(R.id.step_detail_description_tv);
@@ -239,10 +248,9 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
             // Reference the video loading progress bar
             mVideoLoadingPb = rootView.findViewById(R.id.video_loading_pb);
 
-            // TODO Following setup method calls are done in onResume() instead
-            // setupExoPlayerView();
-            // setupMediaSession();
-            // setupExoPlayer(Uri.parse(mVideoUrl));
+//            setupExoPlayerView();
+//            setupMediaSession();
+//            setupExoPlayer(Uri.parse(mVideoUrl));
 
             // Has Video (Video Full Screen Mode)
             // If the device is in landscape mode, let video take full screen mode on Phones
@@ -256,7 +264,6 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
             // No video for this particular step, hide the player view
             mExoPlayerView.setVisibility(GONE);
         }
-
 
         // Bind Step Image Thumbnail (may be null or empty)
         // Check if there is a thumbnail image in the step
@@ -275,22 +282,16 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
         return rootView;
     }
 
-
     /**
      * subroutine method to set the app bar title in the activity level
      * using the listener callback and savedInstanceState to handle device rotation
-     *
-     * @param savedInstanceState the activity/fragment's savedInstanceState
      */
-    private void setupTitle(Bundle savedInstanceState) {
-        if (savedInstanceState != null) {
-            mCurrentStepTitle = savedInstanceState.getString(EXTRA_STEP_TITLE);
-            mTwoPane = savedInstanceState.getBoolean(EXTRA_TWO_PANE);
-        } else {
+    private void setupTitle() {
+        if (mCurrentStepTitle == null || mCurrentStepTitle.isEmpty())
             // No saved instance state, form the title using the item
             mCurrentStepTitle = getString(R.string.step, mStepItem.getStepNum()) + " "
                     + mStepItem.getShortDescription();
-        }
+
 
         // Call activities to set the title of the app bar
         // two pane mode doesn't need a step-by-step title change
@@ -535,9 +536,14 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
             mNotificationManager.cancelAll();
         }
 
-        // releasePlayer
+        // releasePlayer and get the last location
         if (mExoPlayer != null) {
-            // Pause the video playback
+
+            // Get the last played position
+            mPlayerPositionMs = mExoPlayer.getCurrentPosition();
+            mPlayerPlayWhenReady = mExoPlayer.getPlayWhenReady();
+
+            // Pause the video playback and release resources
             mExoPlayer.setPlayWhenReady(false);
             mExoPlayer.stop();
             mExoPlayer.release();
@@ -572,9 +578,13 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
             setupExoPlayerView();
             setupMediaSession();
             setupExoPlayer(Uri.parse(mVideoUrl));
-        }else {
-            // No video for this particular step, hide the player view
-            mExoPlayerView.setVisibility(GONE);
+
+            // Resume the video at the saved location (if available)
+
+            if(mPlayerPositionMs != null) mExoPlayer.seekTo(mPlayerPositionMs);
+
+            // Resume the video play state (if available)
+            if(mPlayerPlayWhenReady != null) mExoPlayer.setPlayWhenReady(mPlayerPlayWhenReady);
         }
     }
 
@@ -592,20 +602,23 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
         releasePlayer();
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        // In case onPause() isn't called
-        // Release the player when the fragment is paused and/or destroyed
-        releasePlayer();
-    }
+//    @Override
+//    public void onDestroy() {
+//        super.onDestroy();
+//
+//        // In case onPause() isn't called (!)
+//        // Release the player when the fragment is paused and/or destroyed
+//        releasePlayer();
+//    }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(EXTRA_STEP_TITLE, mCurrentStepTitle);
-        outState.putBoolean(EXTRA_TWO_PANE, mTwoPane);
+        outState.putBoolean(EXTRA_TWO_PANE_MODE, mTwoPane);
+        outState.putLong(EXTRA_PLAYER_CURRENT_POSITION, mPlayerPositionMs);
+        outState.putBoolean(EXTRA_PLAYER_PLAY_WHEN_READY, mPlayerPlayWhenReady);
+        Log.d(TAG,"Fragment onSaveInstanceState() called, position stored: " + mPlayerPositionMs);
     }
 
     /**
@@ -640,6 +653,7 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
                 setupExoPlayer(Uri.parse(mVideoUrl));
             }
 
+            mExoPlayer.seekTo(mPlayerPositionMs);
             mExoPlayer.setPlayWhenReady(true);
         }
 
@@ -651,6 +665,7 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
                 setupExoPlayer(Uri.parse(mVideoUrl));
             }
 
+            mPlayerPositionMs = mExoPlayer.getCurrentPosition();
             mExoPlayer.setPlayWhenReady(false);
         }
 

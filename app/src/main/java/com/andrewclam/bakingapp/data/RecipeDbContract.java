@@ -38,7 +38,7 @@ public class RecipeDbContract {
     public static final String AUTHORITY = "com.andrewclam.bakingapp";
 
     // The base content URI = "content://" + <authority>
-    public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + AUTHORITY);
+    private static final Uri BASE_CONTENT_URI = Uri.parse("content://" + AUTHORITY);
 
     // Define the possible paths for accessing data in this contract
     public static final String PATH_RECIPES = "recipes";
@@ -48,11 +48,11 @@ public class RecipeDbContract {
     public static final String PATH_APP_WIDGET_IDS = "app_widget_ids";
 
     // Invalid Case Constants
-    public static final long INVALID_RECIPE_ID = -1;
-    public static final long INVALID_INGREDIENT_ID = -1;
-    public static final long INVALID_STEP_ID = -1;
-    public static final long INVALID_FAVORITE_ID = -1;
-    public static final long INVALID_APP_WIDGET_ID = -1;
+//    public static final long INVALID_RECIPE_ID = -1;
+//    public static final long INVALID_INGREDIENT_ID = -1;
+//    public static final long INVALID_STEP_ID = -1;
+//    public static final long INVALID_FAVORITE_ID = -1;
+//    public static final long INVALID_APP_WIDGET_ID = -1;
 
     // Declare a SQLiteQueryBuilder.setTable Statement to JOIN all tables for query
     static final String SET_TABLE_STATEMENT =

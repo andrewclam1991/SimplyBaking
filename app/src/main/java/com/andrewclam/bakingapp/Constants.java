@@ -47,6 +47,10 @@ public class Constants {
     static final String EXTRA_RECIPE_STEP = PACKAGE_NAME + ".extra.recipe_step";
     static final String EXTRA_TWO_PANE_MODE = PACKAGE_NAME + ".extra.two_pane_mode";
 
+    public final static String EXTRA_STEP_TITLE = "extra_step_title";
+    public final static String EXTRA_PLAYER_CURRENT_POSITION = "player.current.position";
+    public final static String EXTRA_PLAYER_PLAY_WHEN_READY = "player.play.video.when.ready";
+
     /* Intent Actions */
     static final String ACTION_CONNECTIVITY_CHANGE = "android.net.conn.CONNECTIVITY_CHANGE";
     static final String ACTION_APPWIDGET_CONFIG =
