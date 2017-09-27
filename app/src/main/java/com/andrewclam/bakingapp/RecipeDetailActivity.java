@@ -224,33 +224,32 @@ public class RecipeDetailActivity extends AppCompatActivity implements
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setNestedScrollingEnabled(true);
 
-        // if in twoPane mode, load the fragment with the intro step
-        // intro step is always at position 0 of the list
+        // Loading detail fragment only concerns if the device is in twoPane mode
         if (mTwoPane) {
-            Step introStep = mSteps.get(0);
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.step_detail_container,
-                            StepDetailFragment.newInstance(
-                                    mRecipeId,
-                                    mRecipe.getName(),
-                                    0,
-                                    introStep,
-                                    mTwoPane),
-                            StepDetailFragment.TAG) // TAG used to remove
-                    .commit();
-        } else {
-            // (!) Bug, when TABLET switched from landscape to vertical, fragment auto launches
-            // due to system-auto-attaching activity fragment
-            // Not in two pane mode, explicitly remove the auto-attached previous fragment
-            Fragment detail = getSupportFragmentManager().findFragmentByTag(StepDetailFragment.TAG);
-            if (detail != null) {
-                getSupportFragmentManager().beginTransaction()
-                        .remove(detail)
-                        .commit();
-            }
+            setupDetailFragment();
         }
     }
 
+    private void setupDetailFragment()
+    {
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(StepDetailFragment.TAG);
+
+        if (fragment == null) {
+            // replace with a new instance of the fragment
+            Step selectedStep = mSteps.get(mStepPosition);
+            fragment = StepDetailFragment.newInstance(
+                    mRecipeId, mRecipe.getName(),
+                    mStepPosition,
+                    selectedStep,
+                    mTwoPane);
+        }
+
+        // Replace with the existing (or if didn't exist, newly created) fragment
+        getSupportFragmentManager().beginTransaction().replace(
+                R.id.step_detail_container,
+                fragment,
+                StepDetailFragment.TAG).commit();
+    }
     /**
      * Step detail fragment interface callback, call to change the activity's title
      *

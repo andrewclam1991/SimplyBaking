@@ -602,15 +602,6 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
         releasePlayer();
     }
 
-//    @Override
-//    public void onDestroy() {
-//        super.onDestroy();
-//
-//        // In case onPause() isn't called (!)
-//        // Release the player when the fragment is paused and/or destroyed
-//        releasePlayer();
-//    }
-
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
