@@ -319,7 +319,6 @@ public class MainActivity extends AppCompatActivity implements
             mProgressBar.setVisibility(View.GONE);
 
             // Show empty view, no data available
-            // TODO design a cuter empty view and show that instead
             Toast.makeText(this,getString(R.string.data_unavailable),Toast.LENGTH_SHORT).show();
         }
     }

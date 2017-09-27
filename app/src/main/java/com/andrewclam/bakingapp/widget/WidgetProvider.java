@@ -41,7 +41,7 @@ import com.squareup.picasso.Picasso;
 import static com.andrewclam.bakingapp.Constants.EXTRA_RECIPE_ID;
 
 /**
- * Implementation of App Widget functionality.
+ * TODO [Widget] Step 5 - Implementation of App Widget functionality with a widgetProvider
  */
 public class WidgetProvider extends AppWidgetProvider {
 
@@ -55,6 +55,7 @@ public class WidgetProvider extends AppWidgetProvider {
         // Start the intent service update widget action, the service takes care of updating
         // the widgets UI. There may be multiple widgets active, so update each one
 
+         // TODO [Widget] Step 6 - Uses the WidgetIntentService to fetch data for each appWidget by id
         for (int appWidgetId : appWidgetIds) {
             // Use intentService to update each appWidget by their id, query their respective recipe
             // when complete, the service calls this provider's updateAppWidget()
@@ -63,6 +64,7 @@ public class WidgetProvider extends AppWidgetProvider {
     }
 
     /**
+     * TODO [Widget] Step 7 - create remoteViews with the data notifies widget manager of updates
      * updateAppWidget() method is called after WidgetIntentService.startActionUpdateWidget()
      * completes fetching the corresponding recipe data given the appWidgetId
      * {@link WidgetIntentService}
@@ -89,6 +91,7 @@ public class WidgetProvider extends AppWidgetProvider {
     }
 
     /**
+     * TODO [Widget] Step 8 - a subroutine method to create the remoteViews for the given widget
      * createAppWidgetRemoteViews() Creates and returns the RemoteViews to be
      * displayed in the app widget, this method is called by the updateAppWidget()
      *
@@ -156,6 +159,7 @@ public class WidgetProvider extends AppWidgetProvider {
         return views;
     }
 
+    // TODO [Widget] Step 9 - a callback to handle widget update when user make changes to options
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @Override
     public void onAppWidgetOptionsChanged(Context context, AppWidgetManager appWidgetManager,
@@ -178,8 +182,7 @@ public class WidgetProvider extends AppWidgetProvider {
     @Override
     public void onDeleted(Context context, int[] appWidgetIds) {
         // Enter relevant functionality for when the a widget (or a group of widgets) is deleted
-        // TODO delete the recipe-widgetid in the appWidgetId table
-
+        // Pending delete the recipe-widgetid in the appWidgetId table
         super.onDeleted(context, appWidgetIds);
     }
 }
