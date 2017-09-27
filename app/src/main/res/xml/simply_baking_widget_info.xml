@@ -26,9 +26,9 @@
     android:initialKeyguardLayout="@layout/widget_recipe"
     android:initialLayout="@layout/widget_recipe"
     android:configure="com.andrewclam.bakingapp.MainActivity"
-    android:minHeight="110dp"
+    android:minHeight="180dp"
     android:minWidth="180dp"
-    android:previewImage="@drawable/example_appwidget_preview"
+    android:previewImage="@drawable/appwidget_preview_recipe"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen"
     android:updatePeriodMillis="1800000"/>
