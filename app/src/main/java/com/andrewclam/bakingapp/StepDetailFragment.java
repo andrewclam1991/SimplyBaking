@@ -499,6 +499,9 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
                 mStateBuilder.setState(PlaybackStateCompat.STATE_PAUSED,
                         mExoPlayer.getCurrentPosition(), 1f);
             }
+        }else if (playbackState == Player.STATE_ENDED)
+        {
+            mVideoLoadingPb.setVisibility(View.GONE);
         }
 
         mMediaSession.setPlaybackState(mStateBuilder.build());
@@ -580,7 +583,6 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
             setupExoPlayer(Uri.parse(mVideoUrl));
 
             // Resume the video at the saved location (if available)
-
             if(mPlayerPositionMs != null) mExoPlayer.seekTo(mPlayerPositionMs);
 
             // Resume the video play state (if available)
