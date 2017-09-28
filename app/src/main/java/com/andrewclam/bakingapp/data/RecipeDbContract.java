@@ -35,24 +35,17 @@ import static com.andrewclam.bakingapp.data.RecipeDbContract.RecipeEntry.CONTENT
 public class RecipeDbContract {
 
     // The authority, which is how your code knows which Content Provider to access
-    public static final String AUTHORITY = "com.andrewclam.bakingapp";
+    static final String AUTHORITY = "com.andrewclam.bakingapp";
 
     // The base content URI = "content://" + <authority>
     private static final Uri BASE_CONTENT_URI = Uri.parse("content://" + AUTHORITY);
 
     // Define the possible paths for accessing data in this contract
-    public static final String PATH_RECIPES = "recipes";
-    public static final String PATH_INGREDIENTS = "ingredients";
-    public static final String PATH_STEPS = "steps";
-    public static final String PATH_FAVORITES = "favorites";
-    public static final String PATH_APP_WIDGET_IDS = "app_widget_ids";
-
-    // Invalid Case Constants
-//    public static final long INVALID_RECIPE_ID = -1;
-//    public static final long INVALID_INGREDIENT_ID = -1;
-//    public static final long INVALID_STEP_ID = -1;
-//    public static final long INVALID_FAVORITE_ID = -1;
-//    public static final long INVALID_APP_WIDGET_ID = -1;
+    static final String PATH_RECIPES = "recipes";
+    static final String PATH_INGREDIENTS = "ingredients";
+    static final String PATH_STEPS = "steps";
+    static final String PATH_FAVORITES = "favorites";
+    static final String PATH_APP_WIDGET_IDS = "app_widget_ids";
 
     // Declare a SQLiteQueryBuilder.setTable Statement to JOIN all tables for query
     static final String SET_TABLE_STATEMENT =
@@ -74,7 +67,7 @@ public class RecipeDbContract {
         public static final Uri CONTENT_URI_RECIPE =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_RECIPES).build();
 
-        public static final String TABLE_NAME = "recipes";
+        static final String TABLE_NAME = "recipes";
         public static final String COLUMN_RECIPE_UID = "recipe_uid";
         public static final String COLUMN_RECIPE_NAME = "recipe_name";
         public static final String COLUMN_RECIPE_SERVINGS = "recipe_servings";
@@ -85,7 +78,7 @@ public class RecipeDbContract {
         public static final Uri CONTENT_URI_INGREDIENT =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_INGREDIENTS).build();
 
-        public static final String TABLE_NAME = "ingredients";
+        static final String TABLE_NAME = "ingredients";
         public static final String COLUMN_INGREDIENT_UID = "ingredient_uid";
         public static final String COLUMN_INGREDIENT_QUANTITY = "ingredient_quantity";
         public static final String COLUMN_INGREDIENT_MEASURE = "ingredient_measure";
@@ -97,7 +90,7 @@ public class RecipeDbContract {
         public static final Uri CONTENT_URI_STEP =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_STEPS).build();
 
-        public static final String TABLE_NAME = "steps";
+        static final String TABLE_NAME = "steps";
         public static final String COLUMN_STEP_UID = "step_uid";
         public static final String COLUMN_STEP_NUM = "step_num";
         public static final String COLUMN_STEP_SHORT_DESCRIPTION = "step_short_description";
@@ -120,7 +113,7 @@ public class RecipeDbContract {
         public static final Uri CONTENT_URI_APP_WIDGET_ID =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_APP_WIDGET_IDS).build();
 
-        public static final String TABLE_NAME = "app_widget_ids";
+        static final String TABLE_NAME = "app_widget_ids";
         public static final String COLUMN_APP_WIDGET_UID = "app_widget_uid";
         public static final String COLUMN_APP_WIDGET_RECIPE_KEY = "recipe_id";
     }
