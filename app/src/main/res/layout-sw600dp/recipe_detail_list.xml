@@ -21,6 +21,10 @@
   ~ SOFTWARE.
   -->
 
+<!--
+    // FIXME (Completed) required that the video is played when the screen is rotated on a tablet.
+    // Instead of using qualifier w900dp, used sw600dp as suggested in the comment -->
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"

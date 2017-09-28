@@ -21,6 +21,10 @@
   ~ SOFTWARE.
   -->
 
+<!--
+    // FIXME (Completed) required that you restore the position of the recycler view on the screen rotation.
+    // added an id to the view to and changed the scrollView to a nestedScrollView -->
+
 <android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/recipe_detail_lists_container"
     android:layout_width="match_parent"

@@ -248,10 +248,6 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
             // Reference the video loading progress bar
             mVideoLoadingPb = rootView.findViewById(R.id.video_loading_pb);
 
-//            setupExoPlayerView();
-//            setupMediaSession();
-//            setupExoPlayer(Uri.parse(mVideoUrl));
-
             // Has Video (Video Full Screen Mode)
             // If the device is in landscape mode, let video take full screen mode on Phones
             // (if it isn't also in two pane mode, landscape in tablets)
@@ -590,18 +586,22 @@ public class StepDetailFragment extends Fragment implements Target, Player.Event
         }
     }
 
+    // FIXME (Completed) It is required that you properly release Exoplayer.
+    // releasePlayer() is now called in onPause() instead of onDestroy(), ExoPlayer instance is now
+    // recreated in onResume() if not available.
+
     @Override
     public void onPause() {
         super.onPause();
+        // Release the player when the fragment is stopped, and
+        // mark media session non=active
+        releasePlayer();
+
         if (mContext != null) {
             // Cleanup picasso task, no longer need to
             // fetch the thumbnail if it is in progress
             Picasso.with(mContext).cancelRequest(this);
         }
-
-        // Release the player when the fragment is stopped, and
-        // mark media session non=active
-        releasePlayer();
     }
 
     @Override

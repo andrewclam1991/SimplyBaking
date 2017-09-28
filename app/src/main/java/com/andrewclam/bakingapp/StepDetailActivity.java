@@ -140,7 +140,11 @@ public class StepDetailActivity extends AppCompatActivity implements
             }
         }
 
-        // FIXME (Completed) restore player position upon fragment recreation or pause
+        // FIXME (Completed) retain and restore player position onSavedInstanceState
+        // Requirement:
+        // It is required that you restore the video from the position it has already
+        // played when the screen is rotated.
+
         if(savedInstanceState != null)
         {
             mStepPosition = savedInstanceState.getInt(EXTRA_STEP_POSITION,0);
