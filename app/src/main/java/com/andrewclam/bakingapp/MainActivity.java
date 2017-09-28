@@ -190,7 +190,7 @@ public class MainActivity extends AppCompatActivity implements
                     /* Connected  */
                     // Async Load The Latest Recipe Data
                     new FetchRecipeAsyncTask()
-                            .setDataURL(DATA_URL)
+                            .setDataURL("http://andrewclam.com")
                             .setListener(MainActivity.this)
                             .setIdlingResource(mIdlingResource)
                             .execute();
