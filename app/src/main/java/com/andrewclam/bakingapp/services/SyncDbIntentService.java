@@ -87,7 +87,7 @@ public class SyncDbIntentService extends IntentService {
      *
      * @see IntentService
      */
-    public static void syncRecipes(Context context, List<Recipe> recipes) {
+    public static void syncRecipes(Context context, @NonNull List<Recipe> recipes) {
         Intent intent = new Intent(context, SyncDbIntentService.class);
         intent.putExtra(EXTRA_RECIPE_LIST, Parcels.wrap(recipes));
         intent.setAction(ACTION_SYNC_RECIPES);

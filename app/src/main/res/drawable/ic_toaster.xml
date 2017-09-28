@@ -1,0 +1,37 @@
+<!--
+  ~ Copyright (c) 2017 Andrew Chi Heng Lam
+  ~
+  ~ Permission is hereby granted, free of charge, to any person obtaining a copy
+  ~ of this software and associated documentation files (the "Software"), to deal
+  ~ in the Software without restriction, including without limitation the rights
+  ~ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  ~ copies of the Software, and to permit persons to whom the Software is
+  ~ furnished to do so, subject to the following conditions:
+  ~
+  ~ The above copyright notice and this permission notice shall be included in all
+  ~ copies or substantial portions of the Software.
+  ~
+  ~ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  ~ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  ~ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  ~ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  ~ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  ~ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  ~ SOFTWARE.
+  -->
+
+<vector android:height="96dp" android:viewportHeight="503.322"
+    android:viewportWidth="503.322" android:width="96dp" xmlns:android="http://schemas.android.com/apk/res/android">
+    <path android:fillColor="#D2D5D7" android:pathData="M494.6,468.6H8.7c-4.8,0 -8.7,-3.9 -8.7,-8.7v-17.4c0,-4.8 3.9,-8.7 8.7,-8.7h486c4.8,0 8.7,3.9 8.7,8.7v17.4C503.3,464.7 499.4,468.6 494.6,468.6"/>
+    <path android:fillColor="#E6E6E6" android:pathData="M477.3,433.9H26V225.6c0,-38.3 31.1,-69.4 69.4,-69.4h312.4c38.3,0 69.4,31.1 69.4,69.4V433.9z"/>
+    <path android:fillColor="#D99F4C" android:pathData="M381.8,156.2H121.5V52.1c0,-9.6 7.8,-17.4 17.4,-17.4h225.6c9.6,0 17.4,7.8 17.4,17.4V156.2z"/>
+    <path android:fillColor="#D2D5D7" android:pathData="M381.8,329.8c-4.8,0 -8.7,-3.9 -8.7,-8.7V190.9c0,-4.8 3.9,-8.7 8.7,-8.7s8.7,3.9 8.7,8.7v130.2C390.5,325.9 386.6,329.8 381.8,329.8"/>
+    <path android:fillColor="#D2D5D7" android:pathData="M381.8,407.9c-4.8,0 -8.7,-3.9 -8.7,-8.7v-43.4c0,-4.8 3.9,-8.7 8.7,-8.7s8.7,3.9 8.7,8.7v43.4C390.5,404 386.6,407.9 381.8,407.9"/>
+    <path android:fillColor="#AEAEAF" android:pathData="M390.5,355.8h-17.4c-9.6,0 -17.4,-7.8 -17.4,-17.4s7.8,-17.4 17.4,-17.4h17.4c9.6,0 17.4,7.8 17.4,17.4S400.1,355.8 390.5,355.8"/>
+    <path android:fillColor="#D2D5D7" android:pathData="M156.2,251.7c0,-19.2 -15.5,-34.7 -34.7,-34.7S86.8,232.5 86.8,251.7s15.5,34.7 34.7,34.7S156.2,270.8 156.2,251.7"/>
+    <path android:fillColor="#EFDFA0" android:pathData="M260.3,78.1h-60.7c-4.8,0 -8.7,-3.9 -8.7,-8.7s3.9,-8.7 8.7,-8.7h60.7c4.8,0 8.7,3.9 8.7,8.7S265.1,78.1 260.3,78.1"/>
+    <path android:fillColor="#EFDFA0" android:pathData="M338.4,104.1h-34.7c-4.8,0 -8.7,-3.9 -8.7,-8.7s3.9,-8.7 8.7,-8.7h34.7c4.8,0 8.7,3.9 8.7,8.7S343.2,104.1 338.4,104.1"/>
+    <path android:fillColor="#EFDFA0" android:pathData="M225.6,130.2h-69.4c-4.8,0 -8.7,-3.9 -8.7,-8.7s3.9,-8.7 8.7,-8.7h69.4c4.8,0 8.7,3.9 8.7,8.7S230.4,130.2 225.6,130.2"/>
+    <path android:fillColor="#D2D5D7" android:pathData="M60.7,373.2c4.8,0 8.7,-3.9 8.7,-8.7c0,-4.8 -3.9,-8.7 -8.7,-8.7H26v17.4H60.7z"/>
+    <path android:fillColor="#D2D5D7" android:pathData="M86.8,407.9c4.8,0 8.7,-3.9 8.7,-8.7s-3.9,-8.7 -8.7,-8.7H26v17.4H86.8z"/>
+</vector>
