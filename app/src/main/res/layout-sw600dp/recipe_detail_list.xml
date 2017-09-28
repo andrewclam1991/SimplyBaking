@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright (c) 2017 Andrew Chi Heng Lam
   ~
@@ -20,6 +21,10 @@
   ~ SOFTWARE.
   -->
 
+<!--
+    // FIXME (Completed) required that the video is played when the screen is rotated on a tablet.
+    // Instead of using qualifier w900dp, used sw600dp as suggested in the comment -->
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -36,20 +41,21 @@
     -->
 
     <!-- Master View -->
-    <ScrollView
+    <android.support.v4.widget.NestedScrollView
+        android:id="@+id/recipe_detail_lists_container"
         android:layout_height="wrap_content"
         android:layout_width="0dp"
-        android:layout_weight="2">
+        android:layout_weight="1">
 
         <include layout="@layout/recipe_detail_list_content" />
 
-    </ScrollView>
+    </android.support.v4.widget.NestedScrollView>
 
     <!-- Detail View -->
     <FrameLayout
         android:id="@+id/step_detail_container"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="3" />
+        android:layout_weight="1" />
 
 </LinearLayout>

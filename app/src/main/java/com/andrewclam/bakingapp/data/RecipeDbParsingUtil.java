@@ -42,7 +42,7 @@ import static com.andrewclam.bakingapp.data.RecipeDbContract.StepEntry.CONTENT_U
  * Rudimentary implementation of a multi-table query parsing to a list of model class
  */
 @Deprecated
-public class RecipeDbParsingUtil {
+class RecipeDbParsingUtil {
 
     /**
      * Method to return an List of a model class from the client database to show the data

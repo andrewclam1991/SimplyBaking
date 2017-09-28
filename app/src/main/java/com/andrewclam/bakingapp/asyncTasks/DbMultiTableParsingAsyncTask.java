@@ -175,8 +175,12 @@ public class DbMultiTableParsingAsyncTask extends AsyncTask<Void, Void, ArrayLis
 
             /* Child Tables */
             // Steps and Ingredients
-            parseIngredients(entry,recipeId);
-            parseSteps(entry,recipeId);
+            try {
+                parseIngredients(entry,recipeId);
+                parseSteps(entry,recipeId);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
             // Add the populated entry into the entry list
             entries.add(entry);
@@ -207,8 +211,7 @@ public class DbMultiTableParsingAsyncTask extends AsyncTask<Void, Void, ArrayLis
      * SubRoutine Parsing Method
      * get and parse the rows that has matching the foreign key from the parent table
      */
-    synchronized private void parseSteps(Recipe entry, Long recipeId)
-    {
+    synchronized private void parseSteps(Recipe entry, Long recipeId) throws Exception {
         ArrayList<Step> steps = new ArrayList<>();
         try {
             Cursor stepCursor = mContentResolver.query(
@@ -248,9 +251,8 @@ public class DbMultiTableParsingAsyncTask extends AsyncTask<Void, Void, ArrayLis
 
                 stepCursor.close();
             }
-        }catch (Exception e)
-        {
-            e.printStackTrace();
+        }catch (Exception e) {
+            throw new Exception (e.getLocalizedMessage());
         }finally
         {
             entry.setSteps(steps);
@@ -262,8 +264,7 @@ public class DbMultiTableParsingAsyncTask extends AsyncTask<Void, Void, ArrayLis
      * SubRoutine Parsing Method
      * get and parse the rows that has matching the foreign key from the parent table
      */
-    synchronized private void parseIngredients(Recipe entry, Long recipeId)
-    {
+    synchronized private void parseIngredients(Recipe entry, Long recipeId) throws Exception {
         ArrayList<Ingredient> ingredients = new ArrayList<>();
         try {
             Cursor ingredientCursor = mContentResolver.query(
@@ -294,7 +295,7 @@ public class DbMultiTableParsingAsyncTask extends AsyncTask<Void, Void, ArrayLis
             }
         }catch (Exception e)
         {
-            e.printStackTrace();
+            throw new Exception (e.getLocalizedMessage());
         }finally
         {
             entry.setIngredients(ingredients);

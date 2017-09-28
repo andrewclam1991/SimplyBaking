@@ -44,4 +44,6 @@
     <string name="network_unavailable">Device Offline. Recipes may not be up-to-date</string>
     <string name="recipe_thumbnail">Recipe image thumbnail</string>
     <string name="step_icon">Step icon</string>
+    <string name="recipe_empty_view_title">Sorry. No recipes available.</string>
+    <string name="recipe_empty_view_content">Please make a toast instead.</string>
 </resources>

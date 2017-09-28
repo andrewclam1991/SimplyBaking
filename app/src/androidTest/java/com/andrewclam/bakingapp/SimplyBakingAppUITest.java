@@ -46,7 +46,6 @@ import org.junit.runner.RunWith;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
-import static android.support.test.espresso.action.ViewActions.scrollTo;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
@@ -54,6 +53,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.withEffectiveVi
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withParent;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static com.andrewclam.bakingapp.NestedScrollToAction.nestedScrollTo;
 import static org.hamcrest.Matchers.allOf;
 
 /**
@@ -66,11 +66,8 @@ import static org.hamcrest.Matchers.allOf;
 public class SimplyBakingAppUITest {
 
     @Rule
-    public ActivityTestRule<MainActivity> mActivityRule =
+    public final ActivityTestRule<MainActivity> mActivityRule =
             new ActivityTestRule<>(MainActivity.class);
-
-    public ActivityTestRule<StepDetailActivity> mStepDetailActivityRule =
-            new ActivityTestRule<>(StepDetailActivity.class);
 
     private IdlingRegistry mIdlingRegistry;
     private IdlingResource mIdlingResource;
@@ -176,7 +173,7 @@ public class SimplyBakingAppUITest {
     public static void checkRecipeDetailIntroVideo() {
         // perform click on the first element of the steps list,
         onView(withId(R.id.step_list_rv))
-                .perform(scrollTo(),RecyclerViewActions.actionOnItemAtPosition(0, click()));
+                .perform(nestedScrollTo(),RecyclerViewActions.actionOnItemAtPosition(0, click()));
 
         // should be in the step detail activity, check if it contains the exoPlayerview
         // and the description "Recipe Introduction", all recipes should have the intro video

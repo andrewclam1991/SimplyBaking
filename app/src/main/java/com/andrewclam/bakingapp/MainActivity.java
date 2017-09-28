@@ -74,11 +74,13 @@ public class MainActivity extends AppCompatActivity implements
     private final static String TAG = MainActivity.class.getSimpleName();
 
     /**
-     * RecyclerView to show the list of recipes
+     * RecyclerView to show the list of recipes, and its emptyView in case there are
+     * no recipes available/network error/unable to fetch recipes for whatever reason
      */
     private RecyclerView mRecipeRv;
     private RecyclerView.LayoutManager mLayoutManager;
     private RecipeRecyclerViewAdapter mAdapter;
+    private View mEmptyView;
 
     /**
      * Progress bar to show user the data is loading
@@ -138,6 +140,9 @@ public class MainActivity extends AppCompatActivity implements
         /* Loading Progress Bar - Visible*/
         mProgressBar = findViewById(R.id.progress_bar);
         mProgressBar.setVisibility(View.VISIBLE);
+
+        /* Setup Empty View*/
+        mEmptyView = findViewById(R.id.recipes_list_empty_view);
 
         // Get the IdlingResource instance
         getIdlingResource();
@@ -216,13 +221,24 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onRecipesReady(ArrayList<Recipe> recipes) {
         // Call intent service to update the database with the latest recipes
-        SyncDbIntentService.syncRecipes(this, recipes);
+        if (recipes != null && !recipes.isEmpty()) {
+            // Got data, hide the empty view
+            mEmptyView.setVisibility(View.GONE);
 
-        mAdapter.setRecipeData(recipes);
-        mAdapter.notifyDataSetChanged();
+            SyncDbIntentService.syncRecipes(this, recipes);
+
+            mAdapter.setRecipeData(recipes);
+            mAdapter.notifyDataSetChanged();
+        }else
+        {
+            // No recipes parsed, network or web service error
+            // show empty view
+            mEmptyView.setVisibility(View.VISIBLE);
+        }
 
         /* Loading Progress Bar - Data Loaded, Be GONE */
         mProgressBar.setVisibility(View.GONE);
+
     }
 
     /**
@@ -306,11 +322,16 @@ public class MainActivity extends AppCompatActivity implements
                     .setListener(new DbMultiTableParsingAsyncTask.OnParsingActionComplete() {
                         @Override
                         public void onEntriesParsed(ArrayList<Recipe> recipes) {
-                            mAdapter.setRecipeData(recipes);
-                            mAdapter.notifyDataSetChanged();
+                            if (recipes != null && !recipes.isEmpty()) {
+                                /* Loading Progress Bar - Data Loaded, Be GONE */
+                                mProgressBar.setVisibility(View.GONE);
 
-                            /* Loading Progress Bar - Data Loaded, Be GONE */
-                            mProgressBar.setVisibility(View.GONE);
+                                // Got data, hide the empty view
+                                mEmptyView.setVisibility(View.GONE);
+
+                                mAdapter.setRecipeData(recipes);
+                                mAdapter.notifyDataSetChanged();
+                            }
                         }
             }).execute();
         }else
@@ -318,8 +339,9 @@ public class MainActivity extends AppCompatActivity implements
             /* Loading Progress Bar - No Data, Be GONE */
             mProgressBar.setVisibility(View.GONE);
 
-            // Show empty view, no data available
-            Toast.makeText(this,getString(R.string.data_unavailable),Toast.LENGTH_SHORT).show();
+            // No recipes parsed, network or web service error
+            // show empty view
+            mEmptyView.setVisibility(View.VISIBLE);
         }
     }
 

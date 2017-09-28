@@ -21,7 +21,12 @@
   ~ SOFTWARE.
   -->
 
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<!--
+    // FIXME (Completed) required that you restore the position of the recycler view on the screen rotation.
+    // added an id to the view to and changed the scrollView to a nestedScrollView -->
+
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/recipe_detail_lists_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -33,4 +38,4 @@
     <!-- Single-Pane Master View -->
     <include layout="@layout/recipe_detail_list_content" />
 
-</ScrollView>
+</android.support.v4.widget.NestedScrollView>

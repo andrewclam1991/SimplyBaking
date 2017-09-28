@@ -40,4 +40,6 @@
         android:visibility="gone"
         tools:visibility="visible" />
 
+    <include layout="@layout/recipe_list_empty_view"/>
+
 </RelativeLayout>

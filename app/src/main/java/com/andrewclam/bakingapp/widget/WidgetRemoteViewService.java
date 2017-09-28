@@ -72,8 +72,8 @@ class WidgetRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory 
      */
     private final static String TAG = WidgetRemoteViewsFactory.class.getSimpleName();
 
-    private Context mContext;
-    private long mRecipeId;
+    private final Context mContext;
+    private final long mRecipeId;
     private Cursor mCursor;
 
     WidgetRemoteViewsFactory(Context mContext, Long mRecipeId) {
